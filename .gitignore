@@ -1,2 +1,8 @@
+# CMake build directory
 build/
+
+# Clangd server cache
 .cache/
+
+# Specify "clangd.arguments": ["--query-driver=/usr/bin/g++"] in settings.json
+.vscode/
