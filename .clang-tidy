@@ -1,0 +1,1 @@
+Checks: '-*,clang-analyzer-*,modernize-*,perfomance-*,bugprone-*,portability-*,-bugprone-easily-swappable-parameters'
