@@ -8,16 +8,27 @@ project(
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(NOT DEFINED CMAKE_CUDA_STANDARD)
-    set(CMAKE_CUDA_STANDARD 11)
-    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+# Only set these properties if this is the main project, not included as a library
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    include(CTest)
+
+    find_package(Doxygen)
+
+    if(Doxygen_FOUND)
+        add_subdirectory(docs)
+    else()
+        message(STATUS "Doxygen not found, not building docs")
+    endif()
 endif()
 
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+include(FetchContent)
 
-add_executable(cuda_path_tracer
-    apps/main.cpp
-)
+add_subdirectory(src)
+add_subdirectory(apps)
+
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR CUDA_PATH_TRACER_CMAKE_BUILD_TESTING)
+    AND BUILD_TESTING)
+    add_subdirectory(tests)
+endif()

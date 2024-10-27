@@ -6,3 +6,6 @@ build/
 
 # Specify "clangd.arguments": ["--query-driver=/usr/bin/g++"] in settings.json
 .vscode/
+
+# Rendered images
+*.ppm
