@@ -8,6 +8,8 @@ add_library(cuda_path_tracer_lib
     error.cu
     render.cu
     image.cpp
+    vec3.cu
+    ray.cu
     ${HEADER_LIST}
 )
 

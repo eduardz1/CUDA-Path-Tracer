@@ -4,5 +4,6 @@ CompileFlags:
         - --options-file
         - --generate-code=arch=compute_90,code=[compute_90,sm_90]
         - -rdc=true
+        - -arch=native
     Add:
         - --cuda-gpu-arch=sm_90

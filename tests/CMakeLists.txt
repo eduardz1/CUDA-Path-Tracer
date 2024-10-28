@@ -6,9 +6,12 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(Catch2)
 
+# TODO: Separate them into different test executables
 add_executable(testlib
   test_error.cpp
   test_image.cpp
+  test_vec3.cpp
+  test_ray.cpp
 )
 
 set_target_properties(testlib
@@ -20,4 +23,4 @@ target_compile_features(testlib PRIVATE cxx_std_20 cuda_std_20)
 
 target_link_libraries(testlib PRIVATE cuda_path_tracer_lib Catch2::Catch2WithMain)
 
-add_test(NAME testlibtest COMMAND testlib)
+add_test(NAME test_all COMMAND testlib)
