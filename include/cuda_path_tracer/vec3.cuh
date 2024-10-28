@@ -11,8 +11,8 @@
 
 #pragma once
 
-#include <__clang_cuda_runtime_wrapper.h>
 #include <driver_types.h>
+#include <ostream>
 
 /**
  * @brief Class for a 3D vector
@@ -40,3 +40,6 @@ public:
 private:
   float x, y, z;
 };
+
+  __host__ __device__ auto operator<<(std::ostream &os,
+                                      const vec3 &v) -> std::ostream &;

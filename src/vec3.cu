@@ -28,3 +28,8 @@ auto vec3::operator==(const vec3 &other) const -> bool {
 auto vec3::dot(const vec3 &other) const -> float {
   return x * other.x + y * other.y + z * other.z;
 }
+
+auto operator<<(std::ostream &os, const vec3 &v) -> std::ostream & {
+  os << "(" << v.getX() << ", " << v.getY() << ", " << v.getZ() << ")";
+  return os;
+}

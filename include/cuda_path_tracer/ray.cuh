@@ -17,13 +17,13 @@
 
 class ray {
 public:
-  __device__ ray();
-  __device__ ray(const vec3 &origin, const vec3 &direction);
+  __host__ __device__ ray();
+  __host__ __device__ ray(const vec3 &origin, const vec3 &direction);
 
-  __device__ [[nodiscard]] auto getOrigin() const -> vec3;
-  __device__ [[nodiscard]] auto getDirection() const -> vec3;
+  __host__ __device__ [[nodiscard]] auto getOrigin() const -> vec3;
+  __host__ __device__ [[nodiscard]] auto getDirection() const -> vec3;
 
-  __device__ [[nodiscard]] auto at(float t) const -> vec3;
+  __host__ __device__ [[nodiscard]] auto at(float t) const -> vec3;
 
 private:
   vec3 origin, direction;

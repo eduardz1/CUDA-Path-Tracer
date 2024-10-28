@@ -6,8 +6,6 @@ project(
     LANGUAGES CXX CUDA
 )
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Only set these properties if this is the main project, not included as a library
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set(CMAKE_CXX_EXTENSIONS OFF)

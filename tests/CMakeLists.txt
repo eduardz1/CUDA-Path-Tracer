@@ -16,7 +16,7 @@ add_executable(testlib
 
 set_target_properties(testlib
   PROPERTIES CUDA_SEPARABLE_COMPILATION ON
-  CUDA_ARCHITECTURES native
+  CUDA_ARCHITECTURES 90
 )
 
 target_compile_features(testlib PRIVATE cxx_std_20 cuda_std_20)

@@ -14,9 +14,9 @@ TEST_CASE("vec3 constructors", "[vec3]") {
   REQUIRE(v2.getZ() == 1.0f);
 
   vec3 v3(1.0f, 2.0f, 3.0f);
-  REQUIRE(v2.getX() == 1.0f);
-  REQUIRE(v2.getY() == 2.0f);
-  REQUIRE(v2.getZ() == 3.0f);
+  REQUIRE(v3.getX() == 1.0f);
+  REQUIRE(v3.getY() == 2.0f);
+  REQUIRE(v3.getZ() == 3.0f);
 }
 
 // Test case for vec3 addition
@@ -82,4 +82,12 @@ TEST_CASE("vec3 dot product", "[vec3]") {
   vec3 v2(4.0f, 5.0f, 6.0f);
   float dotProduct = v1.dot(v2);
   REQUIRE(dotProduct == 32.0f);
+}
+
+// Test case for vec3 >> operator
+TEST_CASE("vec3 >> operator", "[vec3]") {
+  vec3 v1(1.0f, 2.0f, 3.0f);
+  std::stringstream ss;
+  ss << v1;
+  REQUIRE(ss.str() == "(1, 2, 3)");
 }
