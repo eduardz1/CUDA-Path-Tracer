@@ -18,6 +18,6 @@ cmake --build build
 To run tests use the following command:
 
 ```bash
-cmake --build build --target tests
+cmake --build build --target test
 ctest
 ```

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18...3.28)
+cmake_minimum_required(VERSION 3.24...3.28)
 
 project(
     cuda_path_tracer

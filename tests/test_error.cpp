@@ -3,7 +3,8 @@
 #include <driver_types.h>
 #include <iostream>
 
-void mockExit(int code) { throw code; }
+// Mock exit function
+void exit(int code) { throw code; }
 
 TEST_CASE("cudaAssert function", "[cudaAssert]") {
   // Redirect stderr to a string stream

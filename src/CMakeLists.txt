@@ -17,7 +17,7 @@ target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20 cuda_std_20)
 
 set_target_properties(cuda_path_tracer_lib
     PROPERTIES CUDA_SEPARABLE_COMPILATION ON
-    CUDA_ARCHITECTURES 90
+    CUDA_ARCHITECTURES native
 )
 
 source_group(
