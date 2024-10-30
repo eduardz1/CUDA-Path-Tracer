@@ -1,5 +1,5 @@
 
-#include "cuda_path_tracer/image.h"
+#include "cuda_path_tracer/image.hpp"
 #include <vector_functions.h>
 #include <vector_types.h>
 

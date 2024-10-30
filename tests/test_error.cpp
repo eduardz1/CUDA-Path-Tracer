@@ -1,8 +1,9 @@
-#include "cuda_path_tracer/error.h"
+#include "cuda_path_tracer/error.cuh"
 #include <catch2/catch_test_macros.hpp>
 #include <driver_types.h>
 #include <iostream>
 
+#ifdef __NVCC__
 // Mock exit function
 void exit(int code) { throw code; }
 
@@ -26,3 +27,8 @@ TEST_CASE("cudaAssert function", "[cudaAssert]") {
   // Restore stderr
   std::cerr.rdbuf(old);
 }
+#else
+TEST_CASE("cudaAssert function", "[cudaAssert]") {
+  // When compiling CUDA with clang the behaviour of exit is a bit finnicky
+}
+#endif

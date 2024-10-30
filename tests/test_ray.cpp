@@ -1,5 +1,5 @@
-#include "cuda_path_tracer/ray.h"
-#include "cuda_path_tracer/vec3.h"
+#include "cuda_path_tracer/ray.cuh"
+#include "cuda_path_tracer/vec3.cuh"
 #include <catch2/catch_test_macros.hpp>
 
 // Test case for ray constructors

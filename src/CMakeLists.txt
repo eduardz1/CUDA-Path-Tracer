@@ -1,9 +1,9 @@
 set(HEADER_LIST
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.h"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/render.h"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.h"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.h"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.h"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/render.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.hpp"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
 )
 
 add_library(cuda_path_tracer_lib
@@ -15,7 +15,7 @@ add_library(cuda_path_tracer_lib
     ${HEADER_LIST}
 )
 
-target_include_directories(cuda_path_tracer_lib PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(cuda_path_tracer_lib PUBLIC ${CMAKE_SOURCE_DIR}/include /usr/local/cuda/include)
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 
