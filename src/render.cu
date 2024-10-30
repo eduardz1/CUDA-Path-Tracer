@@ -10,6 +10,7 @@
  *
  */
 
+#include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/render.cuh"
 
 __global__ void renderImage(int width, int height, uchar4 *image) {
@@ -21,6 +22,8 @@ __global__ void renderImage(int width, int height, uchar4 *image) {
   }
 
   auto index = y * width + x;
+
+  Ray r(Vec3(0, 0, 0), Vec3(0, 0, 1));
 
   // Save the pixel for the R G B and Alpha values
   image[index] = make_uchar4(255, 0, 0, 255); // TODO: Make it query a ray

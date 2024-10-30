@@ -18,27 +18,27 @@
  * @brief Class for a 3D vector
  *
  */
-class vec3 {
+class Vec3 {
 public:
-  __host__ __device__ vec3();
-  __host__ __device__ vec3(float x);
-  __host__ __device__ vec3(float x, float y, float z);
+  __host__ __device__ Vec3();
+  __host__ __device__ Vec3(float x);
+  __host__ __device__ Vec3(float x, float y, float z);
 
   __host__ __device__ auto getX() const -> float;
   __host__ __device__ auto getY() const -> float;
   __host__ __device__ auto getZ() const -> float;
 
-  __host__ __device__ auto operator+(const vec3 &v) const -> vec3;
-  __host__ __device__ auto operator-(const vec3 &v) const -> vec3;
-  __host__ __device__ auto operator*(const vec3 &v) const -> vec3;
-  __host__ __device__ auto operator*(float t) const -> vec3;
-  __host__ __device__ auto operator/(const vec3 &v) const -> vec3;
-  __host__ __device__ auto operator==(const vec3 &v) const -> bool;
+  __host__ __device__ auto operator+(const Vec3 &v) const -> Vec3;
+  __host__ __device__ auto operator-(const Vec3 &v) const -> Vec3;
+  __host__ __device__ auto operator*(const Vec3 &v) const -> Vec3;
+  __host__ __device__ auto operator*(float t) const -> Vec3;
+  __host__ __device__ auto operator/(const Vec3 &v) const -> Vec3;
+  __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
 
-  __host__ __device__ auto dot(const vec3 &v) const -> float;
+  __host__ __device__ auto dot(const Vec3 &v) const -> float;
 
 private:
   float x, y, z;
 };
 
-__host__ auto operator<<(std::ostream &os, const vec3 &v) -> std::ostream &;
+__host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream &;

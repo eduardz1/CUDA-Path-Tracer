@@ -15,16 +15,22 @@
 #include "cuda_path_tracer/vec3.cuh"
 #include <driver_types.h>
 
-class ray {
+class Ray {
 public:
-  __host__ __device__ ray();
-  __host__ __device__ ray(const vec3 &origin, const vec3 &direction);
+  __host__ __device__ Ray();
+  __host__ __device__ Ray(const Vec3 &origin, const Vec3 &direction);
 
-  __host__ __device__ auto getOrigin() const -> vec3;
-  __host__ __device__ auto getDirection() const -> vec3;
+  __host__ __device__ auto getOrigin() const -> Vec3;
+  __host__ __device__ auto getDirection() const -> Vec3;
 
-  __host__ __device__ auto at(float t) const -> vec3;
+  /**
+   * @brief Returns the point at a given t value
+   *
+   * @param t time value
+   * @return Vec3 point at time t
+   */
+  __host__ __device__ auto at(float t) const -> Vec3;
 
 private:
-  vec3 origin, direction;
+  Vec3 origin, direction;
 };

@@ -1,9 +1,12 @@
 set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/render.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.hpp"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/render.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/sphere.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/world.cuh"
 )
 
 add_library(cuda_path_tracer_lib
@@ -11,7 +14,9 @@ add_library(cuda_path_tracer_lib
     image.cpp
     ray.cu
     render.cu
+    sphere.cu
     vec3.cu
+    world.cu
     ${HEADER_LIST}
 )
 
