@@ -1,4 +1,4 @@
-#include "cuda_path_tracer/error.cuh"
+#include "cuda_path_tracer/error.h"
 #include <catch2/catch_test_macros.hpp>
 #include <driver_types.h>
 #include <iostream>

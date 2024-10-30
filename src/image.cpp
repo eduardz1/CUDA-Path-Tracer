@@ -10,7 +10,7 @@
  *
  */
 
-#include "cuda_path_tracer/image.hpp"
+#include "cuda_path_tracer/image.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>

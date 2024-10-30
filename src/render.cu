@@ -10,7 +10,7 @@
  *
  */
 
-#include "cuda_path_tracer/render.cuh"
+#include "cuda_path_tracer/render.h"
 
 __global__ void renderImage(int width, int height, uchar4 *image) {
   auto x = blockIdx.x * blockDim.x + threadIdx.x;

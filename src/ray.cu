@@ -1,5 +1,5 @@
-#include "cuda_path_tracer/ray.cuh"
-#include "cuda_path_tracer/vec3.cuh"
+#include "cuda_path_tracer/ray.h"
+#include "cuda_path_tracer/vec3.h"
 
 ray::ray() : origin(0), direction(0){};
 ray::ray(const vec3 &origin, const vec3 &direction)

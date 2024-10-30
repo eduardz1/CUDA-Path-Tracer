@@ -1,4 +1,4 @@
-#include "cuda_path_tracer/vec3.cuh"
+#include "cuda_path_tracer/vec3.h"
 #include <catch2/catch_test_macros.hpp>
 
 // Test case for vec3 constructors

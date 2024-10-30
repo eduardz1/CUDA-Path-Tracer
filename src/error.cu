@@ -1,4 +1,4 @@
-#include "cuda_path_tracer/error.cuh"
+#include "cuda_path_tracer/error.h"
 #include <cuda_device_runtime_api.h>
 #include <cuda_runtime_api.h>
 #include <iostream>

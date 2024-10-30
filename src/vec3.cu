@@ -1,4 +1,4 @@
-#include "cuda_path_tracer/vec3.cuh"
+#include "cuda_path_tracer/vec3.h"
 
 vec3::vec3() : x(0), y(0), z(0) {}
 vec3::vec3(float value) : x(value), y(value), z(value) {}
