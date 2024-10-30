@@ -15,7 +15,11 @@ add_library(cuda_path_tracer_lib
     ${HEADER_LIST}
 )
 
-target_include_directories(cuda_path_tracer_lib PUBLIC ${CMAKE_SOURCE_DIR}/include /usr/local/cuda/include)
+target_include_directories(cuda_path_tracer_lib
+    PUBLIC
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} # Explicit for clang
+)
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 
