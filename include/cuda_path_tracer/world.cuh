@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2024
  *
  */
+#pragma once
 
 #include "cuda_path_tracer/vec3.cuh"
 #include <driver_types.h>

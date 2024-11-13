@@ -1,5 +1,5 @@
 /**
- * @file image.cuh
+ * @file image.hpp
  * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
  * @brief Header file for image.cu, which contains the functions to save an
  * image as a PPM file
@@ -13,6 +13,7 @@
 #pragma once
 
 #include <driver_types.h>
+#include <vector>
 #include <vector_types.h>
 
 /**
@@ -23,7 +24,8 @@
  * @param height Height of the image
  * @param image Image to save
  */
-void saveImageAsPPM(const char *filename, int width, int height, uchar4 *image);
+void saveImageAsPPM(const char *filename, int width, int height,
+                    const std::vector<uchar4> &image);
 
 /**
  * @brief Convert a float4 color to a char4 color

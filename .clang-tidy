@@ -1,1 +1,1 @@
-Checks: '-*,clang-analyzer-*,modernize-*,perfomance-*,bugprone-*,portability-*,-bugprone-easily-swappable-parameters'
+Checks: '-*,clang-analyzer-*,modernize-*,performance-*,bugprone-*,portability-*,cppcoreguidelines-*,misc-*,-bugprone-easily-swappable-parameters'

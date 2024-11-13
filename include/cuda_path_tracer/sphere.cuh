@@ -13,10 +13,10 @@
 
 #include "shape.cuh"
 
-class Sphere : public Shape {
+class Sphere final : public Shape {
 public:
-  __device__ Sphere(const Vec3 &center, float radius);
-  __device__ auto hit(const Ray &r) const -> bool override;
+  __host__ __device__ Sphere(const Vec3 &center, float radius);
+  __host__ __device__ auto hit(const Ray &r) const -> bool override;
 
 private:
   Vec3 center;

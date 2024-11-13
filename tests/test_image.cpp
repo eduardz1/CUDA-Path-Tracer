@@ -4,12 +4,14 @@
 #include <fstream>
 #include <vector_functions.h>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+
 // Test case for saveImageAsPPM
 TEST_CASE("saveImageAsPPM function", "[saveImageAsPPM]") {
   auto filename = "test_image.ppm";
   int width = 2;
   int height = 2;
-  uchar4 image[4] = {
+  std::vector<uchar4> image = {
       {255, 0, 0, 255},  // Red
       {0, 255, 0, 255},  // Green
       {0, 0, 255, 255},  // Blue
@@ -76,3 +78,5 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
   REQUIRE(color.z == 0);
   REQUIRE(color.w == 255);
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)

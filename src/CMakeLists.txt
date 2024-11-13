@@ -22,14 +22,14 @@ add_library(cuda_path_tracer_lib
 
 target_include_directories(cuda_path_tracer_lib
     PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
+     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} # Explicit for clang
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 
 set_target_properties(cuda_path_tracer_lib
-    PROPERTIES CUDA_SEPARABLE_COMPILATION ON
+    PROPERTIES CUDA_SEPARABLE_COMPILATION ON CUDA_RESOLVE_DEVICE_SYMBOLS ON
     CUDA_ARCHITECTURES 90
 )
 

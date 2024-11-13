@@ -13,7 +13,17 @@
 
 #include "cuda_path_tracer/ray.cuh"
 
+extern "C" __device__ void __cxa_pure_virtual() { // NOLINT
+  while (1) {
+  }
+}
 class Shape {
 public:
-  __device__ virtual auto hit(const Ray &r) const -> bool = 0;
+  __host__ __device__ Shape() = default;
+  __host__ __device__ Shape(const Shape &) = default;
+  __host__ __device__ Shape(Shape &&) = delete;
+  __host__ __device__ auto operator=(const Shape &) -> Shape & = default;
+  __host__ __device__ auto operator=(Shape &&) -> Shape & = delete;
+  __host__ __device__ virtual ~Shape() = default;
+  __host__ __device__ virtual auto hit(const Ray &r) const -> bool = 0;
 };

@@ -13,11 +13,11 @@
 #include "cuda_path_tracer/image.hpp"
 #include <algorithm>
 #include <fstream>
-#include <iostream>
+#include <vector>
 #include <vector_functions.h>
 
-void saveImageAsPPM(const char *filename, int width, int height,
-                    uchar4 *image) {
+void saveImageAsPPM(const char *filename, const int width, const int height,
+                    const std::vector<uchar4> &image) {
   std::ofstream file(filename);
 
   file << "P3\n";
@@ -25,17 +25,21 @@ void saveImageAsPPM(const char *filename, int width, int height,
   file << "255\n";
 
   for (int i = 0; i < width * height; i++) {
-    file << (int)image[i].x << " " << (int)image[i].y << " " << (int)image[i].z
-         << "\n";
+    file << static_cast<int>(image[i].x) << " " << static_cast<int>(image[i].y)
+         << " " << static_cast<int>(image[i].z) << "\n";
   }
 
   file.close();
 }
 
-auto convertColorTo8Bit(float4 color) -> uchar4 {
+auto convertColorTo8Bit(const float4 color) -> uchar4 {
   return make_uchar4(
-      static_cast<unsigned char>(255.0f * std::clamp(color.x, 0.0f, 1.0f)),
-      static_cast<unsigned char>(255.0f * std::clamp(color.y, 0.0f, 1.0f)),
-      static_cast<unsigned char>(255.0f * std::clamp(color.z, 0.0f, 1.0f)),
-      static_cast<unsigned char>(255.0f * std::clamp(color.w, 0.0f, 1.0f)));
+      static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
+                                 std::clamp(color.x, 0.0f, 1.0f)),
+      static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
+                                 std::clamp(color.y, 0.0f, 1.0f)),
+      static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
+                                 std::clamp(color.z, 0.0f, 1.0f)),
+      static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
+                                 std::clamp(color.w, 0.0f, 1.0f)));
 }

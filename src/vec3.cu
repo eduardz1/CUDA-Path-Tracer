@@ -1,8 +1,8 @@
 #include "cuda_path_tracer/vec3.cuh"
 
 __host__ __device__ Vec3::Vec3() : x(0), y(0), z(0) {}
-__host__ __device__ Vec3::Vec3(float value) : x(value), y(value), z(value) {}
-__host__ __device__ Vec3::Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
+__host__ __device__ Vec3::Vec3(const float value) : x(value), y(value), z(value) {}
+__host__ __device__ Vec3::Vec3(const float x, const float y, const float z) : x(x), y(y), z(z) {}
 
 __host__ __device__ auto Vec3::getX() const -> float { return x; }
 __host__ __device__ auto Vec3::getY() const -> float { return y; }

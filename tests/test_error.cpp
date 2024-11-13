@@ -1,9 +1,13 @@
-#include "cuda_path_tracer/error.cuh"
 #include <catch2/catch_test_macros.hpp>
 #include <driver_types.h>
-#include <iostream>
+
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while)
 
 #ifdef __NVCC__
+
+#include "cuda_path_tracer/error.cuh"
+#include <iostream>
+
 // Mock exit function
 void exit(int code) { throw code; }
 
@@ -29,6 +33,8 @@ TEST_CASE("cudaAssert function", "[cudaAssert]") {
 }
 #else
 TEST_CASE("cudaAssert function", "[cudaAssert]") {
-  // When compiling CUDA with clang the behaviour of exit is a bit finnicky
+  // When compiling CUDA with clang the behaviour of exit is a bit finicky
 }
 #endif
+
+// NOLINTEND(cppcoreguidelines-avoid-do-while)

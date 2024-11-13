@@ -1,6 +1,8 @@
 #include "cuda_path_tracer/vec3.cuh"
 #include <catch2/catch_test_macros.hpp>
 
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+
 // Test case for vec3 constructors
 TEST_CASE("vec3 constructors", "[vec3]") {
   Vec3 v1;
@@ -91,3 +93,5 @@ TEST_CASE("vec3 >> operator", "[vec3]") {
   ss << v1;
   REQUIRE(ss.str() == "(1, 2, 3)");
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)

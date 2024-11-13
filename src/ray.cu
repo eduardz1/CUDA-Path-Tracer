@@ -8,6 +8,6 @@ __host__ __device__ Ray::Ray(const Vec3 &origin, const Vec3 &direction)
 __host__ __device__ auto Ray::getOrigin() const -> Vec3 { return origin; }
 __host__ __device__ auto Ray::getDirection() const -> Vec3 { return direction; }
 
-__host__ __device__ auto Ray::at(float t) const -> Vec3 {
+__host__ __device__ auto Ray::at(const float t) const -> Vec3 {
   return origin + direction * t;
 }
