@@ -30,8 +30,6 @@ public:
 
   __host__ __device__ auto operator+(const Vec3 &v) const -> Vec3;
   __host__ __device__ auto operator-(const Vec3 &v) const -> Vec3;
-  __host__ __device__ auto operator*(const Vec3 &v) const -> Vec3;
-  __host__ __device__ auto operator*(float t) const -> Vec3;
   __host__ __device__ auto operator/(const Vec3 &v) const -> Vec3;
   __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
 
@@ -42,3 +40,5 @@ private:
 };
 
 __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream &;
+__host__ __device__ auto operator*(float t, const Vec3 &v) -> Vec3;
+__host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3;

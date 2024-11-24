@@ -12,15 +12,13 @@ public:
   __host__ __device__ auto getWidth() -> uint16_t;
   __host__ __device__ auto getHeight() -> uint16_t;
   __host__ __device__ auto getShapes() -> std::vector<Shape *> &;
-  __host__ __device__ auto getImage() -> uchar4 *;
 
   __host__ auto addShape(Shape *shape) -> void;
 
-  __host__ ~Scene();
+  // TODO: deconstructor
 
 private:
   std::vector<Shape *> shapes;
-  uchar4 *image;
 
   /**
    * @brief The width and height of the image in pixels.
