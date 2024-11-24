@@ -1,8 +1,9 @@
 set(HEADER_LIST
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.hpp"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/render.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/sphere.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
@@ -10,10 +11,11 @@ set(HEADER_LIST
 )
 
 add_library(cuda_path_tracer_lib
+    camera.cu
     error.cu
     image.cpp
     ray.cu
-    render.cu
+    scene.cu
     sphere.cu
     vec3.cu
     world.cu
@@ -22,7 +24,7 @@ add_library(cuda_path_tracer_lib
 
 target_include_directories(cuda_path_tracer_lib
     PUBLIC
-     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} # Explicit for clang
 )
 
