@@ -34,6 +34,9 @@ __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream & {
 __host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3 {
   return {t * v.getX(), t * v.getY(), t * v.getZ()};
 }
+__host__ __device__ auto operator*(float t, const Vec3 &v) -> Vec3 {
+  return {t * v.getX(), t * v.getY(), t * v.getZ()};
+}
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
   return {v1.getX() * v2.getX(), v1.getY() * v2.getY(), v1.getZ() * v2.getZ()};
 }

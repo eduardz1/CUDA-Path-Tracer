@@ -1,4 +1,3 @@
-#include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/scene.cuh"
 #include <cstdint>
 

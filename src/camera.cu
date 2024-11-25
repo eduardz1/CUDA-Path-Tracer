@@ -5,6 +5,9 @@
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 
+namespace {
+constexpr dim3 BLOCK_SIZE(16, 16);
+
 /**
  * @brief Kernel for rendering the image, works by calculating the pixel index
  * in the image, computing the Ray that goes from the camera's origin to the
@@ -16,8 +19,8 @@
  * @param image Image to render
  * @param camera Camera to render the image with
  */
-__global__ static void renderImage(const uint16_t width, const uint16_t height,
-                                   uchar4 *image, Camera *camera) {
+__global__ void renderImage(const uint16_t width, const uint16_t height,
+                            uchar4 *image, Camera *camera) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -26,13 +29,10 @@ __global__ static void renderImage(const uint16_t width, const uint16_t height,
   }
 
   const auto index = y * width + x;
-
-  const auto r = camera->getRay(x, y);
-
-  const auto color = camera->getColor(r);
-
-  image[index] = color;
+  const auto ray = camera->getRay(x, y);
+  image[index] = camera->getColor(ray);
 }
+} // namespace
 
 __host__ Camera::Camera() : origin() {}
 __host__ Camera::Camera(const Vec3 &origin) : origin(origin) {}
@@ -55,8 +55,11 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   CUDA_ERROR_CHECK(
       cudaMalloc(&image, static_cast<long>(width) * height * sizeof(uchar4)));
 
-  renderImage<<<dim3(width / 16, height / 16), dim3(16, 16)>>>(width, height,
-                                                               image, this);
+  dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
+            (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
+
+  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image, this);
+  CUDA_ERROR_CHECK(cudaGetLastError());
 }
 
 __device__ auto Camera::getRay(const uint16_t x, const uint16_t y) -> Ray {

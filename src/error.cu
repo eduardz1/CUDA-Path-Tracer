@@ -8,7 +8,7 @@ void cudaAssert(const cudaError_t code, const char *file, const int line) {
     return;
 
   std::cerr << "CUDA Error: " << cudaGetErrorString(code) << " " << file << " "
-            << line << std::endl;
+            << line << '\n';
 
   exit(code);
 }
