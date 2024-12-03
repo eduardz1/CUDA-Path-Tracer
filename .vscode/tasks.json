@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build with cmake",
+        "type": "shell",
+        "command": "make",
+        "args": [
+          "build"  // Calls the 'build' target in your Makefile
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": ["$gcc"],
+        "detail": "Build the project using CMake and Make"
+      },
+      {
+        "label": "run the program",
+        "type": "shell",
+        "command": "make",
+        "args": [
+          "run"  // Calls the 'run' target to execute the built program
+        ],
+        "group": "build",
+        "problemMatcher": [],
+        "detail": "Run the compiled program"
+      },
+      {
+        "label": "clean build",
+        "type": "shell",
+        "command": "make",
+        "args": [
+          "clean"  // Calls the 'clean' target to remove build files
+        ],
+        "group": "build",
+        "problemMatcher": [],
+        "detail": "Clean build files"
+      }
+    ]
+  }
+  

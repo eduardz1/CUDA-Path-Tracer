@@ -8,8 +8,8 @@
 class Camera {
 
 public:
-  __host__ Camera();
-  __host__ Camera(const Vec3 &origin);
+  __host__ __device__ Camera();
+  __host__  __device__ Camera(const Vec3 &origin);
 
   __host__ void render(const std::shared_ptr<Scene> &scene, uchar4 *image);
   __device__ auto getRay(const uint16_t x, const uint16_t y) -> Ray;

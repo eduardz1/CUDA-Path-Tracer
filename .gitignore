@@ -5,7 +5,9 @@
 .cache/
 
 # Specify "clangd.arguments": ["--query-driver=/usr/bin/g++"] in settings.json
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 
 # Jetbrains IDEs
 .idea/

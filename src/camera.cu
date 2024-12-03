@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <cstdio>
 
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
@@ -34,8 +35,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 }
 } // namespace
 
-__host__ Camera::Camera() : origin() {}
-__host__ Camera::Camera(const Vec3 &origin) : origin(origin) {}
+__host__ __device__ Camera::Camera() : origin() {}
+__host__ __device__ Camera::Camera(const Vec3 &origin) : origin(origin) {}
 
 __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
@@ -55,10 +56,17 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   CUDA_ERROR_CHECK(
       cudaMalloc(&image, static_cast<long>(width) * height * sizeof(uchar4)));
 
+  Camera *d_camera = nullptr;
+  CUDA_ERROR_CHECK(cudaMalloc(&d_camera, sizeof(Camera)));
+  CUDA_ERROR_CHECK(
+      cudaMemcpy(d_camera, this, sizeof(Camera), cudaMemcpyHostToDevice));
+
   dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
-  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image, this);
+  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image, d_camera);
+  cudaDeviceSynchronize();
+  cudaFree(d_camera);
   CUDA_ERROR_CHECK(cudaGetLastError());
 }
 

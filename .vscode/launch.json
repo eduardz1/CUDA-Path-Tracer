@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug CUDA Program",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/apps/cuda_path_tracer", // The compiled program
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/local/cuda-12.6/bin/cuda-gdb", // Path to cuda-gdb
+            "preLaunchTask": "build with cmake", // Task that builds the program before debugging
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}
