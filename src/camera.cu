@@ -8,6 +8,18 @@
 namespace {
 constexpr dim3 BLOCK_SIZE(16, 16);
 
+__device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
+                       const Vec3 deltaV, const uint16_t x,
+                       const uint16_t y) -> Ray {
+  auto center = pixel00 + deltaU * x + deltaV * y;
+  return {origin, center - origin};
+}
+
+__device__ auto getColor(const Ray &ray) -> uchar4 {
+  // TODO: Implement this
+  return make_uchar4(0, 0, 0, UCHAR_MAX);
+}
+
 /**
  * @brief Kernel for rendering the image, works by calculating the pixel index
  * in the image, computing the Ray that goes from the camera's origin to the
@@ -20,7 +32,9 @@ constexpr dim3 BLOCK_SIZE(16, 16);
  * @param camera Camera to render the image with
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
-                            uchar4 *image, Camera *camera) {
+                            uchar4 *image, const Vec3 origin,
+                            const Vec3 pixel00, const Vec3 deltaU,
+                            const Vec3 deltaV) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -29,8 +43,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   }
 
   const auto index = y * width + x;
-  const auto ray = camera->getRay(x, y);
-  image[index] = camera->getColor(ray);
+  const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
+  image[index] = getColor(ray);
 }
 } // namespace
 
@@ -52,22 +66,20 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   pixel00 = (origin - viewportU / 2 - viewportV / 2) + (deltaU + deltaV) / 2;
 
-  CUDA_ERROR_CHECK(
-      cudaMalloc(&image, static_cast<long>(width) * height * sizeof(uchar4)));
+  uchar4 *image_device;
+
+  const auto size = static_cast<long>(width) * height * sizeof(uchar4);
+
+  CUDA_ERROR_CHECK(cudaMalloc((void **)&image_device, size));
 
   dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
-  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image, this);
+  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
+                                    pixel00, deltaU, deltaV);
   CUDA_ERROR_CHECK(cudaGetLastError());
-}
+  CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
-__device__ auto Camera::getRay(const uint16_t x, const uint16_t y) -> Ray {
-  auto center = pixel00 + deltaU * x + deltaV * y;
-  return {origin, center - origin};
-}
-
-__device__ auto Camera::getColor(const Ray &ray) -> uchar4 {
-  // TODO: Implement this
-  return make_uchar4(0, 0, 0, UCHAR_MAX);
+  CUDA_ERROR_CHECK(
+      cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
 }

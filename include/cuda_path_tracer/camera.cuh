@@ -12,8 +12,6 @@ public:
   __host__ Camera(const Vec3 &origin);
 
   __host__ void render(const std::shared_ptr<Scene> &scene, uchar4 *image);
-  __device__ auto getRay(const uint16_t x, const uint16_t y) -> Ray;
-  __device__ auto getColor(const Ray &ray) -> uchar4;
 
   __host__ __device__ auto getScene() -> Scene *;
   __host__ __device__ auto getOrigin() -> Vec3;

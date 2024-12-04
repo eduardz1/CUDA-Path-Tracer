@@ -11,6 +11,7 @@ set(HEADER_LIST
 )
 
 add_library(cuda_path_tracer_lib
+    # SHARED
     camera.cu
     error.cu
     image.cpp
@@ -31,8 +32,12 @@ target_include_directories(cuda_path_tracer_lib
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 
 set_target_properties(cuda_path_tracer_lib
-    PROPERTIES CUDA_SEPARABLE_COMPILATION ON CUDA_RESOLVE_DEVICE_SYMBOLS ON
-    CUDA_ARCHITECTURES 90
+    PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+    CUDA_RESOLVE_DEVICE_SYMBOLS ON
+    # CUDA_RUNTIME_LIBRARY Shared
+
+    # CUDA_ARCHITECTURES 90
 )
 
 source_group(
