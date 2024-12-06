@@ -15,8 +15,9 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   return {origin, center - origin};
 }
 
-__device__ auto getColor(const Ray &ray) -> uchar4 {
+__device__ auto getColor(const Ray &ray, std::vector<Shape *> & shapes) -> uchar4 {
   // TODO: Implement this
+  
   return make_uchar4(0, 0, 0, UCHAR_MAX);
 }
 
@@ -34,7 +35,7 @@ __device__ auto getColor(const Ray &ray) -> uchar4 {
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV) {
+                            const Vec3 deltaV, std::vector<Shape *> & shapes) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -44,7 +45,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 
   const auto index = y * width + x;
   const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
-  image[index] = getColor(ray);
+  image[index] = getColor(ray, shapes);
 }
 } // namespace
 
@@ -55,6 +56,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
+  std::vector<Shape *> & shapes = scene->getShapes();
 
   viewportWidth = (float(width) / float(height)) * viewportHeight;
 
@@ -76,7 +78,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
   renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
-                                    pixel00, deltaU, deltaV);
+                                    pixel00, deltaU, deltaV, shapes);
   CUDA_ERROR_CHECK(cudaGetLastError());
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
