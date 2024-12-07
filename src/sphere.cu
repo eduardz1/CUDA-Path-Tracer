@@ -1,6 +1,18 @@
 #include "cuda_path_tracer/sphere.cuh"
 
-__host__ __device__ Sphere::Sphere(const Vec3 &center, const float radius)
+#ifndef __NVCC__
+#ifndef CXA_PURE_VIRTUAL_WORKAROUND
+#define CXA_PURE_VIRTUAL_WORKAROUND
+// Workaround for CUDA compilation with clang
+// https://bugs.llvm.org/show_bug.cgi?id=49839
+extern "C" __device__ void __cxa_pure_virtual() { // NOLINT
+  while (1) {
+  }
+}
+#endif
+#endif
+
+__host__ Sphere::Sphere(const Vec3 &center, const float radius)
     : Shape(), center(center), radius(radius) {}
 
 __host__ __device__ auto Sphere::hit(const Ray &r) const -> bool {
