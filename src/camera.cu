@@ -15,10 +15,14 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   return {origin, center - origin};
 }
 
-__device__ auto getColor(const Ray &ray, std::vector<Shape *> & shapes) -> uchar4 {
-  // TODO: Implement this
-  
-  return make_uchar4(0, 0, 0, UCHAR_MAX);
+__device__ auto getColor(const Ray &ray, Shape **shapes,
+                         const uint16_t numShapes) -> uchar4 {
+  // printf("%p:\n", shapes[0]);  
+  // if (shapes != nullptr){// && shapes[0] != nullptr && shapes[0]->hit(ray)) {
+  //     return make_uchar4(1, 0, 0, UCHAR_MAX);
+  // }
+
+  return make_uchar4(0, 0, 1, UCHAR_MAX);
 }
 
 /**
@@ -35,7 +39,7 @@ __device__ auto getColor(const Ray &ray, std::vector<Shape *> & shapes) -> uchar
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV, std::vector<Shape *> & shapes) {
+                            const Vec3 deltaV, Shape **shapes, const uint16_t numShapes) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -45,7 +49,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 
   const auto index = y * width + x;
   const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
-  image[index] = getColor(ray, shapes);
+  image[index] = getColor(ray, shapes, numShapes);
 }
 } // namespace
 
@@ -56,8 +60,20 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
-  std::vector<Shape *> & shapes = scene->getShapes();
-
+  std::vector<Shape *> &h_shapes = scene->getShapes();
+  const auto num_shapes = h_shapes.size();
+  
+  Shape **d_shapes;
+  CUDA_ERROR_CHECK(cudaMalloc(&d_shapes, num_shapes * sizeof(Shape *)));
+  for (int i = 0; i < num_shapes; i++) {
+    Shape *d_shape;
+    CUDA_ERROR_CHECK(cudaMalloc(&d_shape, sizeof(Shape)));
+    CUDA_ERROR_CHECK(cudaMemcpy(d_shape, h_shapes[i], sizeof(Shape),
+                                cudaMemcpyHostToDevice));
+    CUDA_ERROR_CHECK(cudaMemcpy(&d_shapes[i], &d_shape, sizeof(Shape *),
+                                cudaMemcpyHostToDevice));
+  }
+ 
   viewportWidth = (float(width) / float(height)) * viewportHeight;
 
   auto viewportU = Vec3(viewportWidth, 0, 0);
@@ -78,10 +94,18 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
   renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
-                                    pixel00, deltaU, deltaV, shapes);
+                                    pixel00, deltaU, deltaV, d_shapes,
+                                    num_shapes);
+
   CUDA_ERROR_CHECK(cudaGetLastError());
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
+  for (int i = 0; i < h_shapes.size(); i++) {
+    CUDA_ERROR_CHECK(cudaFree(d_shapes[i]));
+  }
+  CUDA_ERROR_CHECK(cudaFree(d_shapes));
+  
   CUDA_ERROR_CHECK(
       cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
+  CUDA_ERROR_CHECK(cudaGetLastError());
 }

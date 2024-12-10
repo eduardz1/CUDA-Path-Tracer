@@ -15,11 +15,11 @@
 
 class Shape {
 public:
-  __host__ Shape() = default;
-  __host__ Shape(const Shape &) = default;
-  __host__ Shape(Shape &&) = delete;
-  __host__ auto operator=(const Shape &) -> Shape & = default;
-  __host__ auto operator=(Shape &&) -> Shape & = delete;
-  __host__ virtual ~Shape() = default;
+  __host__ __device__ Shape() = default;
+  __host__ __device__ Shape(const Shape &) = default;
+  __host__ __device__ Shape(Shape &&) = delete;
+  __host__ __device__ auto operator=(const Shape &) -> Shape & = default;
+  __host__ __device__ auto operator=(Shape &&) -> Shape & = delete;
+  __host__ __device__ virtual ~Shape() = default;
   __host__ __device__ virtual auto hit(const Ray &r) const -> bool = 0;
 };

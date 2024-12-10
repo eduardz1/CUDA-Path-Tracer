@@ -25,8 +25,8 @@ void saveImageAsPPM(const char *filename, const int width, const int height,
   file << "255\n";
 
   for (int i = 0; i < width * height; i++) {
-    file << static_cast<int>(image[i].x) << " " << static_cast<int>(image[i].y)
-         << " " << static_cast<int>(image[i].z) << "\n";
+    file << static_cast<int>(image[i].x*255) << " " << static_cast<int>(image[i].y*255)
+         << " " << static_cast<int>(image[i].z*255) << "\n";
   }
 
   file.close();

@@ -15,7 +15,7 @@
 
 class Sphere final : public Shape {
 public:
-  __host__ Sphere(const Vec3 &center, float radius);
+  __host__ __device__ Sphere(const Vec3 &center, float radius);
   __host__ __device__ auto hit(const Ray &r) const -> bool override;
 
 private:
