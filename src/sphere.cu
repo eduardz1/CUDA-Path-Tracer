@@ -23,3 +23,7 @@ __host__ __device__ auto Sphere::hit(const Ray &r) const -> bool {
   float const discriminant = b * b - 4 * a * c;
   return discriminant > 0;
 }
+
+__host__ __device__ auto Sphere::getShapeType() const -> ShapeType {
+  return ShapeType::Sphere;
+}

@@ -13,13 +13,18 @@
 
 #include "cuda_path_tracer/ray.cuh"
 
+enum class ShapeType{
+Sphere
+};
+
 class Shape {
 public:
-  __host__ __device__ Shape() = default;
-  __host__ __device__ Shape(const Shape &) = default;
+   Shape() = default;
+   Shape(const Shape &) = default;
   __host__ __device__ Shape(Shape &&) = delete;
-  __host__ __device__ auto operator=(const Shape &) -> Shape & = default;
+   auto operator=(const Shape &) -> Shape & = default;
   __host__ __device__ auto operator=(Shape &&) -> Shape & = delete;
-  __host__ __device__ virtual ~Shape() = default;
+   virtual ~Shape() = default;
   __host__ __device__ virtual auto hit(const Ray &r) const -> bool = 0;
+  __host__ __device__ virtual auto getShapeType() const -> ShapeType = 0;
 };

@@ -8,6 +8,7 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/sphere.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/world.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes_container.cuh"
 )
 
 add_library(cuda_path_tracer_lib
@@ -20,6 +21,7 @@ add_library(cuda_path_tracer_lib
     sphere.cu
     vec3.cu
     world.cu
+    shapes_container.cu
     ${HEADER_LIST}
 )
 
