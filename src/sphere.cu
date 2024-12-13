@@ -13,9 +13,10 @@ extern "C" __device__ void __cxa_pure_virtual() { // NOLINT
 #endif
 
 __host__ Sphere::Sphere(const Vec3 &center, const float radius)
-    : Shape(), center(center), radius(radius) {}
+    : center(center), radius(radius) {}
 
-__host__ __device__ auto Sphere::hit(const Ray &r) const -> bool {
+__device__ auto Sphere::hit(const Ray &r) const -> bool {
+  // const Ray rayy = Ray(Vec3(0, 0, 0), Vec3(0, 0, -1));
   Vec3 const oc = r.getOrigin() - center;
   float const a = r.getDirection().dot(r.getDirection());
   float const b = 2.0f * oc.dot(r.getDirection());
@@ -23,7 +24,8 @@ __host__ __device__ auto Sphere::hit(const Ray &r) const -> bool {
   float const discriminant = b * b - 4 * a * c;
   return discriminant > 0;
 }
+// __host__ __device__ auto Sphere::hitt() const -> bool { return 2 > 0; }
 
-__host__ __device__ auto Sphere::getShapeType() const -> ShapeType {
-  return ShapeType::Sphere;
-}
+// __host__ __device__ auto Sphere::getShapeType() const -> ShapeType {
+//   return ShapeType::SPHERE;
+// }

@@ -12,12 +12,14 @@ set(HEADER_LIST
 )
 
 add_library(cuda_path_tracer_lib
+
     # SHARED
     camera.cu
     error.cu
     image.cpp
     ray.cu
     scene.cu
+    shape.cu
     sphere.cu
     vec3.cu
     world.cu
@@ -32,13 +34,14 @@ target_include_directories(cuda_path_tracer_lib
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
+target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
 
 set_target_properties(cuda_path_tracer_lib
     PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     CUDA_RESOLVE_DEVICE_SYMBOLS ON
-    # CUDA_RUNTIME_LIBRARY Shared
 
+    # CUDA_RUNTIME_LIBRARY Shared
     CUDA_ARCHITECTURES all
 )
 

@@ -31,6 +31,6 @@ public:
    */
   __host__ __device__ auto at(float t) const -> Vec3;
 
-private:
+// private:
   Vec3 origin, direction;
 };
