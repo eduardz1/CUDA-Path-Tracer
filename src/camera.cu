@@ -5,6 +5,7 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/ray.cuh"
+#include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/shapes_container.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 
@@ -22,10 +23,8 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   return {origin, center - origin};
 }
 
- __device__ auto getColor(const Ray &ray, const std::variant<Sphere> *shapes,
+__device__ auto getColor(const Ray &ray, const Shape *shapes,
                          const size_t num_shapes) -> uchar4 {
-
-  // const Ray rayy = Ray(Vec3(0, 0, 0), Vec3(0, 0, -1));
   for (size_t i = 0; i < num_shapes; i++) {
     bool hit = std::visit(
         overload{
@@ -54,8 +53,7 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV,
-                            const std::variant<Sphere> *shapes,
+                            const Vec3 deltaV, const Shape *shapes,
                             const size_t num_shapes) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -77,32 +75,11 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
-  // const auto num_shapes = scene->getShapes().size();
-  // std::vector<Shape *> &h_shapes = scene->getShapes();
-  // const auto num_shapes = h_shapes.size();
-
-  // ShapesContainer shapesContainer = ShapesContainer();
-  // shapesContainer.copyShapesToDevice(h_shapes);
-  // const Shape **d_shapes;
-  // CUDA_ERROR_CHECK(
-  //     cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape *)));
-
-  // Shape **h_shapes = new Shape *[num_shapes];
-
-  // for (size_t i = 0; i < num_shapes; i++) {
-  //   CUDA_ERROR_CHECK(cudaMalloc((void **)&h_shapes[i], sizeof(Shape)));
-  //   CUDA_ERROR_CHECK(cudaMemcpy(h_shapes[i], scene->getShapes()[i],
-  //                               sizeof(Shape), cudaMemcpyHostToDevice));
-  // }
-  // CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes, num_shapes * sizeof(Shape
-  // *),
-  //                             cudaMemcpyHostToDevice));
-  // delete[] h_shapes;
-  const std::vector<std::variant<Sphere>> &h_shapes = scene->getShapes();
+ 
+  const std::vector<Shape> &h_shapes = scene->getShapes();
   const size_t num_shapes = h_shapes.size();
-  std::variant<Sphere> *d_shapes;
-  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes,
-                              num_shapes * sizeof(std::variant<Sphere>)));
+  Shape *d_shapes;
+  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
   CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
                               num_shapes * sizeof(Sphere),
                               cudaMemcpyHostToDevice));
@@ -131,20 +108,10 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                                     num_shapes);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
-  // CUDA_ERROR_CHECK(cudaDeviceSynchronize());
-
-  // for (int i = 0; i < h_shapes.size(); i++) {
-  //   CUDA_ERROR_CHECK(cudaFree(d_shapes[i]));
-  // }
-  // CUDA_ERROR_CHECK(cudaFree(d_shapes));
-  printf("end of render\n");
 
   CUDA_ERROR_CHECK(
       cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
 
-  // for (auto shape : d_shapes) {
-  //   cudaFree(shape);
-  // }
-  // cudaFree(d_shapes); TODO: free
+  cudaFree(d_shapes); 
   CUDA_ERROR_CHECK(cudaGetLastError());
 }
