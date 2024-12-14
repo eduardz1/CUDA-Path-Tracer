@@ -6,7 +6,6 @@
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
-#include "cuda_path_tracer/shapes_container.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 
 namespace {
@@ -17,8 +16,8 @@ template <class... Ts> struct overload : Ts... {
 constexpr dim3 BLOCK_SIZE(16, 16);
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
-                       const Vec3 deltaV, const uint16_t x,
-                       const uint16_t y) -> Ray {
+                       const Vec3 deltaV, const uint16_t x, const uint16_t y)
+    -> Ray {
   auto center = pixel00 + deltaU * x + deltaV * y;
   return {origin, center - origin};
 }
@@ -75,7 +74,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
- 
+
   const std::vector<Shape> &h_shapes = scene->getShapes();
   const size_t num_shapes = h_shapes.size();
   Shape *d_shapes;
@@ -112,6 +111,6 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   CUDA_ERROR_CHECK(
       cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
 
-  cudaFree(d_shapes); 
+  cudaFree(d_shapes);
   CUDA_ERROR_CHECK(cudaGetLastError());
 }

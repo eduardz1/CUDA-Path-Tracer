@@ -8,7 +8,6 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/sphere.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/world.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes_container.cuh"
 )
 
 add_library(cuda_path_tracer_lib
@@ -19,11 +18,9 @@ add_library(cuda_path_tracer_lib
     image.cpp
     ray.cu
     scene.cu
-    shape.cu
     sphere.cu
     vec3.cu
     world.cu
-    shapes_container.cu
     ${HEADER_LIST}
 )
 
@@ -34,7 +31,10 @@ target_include_directories(cuda_path_tracer_lib
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
-target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
+
+if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
+    target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
+endif()
 
 set_target_properties(cuda_path_tracer_lib
     PROPERTIES

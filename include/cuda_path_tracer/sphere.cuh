@@ -16,7 +16,7 @@
 
 class Sphere {
 public:
-  __host__ __device__ Sphere(const Vec3 &center, float radius);
+  __host__ Sphere(const Vec3 &center, float radius);
   __device__ auto hit(const Ray &r) const -> bool;
 
 private:
