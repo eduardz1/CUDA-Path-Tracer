@@ -11,7 +11,9 @@
 
 #pragma once
 
-#include <variant>
 #include "sphere.cuh"
+#include <cuda/std/variant>
+#include <variant>
 
-using Shape = std::variant<Sphere>;
+using ShapeD = cuda::std::variant<Sphere>;
+using ShapeH = std::variant<Sphere>;

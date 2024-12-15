@@ -42,7 +42,7 @@ set_target_properties(cuda_path_tracer_lib
     CUDA_RESOLVE_DEVICE_SYMBOLS ON
 
     # CUDA_RUNTIME_LIBRARY Shared
-    CUDA_ARCHITECTURES all
+    CUDA_ARCHITECTURES 50
 )
 
 source_group(
