@@ -8,10 +8,6 @@
 #include "cuda_path_tracer/vec3.cuh"
 
 namespace {
-template <class... Ts> struct overload : Ts... {
-  using Ts::operator()...;
-};
-
 constexpr dim3 BLOCK_SIZE(16, 16);
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
@@ -21,14 +17,11 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   return {origin, center - origin};
 }
 
-__device__ auto getColor(const Ray &ray, const ShapeD *shapes,
+__device__ auto getColor(const Ray &ray, const Shape *shapes,
                          const size_t num_shapes) -> uchar4 {
   for (size_t i = 0; i < num_shapes; i++) {
     bool hit = cuda::std::visit(
-        overload{
-            [&ray](const Sphere &s) { return s.hit(ray); },
-        },
-        shapes[i]);
+        [&ray](const auto &shape) { return shape.hit(ray); }, shapes[i]);
 
     if (hit) {
       return make_uchar4(1, 0, 0, UCHAR_MAX);
@@ -51,7 +44,7 @@ __device__ auto getColor(const Ray &ray, const ShapeD *shapes,
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV, const ShapeD *shapes,
+                            const Vec3 deltaV, const Shape *shapes,
                             const size_t num_shapes) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -74,10 +67,10 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
 
-  const std::vector<ShapeH> &h_shapes = scene->getShapes();
+  const std::vector<Shape> &h_shapes = scene->getShapes();
   const size_t num_shapes = h_shapes.size();
-  ShapeD *d_shapes;
-  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(ShapeD)));
+  Shape *d_shapes;
+  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
   CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
                               num_shapes * sizeof(Sphere),
                               cudaMemcpyHostToDevice));

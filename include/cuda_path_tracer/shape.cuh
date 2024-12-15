@@ -13,7 +13,5 @@
 
 #include "sphere.cuh"
 #include <cuda/std/variant>
-#include <variant>
 
-using ShapeD = cuda::std::variant<Sphere>;
-using ShapeH = std::variant<Sphere>;
+using Shape = cuda::std::variant<Sphere>;

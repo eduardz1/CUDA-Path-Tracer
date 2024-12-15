@@ -7,17 +7,17 @@ class Scene {
 public:
   __host__ Scene();
   __host__ Scene(uint16_t width, uint16_t height);
-  __host__ Scene(uint16_t width, uint16_t height, std::vector<ShapeH> shapes);
+  __host__ Scene(uint16_t width, uint16_t height, std::vector<Shape> shapes);
 
   __host__ auto getWidth() -> uint16_t;
   __host__ auto getHeight() -> uint16_t;
-  __host__ auto getShapes() -> std::vector<ShapeH> &;
-  __host__ auto addShape(ShapeH shape) -> void;
+  __host__ auto getShapes() -> std::vector<Shape> &;
+  __host__ auto addShape(Shape shape) -> void;
 
   // TODO: deconstructor
 
 private:
-  std::vector<ShapeH> shapes;
+  std::vector<Shape> shapes;
 
   /**
    * @brief The width and height of the image in pixels.

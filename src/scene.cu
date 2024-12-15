@@ -8,6 +8,6 @@ __host__ Scene::Scene(uint16_t width, uint16_t height)
 
 __host__ auto Scene::getWidth() -> uint16_t { return width; }
 __host__ auto Scene::getHeight() -> uint16_t { return height; }
-__host__ auto Scene::getShapes() -> std::vector<ShapeH> & { return shapes; }
+__host__ auto Scene::getShapes() -> std::vector<Shape> & { return shapes; }
 
-__host__ auto Scene::addShape(ShapeH shape) -> void { shapes.push_back(shape); }
+__host__ auto Scene::addShape(Shape shape) -> void { shapes.push_back(shape); }
