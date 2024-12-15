@@ -1,4 +1,8 @@
-cmake_minimum_required(VERSION 3.24...3.28)
+cmake_minimum_required(VERSION 3.27...3.31)
+
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
+  set(CMAKE_CUDA_ARCHITECTURES 50)
+endif()
 
 project(
     cuda_path_tracer

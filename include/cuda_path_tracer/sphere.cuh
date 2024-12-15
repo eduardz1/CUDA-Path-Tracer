@@ -11,12 +11,13 @@
 
 #pragma once
 
-#include "shape.cuh"
+#include "ray.cuh"
+#include "vec3.cuh"
 
-class Sphere final : public Shape {
+class Sphere {
 public:
   __host__ Sphere(const Vec3 &center, float radius);
-  __host__ __device__ auto hit(const Ray &r) const -> bool override;
+  __device__ auto hit(const Ray &r) const -> bool;
 
 private:
   Vec3 center;

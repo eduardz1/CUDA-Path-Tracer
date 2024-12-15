@@ -1,12 +1,34 @@
 #include <cstdint>
+#include <cuda_runtime_api.h>
 
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/ray.cuh"
+#include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 
 namespace {
 constexpr dim3 BLOCK_SIZE(16, 16);
+
+__device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
+                       const Vec3 deltaV, const uint16_t x, const uint16_t y)
+    -> Ray {
+  auto center = pixel00 + deltaU * x + deltaV * y;
+  return {origin, center - origin};
+}
+
+__device__ auto getColor(const Ray &ray, const Shape *shapes,
+                         const size_t num_shapes) -> uchar4 {
+  for (size_t i = 0; i < num_shapes; i++) {
+    bool hit = cuda::std::visit(
+        [&ray](const auto &shape) { return shape.hit(ray); }, shapes[i]);
+
+    if (hit) {
+      return make_uchar4(1, 0, 0, UCHAR_MAX);
+    }
+  }
+  return make_uchar4(0, 0, 1, UCHAR_MAX);
+}
 
 /**
  * @brief Kernel for rendering the image, works by calculating the pixel index
@@ -20,7 +42,10 @@ constexpr dim3 BLOCK_SIZE(16, 16);
  * @param camera Camera to render the image with
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
-                            uchar4 *image, Camera *camera) {
+                            uchar4 *image, const Vec3 origin,
+                            const Vec3 pixel00, const Vec3 deltaU,
+                            const Vec3 deltaV, const Shape *shapes,
+                            const size_t num_shapes) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -29,8 +54,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   }
 
   const auto index = y * width + x;
-  const auto ray = camera->getRay(x, y);
-  image[index] = camera->getColor(ray);
+  const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
+  image[index] = getColor(ray, shapes, num_shapes);
 }
 } // namespace
 
@@ -42,6 +67,14 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
 
+  const std::vector<Shape> &h_shapes = scene->getShapes();
+  const size_t num_shapes = h_shapes.size();
+  Shape *d_shapes;
+  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
+  CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
+                              num_shapes * sizeof(Sphere),
+                              cudaMemcpyHostToDevice));
+
   viewportWidth = (float(width) / float(height)) * viewportHeight;
 
   auto viewportU = Vec3(viewportWidth, 0, 0);
@@ -52,22 +85,24 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   pixel00 = (origin - viewportU / 2 - viewportV / 2) + (deltaU + deltaV) / 2;
 
-  CUDA_ERROR_CHECK(
-      cudaMalloc(&image, static_cast<long>(width) * height * sizeof(uchar4)));
+  uchar4 *image_device;
+
+  const auto size = static_cast<long>(width) * height * sizeof(uchar4);
+
+  CUDA_ERROR_CHECK(cudaMalloc((void **)&image_device, size));
 
   dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
-  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image, this);
+  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
+                                    pixel00, deltaU, deltaV, d_shapes,
+                                    num_shapes);
+  cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
-}
 
-__device__ auto Camera::getRay(const uint16_t x, const uint16_t y) -> Ray {
-  auto center = pixel00 + deltaU * x + deltaV * y;
-  return {origin, center - origin};
-}
+  CUDA_ERROR_CHECK(
+      cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
 
-__device__ auto Camera::getColor(const Ray &ray) -> uchar4 {
-  // TODO: Implement this
-  return make_uchar4(0, 0, 0, UCHAR_MAX);
+  cudaFree(d_shapes);
+  CUDA_ERROR_CHECK(cudaGetLastError());
 }
