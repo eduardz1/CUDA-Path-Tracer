@@ -1,8 +1,10 @@
+#include <climits>
 #include <cstdint>
 #include <cuda_runtime_api.h>
 
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
+#include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
@@ -17,17 +19,56 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   return {origin, center - origin};
 }
 
-__device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> uchar4 {
+/**
+ * @brief Saves the closest hit information in the HitInfo struct from the given
+ * ray and shapes. Returns true if a hit was found, false otherwise.
+ *
+ * @param ray Ray to check for hits
+ * @param shapes Array of shapes to check for hits
+ * @param num_shapes Number of shapes in the array
+ * @param hi HitInfo struct to save the hit information
+ * @return bool true if a hit was found, false otherwise
+ */
+__device__ auto hitShapes(const Ray &ray, const Shape *shapes,
+                          const size_t num_shapes, HitInfo &hi) -> bool {
+  auto tmp = HitInfo();
+  auto closest = RAY_T_MAX;
+  auto hit_anything = false;
   for (size_t i = 0; i < num_shapes; i++) {
-    bool hit = cuda::std::visit(
-        [&ray](const auto &shape) { return shape.hit(ray); }, shapes[i]);
+    const bool hit = cuda::std::visit(
+        [&ray, &tmp, closest](const auto &shape) {
+          return shape.hit(ray, RAY_T_MIN, closest, tmp);
+        },
+        shapes[i]);
 
     if (hit) {
-      return make_uchar4(1, 0, 0, UCHAR_MAX);
+      hit_anything = true;
+      closest = tmp.getTime();
+      hi = tmp;
     }
   }
-  return make_uchar4(0, 0, 1, UCHAR_MAX);
+  return hit_anything;
+}
+
+__device__ auto getColor(const Ray &ray, const Shape *shapes,
+                         const size_t num_shapes) -> uchar4 {
+  auto hi = HitInfo();
+  const bool hit = hitShapes(ray, shapes, num_shapes, hi);
+
+  if (hit) {
+    auto normal = hi.getNormal();
+    return {static_cast<unsigned char>(UCHAR_MAX * (normal.getX() + 1) / 2),
+            static_cast<unsigned char>(UCHAR_MAX * (normal.getY() + 1) / 2),
+            static_cast<unsigned char>(UCHAR_MAX * (normal.getZ() + 1) / 2),
+            UCHAR_MAX};
+  }
+
+  auto unit_direction = makeUnitVector(ray.getDirection());
+  auto t = (unit_direction.getY() + 1.0f) / 2;
+  // TODO: Fix the background color and maybe separate into a function
+  return {static_cast<unsigned char>(UCHAR_MAX * (1.0f - t)),
+          static_cast<unsigned char>(UCHAR_MAX * t),
+          static_cast<unsigned char>(UCHAR_MAX * t), UCHAR_MAX};
 }
 
 /**
