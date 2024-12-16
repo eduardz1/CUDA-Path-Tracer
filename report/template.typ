@@ -21,6 +21,7 @@
   subtitle: [],
   authors: (),
   lang: "en",
+  bibliography-file: "works.bib",
   body,
 ) = {
   set document(title: title, author: authors)
@@ -33,10 +34,11 @@
   set heading(numbering: "1")
   show heading: smallcaps
   show heading: set block(above: 1.4em, below: 1em)
+  set align(horizon)
 
   {
     // Title Page
-    set align(center + horizon)
+    set align(center)
     set page(
       footer: text(fill: gray)[ #subtitle \ #datetime.today().display()],
     )
@@ -65,7 +67,6 @@
     v(1fr)
   }
 
-  set page(numbering: "1")
 
   set outline(fill: repeat[ #sym.space #sym.dot.c ], indent: true)
   show outline.entry.where(level: 1): it => {
@@ -83,5 +84,12 @@
 
   outline()
 
+  pagebreak()
+
+  set page(numbering: "1")
+
   body
+
+  pagebreak()
+  bibliography(bibliography-file)
 }
