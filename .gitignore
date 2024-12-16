@@ -12,3 +12,6 @@
 
 # Rendered images
 *.ppm
+
+# Compiled files
+*.pdf

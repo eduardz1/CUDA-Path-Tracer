@@ -1,74 +1,87 @@
 #import "@preview/codly:1.1.1": *
 #import "@preview/codly-languages:0.1.3": *
 
-#let balance(content) = layout(size => {
-  let count = content.at("count")
-  let textheight = measure(content).at("height")
-  let linegap = par.leading.em * textheight
-  let (height,) = measure(block(width: size.width, content))
-  let lines = calc.ceil((height - textheight) / count / (textheight + linegap))
-  let newheight = lines * (textheight + linegap) + textheight
-  [#block(height: newheight)[#content]]
-})
+#let eqcolumns(n, gutter: 4%, content) = {
+  layout(size => [
+    #let (height,) = measure(
+      block(
+        width: (1 / n) * size.width * (1 - float(gutter) * n),
+        content,
+      ),
+    )
+    #block(
+      height: height / n,
+      columns(n, gutter: gutter, content),
+    )
+  ])
+}
 
 #let template(
   title: [],
+  subtitle: [],
   authors: (),
   lang: "en",
   body,
 ) = {
   set document(title: title, author: authors)
-  set text(font: "Minion Pro", size: 10pt, lang: lang, fallback: false)
-  set page(paper: "a4", numbering: "1")
-  set par(justify: true)
+  set text(font: "New Computer Modern", size: 10pt, lang: lang, fallback: false)
+  set page(paper: "a4")
+  set par(justify: true, first-line-indent: 1.8em)
 
   show figure.caption: emph
 
+  set heading(numbering: "1")
   show heading: smallcaps
+  show heading: set block(above: 1.4em, below: 1em)
 
   {
     // Title Page
     set align(center + horizon)
+    set page(
+      footer: text(fill: gray)[ #subtitle \ #datetime.today().display()],
+    )
+    let width = 70%
 
-    v(0.5fr)
+    v(0.1fr)
 
-    image("imgs/logo.png", width: 60%)
-    line(length: 60%)
+    image("imgs/logo.png", width: width)
+    line(length: width, stroke: 4pt)
     block(
       smallcaps(
         text(
-          size: 2.8em,
-          weight: "bold",
+          size: 3.2em,
           title,
         ),
       ),
     )
-    line(length: 60%)
+    line(length: width)
 
     // Author and Academic Year
-    block()[
-      #authors.map(author => {
-        text(author)
-      }).join(", ")
-    ]
+    box(
+      width: width,
+      grid(columns: authors.len(), column-gutter: 1fr, ..authors),
+    )
 
     v(1fr)
   }
-  pagebreak()
 
-  set outline(fill: repeat[ #sym.space ⋅ ], indent: true)
+  set page(numbering: "1")
+
+  set outline(fill: repeat[ #sym.space #sym.dot.c ], indent: true)
   show outline.entry.where(level: 1): it => {
     v(1.2em, weak: true)
     strong(it)
   }
 
-  show raw: set text(ligatures: true, font: "Fira Code", fallback: false)
+  show raw: set text(font: "Fira Code")
   show: codly-init
   codly(
     languages: codly-languages,
     zebra-fill: none,
     number-format: it => text(fill: luma(200), str(it)),
   )
+
+  outline()
 
   body
 }

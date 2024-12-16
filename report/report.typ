@@ -1,17 +1,20 @@
-#import "template.typ": template, balance
+#import "template.typ": template, eqcolumns
 
 #show: template.with(
   title: [CUDA Path Tracer],
+  subtitle: [Report for the course of GP-GPU Programming],
   authors: ("Eduard Occhipinti", "Dominika Bochenczyk"),
 )
 
 = Introduction
 
-#balance(
-  columns(2)[
-    #lorem(500)
-  ],
-)
+#eqcolumns(2)[
+  #lorem(100)
+
+  #lorem(200)
+
+  #lorem(100)
+]
 
 #place(bottom + center, scope: "parent", float: true)[
   ```cpp
