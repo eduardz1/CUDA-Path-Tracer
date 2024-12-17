@@ -20,7 +20,7 @@ catch_discover_tests(tests)
 
 set_target_properties(tests
   PROPERTIES CUDA_SEPARABLE_COMPILATION ON
-  CUDA_ARCHITECTURES 90
+  CUDA_ARCHITECTUREs 50
 )
 
 target_compile_features(tests PRIVATE cxx_std_20)

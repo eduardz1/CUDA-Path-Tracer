@@ -1,7 +1,7 @@
 #include "cuda_path_tracer/scene.cuh"
 #include <cstdint>
 
-__host__ Scene::Scene() : width(1), height(1) {}
+__host__ Scene::Scene() : width(64), height(64) {}
 
 __host__ Scene::Scene(uint16_t width, uint16_t height)
     : width(width), height(height) {}

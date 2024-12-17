@@ -14,10 +14,10 @@ namespace {
 constexpr dim3 BLOCK_SIZE(16, 16);
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
-                       const Vec3 deltaV, const uint16_t x, const uint16_t y)
-    -> Ray {
+                       const Vec3 deltaV, const uint16_t x,
+                       const uint16_t y) -> Ray {
   auto center = pixel00 + deltaU * x + deltaV * y;
-  return {origin, center - origin};
+  return {origin, center*64};
 }
 
 /**
@@ -118,7 +118,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   deltaU = viewportU / float(width);
   deltaV = viewportV / float(height);
 
-  pixel00 = (origin - viewportU / 2 - viewportV / 2) + (deltaU + deltaV) / 2;
+  pixel00 = (origin - viewportU / 2 - viewportV / 2 + origin);//+ (deltaU + deltaV) / 2;
 
   uchar4 *image_device;
 
