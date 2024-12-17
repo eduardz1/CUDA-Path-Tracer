@@ -5,6 +5,7 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
+#include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
@@ -51,24 +52,17 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
 }
 
 __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> uchar4 {
+                         const size_t num_shapes) -> float4 {
   auto hi = HitInfo();
   const bool hit = hitShapes(ray, shapes, num_shapes, hi);
 
   if (hit) {
-    auto normal = hi.getNormal();
-    return {static_cast<unsigned char>(UCHAR_MAX * (normal.getX() + 1) / 2),
-            static_cast<unsigned char>(UCHAR_MAX * (normal.getY() + 1) / 2),
-            static_cast<unsigned char>(UCHAR_MAX * (normal.getZ() + 1) / 2),
-            UCHAR_MAX};
+    return 0.5f * (hi.getNormal() + 1.0f);
   }
 
   auto unit_direction = makeUnitVector(ray.getDirection());
-  auto t = (unit_direction.getY() + 1.0f) / 2;
-  // TODO: Fix the background color and maybe separate into a function
-  return {static_cast<unsigned char>(UCHAR_MAX * (1.0f - t)),
-          static_cast<unsigned char>(UCHAR_MAX * t),
-          static_cast<unsigned char>(UCHAR_MAX * t), UCHAR_MAX};
+  auto t = 0.5f * (unit_direction.getY() + 1.0f);
+  return (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
 }
 
 /**
@@ -96,7 +90,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 
   const auto index = y * width + x;
   const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
-  image[index] = getColor(ray, shapes, num_shapes);
+  image[index] = convertColorTo8Bit(getColor(ray, shapes, num_shapes));
 }
 } // namespace
 

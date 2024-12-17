@@ -1,6 +1,6 @@
 
 #include "cuda_path_tracer/camera.cuh"
-#include "cuda_path_tracer/image.hpp"
+#include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/sphere.cuh"
 #include <cstdint>
 #include <cstdlib>
@@ -21,8 +21,7 @@ auto main() -> int {
   Camera camera = {Vec3(0.0, 0.0, -1.0)};
   camera.render(scene, image);
 
-  const std::vector<uchar4> image_v(image, image + image_width *
-  image_height);
+  const std::vector<uchar4> image_v(image, image + image_width * image_height);
 
   saveImageAsPPM("test_image.ppm", image_width, image_height, image_v);
 

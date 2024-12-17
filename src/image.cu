@@ -10,29 +10,29 @@
  *
  */
 
-#include "cuda_path_tracer/image.hpp"
+#include "cuda_path_tracer/image.cuh"
 #include <algorithm>
 #include <fstream>
 #include <vector>
 #include <vector_functions.h>
 
-void saveImageAsPPM(const char *filename, const int width, const int height,
-                    const std::vector<uchar4> &image) {
+__host__ void saveImageAsPPM(const char *filename, const int width,
+                             const int height,
+                             const std::vector<uchar4> &image) {
   std::ofstream file(filename);
 
   file << "P3\n";
   file << width << " " << height << "\n";
-  file << "255\n";
+  file << UCHAR_MAX << "\n";
 
   for (int i = 0; i < width * height; i++) {
-    file << static_cast<int>(image[i].x*255) << " " << static_cast<int>(image[i].y*255)
-         << " " << static_cast<int>(image[i].z*255) << "\n";
+    file << image[i].x << " " << image[i].y << " " << image[i].z << "\n";
   }
 
   file.close();
 }
 
-auto convertColorTo8Bit(const float4 color) -> uchar4 {
+__device__ auto convertColorTo8Bit(const float4 color) -> uchar4 {
   return make_uchar4(
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
                                  std::clamp(color.x, 0.0f, 1.0f)),

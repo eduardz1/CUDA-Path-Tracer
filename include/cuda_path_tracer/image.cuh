@@ -24,8 +24,8 @@
  * @param height Height of the image
  * @param image Image to save
  */
-void saveImageAsPPM(const char *filename, int width, int height,
-                    const std::vector<uchar4> &image);
+__host__ void saveImageAsPPM(const char *filename, int width, int height,
+                             const std::vector<uchar4> &image);
 
 /**
  * @brief Convert a float4 color to a char4 color
@@ -33,4 +33,4 @@ void saveImageAsPPM(const char *filename, int width, int height,
  * @param color float4 color with values between 0 and 1
  * @return char4 color with values between 0 and 255
  */
-auto convertColorTo8Bit(float4 color) -> uchar4;
+__device__ auto convertColorTo8Bit(float4 color) -> uchar4;

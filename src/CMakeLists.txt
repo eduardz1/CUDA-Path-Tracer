@@ -2,7 +2,7 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.hpp"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
@@ -17,7 +17,7 @@ add_library(cuda_path_tracer_lib
     camera.cu
     error.cu
     hit_info.cu
-    image.cpp
+    image.cu
     ray.cu
     scene.cu
     sphere.cu
