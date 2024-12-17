@@ -26,7 +26,7 @@ __host__ void saveImageAsPPM(const char *filename, const int width,
   file << UCHAR_MAX << "\n";
 
   for (int i = 0; i < width * height; i++) {
-    file << image[i].x << " " << image[i].y << " " << image[i].z << "\n";
+    file << +image[i].x << " " << +image[i].y << " " << +image[i].z << "\n";
   }
 
   file.close();
