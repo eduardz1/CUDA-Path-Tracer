@@ -1,25 +1,53 @@
+#include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/sphere.cuh"
 
-#ifndef __NVCC__
-#ifndef CXA_PURE_VIRTUAL_WORKAROUND
-#define CXA_PURE_VIRTUAL_WORKAROUND
-// Workaround for CUDA compilation with clang
-// https://bugs.llvm.org/show_bug.cgi?id=49839
-extern "C" __device__ void __cxa_pure_virtual() { // NOLINT
-  while (1) {
-  }
-}
-#endif
-#endif
-
 __host__ Sphere::Sphere(const Vec3 &center, const float radius)
-    : Shape(), center(center), radius(radius) {}
+    : center(center), radius(static_cast<float>(std::fmax(0, radius))) {}
 
-__host__ __device__ auto Sphere::hit(const Ray &r) const -> bool {
+__device__ auto Sphere::hit(const Ray &r, const float hit_t_min,
+                            const float hit_t_max, HitInfo &hi) const -> bool {
+  // Calculate the discriminant of the quadratic equation, if it is less than 0
+  // then the ray does not intersect the sphere. The formula is derived from
+  // the equation of a sphere and the parametric equation of a ray.
+  //
+  // The discriminant is calculated as follows:
+  // d = (-b +- sqrt(b^2 - 4ac)) / 2a
+  //
+  // where:
+  // a = dot(r.direction, r.direction)
+  // b = dot(-2(r.direction), (sphere.center - r.origin))
+  // c = dot(sphere.center - r.origin,sphere.center - r.origin)- sphere.radius^2
+  //
+  // We simplify the formula by using the negative half of b, h = -b/2
+
   Vec3 const oc = r.getOrigin() - center;
-  float const a = r.getDirection().dot(r.getDirection());
-  float const b = 2.0f * oc.dot(r.getDirection());
-  float const c = oc.dot(oc) - radius * radius;
-  float const discriminant = b * b - 4 * a * c;
-  return discriminant > 0;
+
+  float const a = r.getDirection().getLengthSquared();
+  float const h = oc.dot(r.getDirection());
+  float const c = oc.getLengthSquared() - radius * radius;
+
+  float const discriminant = h * h - a * c;
+
+  if (discriminant < 0) {
+    return false;
+  }
+
+  auto const sqrtd = sqrt(discriminant);
+
+  // Finds the smallest root that is between the minimum and maximum t or exits
+  float root = (h - sqrtd) / a;
+  if (root < hit_t_min || hit_t_max < root) {
+    root = (h + sqrtd) / a;
+    if (root < hit_t_min || hit_t_max < root) {
+      return false;
+    }
+  }
+
+  hi.setTime(root);
+  hi.setPoint(r.at(root));
+  hi.setNormal(r, (hi.getPoint() - center) / radius);
+
+  return true;
 }
+
+__device__ auto Sphere::getCenter() const -> Vec3 { return center; }

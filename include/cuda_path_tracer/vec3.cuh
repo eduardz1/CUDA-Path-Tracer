@@ -28,18 +28,33 @@ public:
   __host__ __device__ auto getY() const -> float;
   __host__ __device__ auto getZ() const -> float;
 
-  __host__ __device__ auto operator+(const Vec3 &v) const -> Vec3;
-  __host__ __device__ auto operator-(const Vec3 &v) const -> Vec3;
-  __host__ __device__ auto operator/(const Vec3 &v) const -> Vec3;
+  __host__ __device__ auto operator-() const -> Vec3;
   __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
 
+  /**
+   * @brief Enables implicit conversion to the float4 type, useful for image
+   * processing with CUDA and particularly in the conversion to uchar4 type. By
+   * default the last float s assigned to 1.0f (alpha channel in case of an
+   * image).
+   *
+   * @return float4
+   */
+  __device__ operator float4() const;
+
   __host__ __device__ auto dot(const Vec3 &v) const -> float;
+
+  __device__ auto getLengthSquared() const -> float;
+  __device__ auto getLength() const -> float;
 
 private:
   float x, y, z;
 };
 
 __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream &;
-__host__ __device__ auto operator*(float t, const Vec3 &v) -> Vec3;
+__host__ __device__ auto operator+(const Vec3 &v1, const Vec3 &v2) -> Vec3;
+__host__ __device__ auto operator-(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3;
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3;
+__host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3;
+
+__device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
