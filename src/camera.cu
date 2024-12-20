@@ -74,7 +74,8 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
                  (num_shapes + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
   _hitShapesParallel<<<grid_size, BLOCK_SIZE>>>(ray, shapes, hi);
   __syncthreads();
-  // TODO: Reduction to find the closest hit
+  // TODO: Reduction to find the closest hit (suggestion:
+  // https://github.com/NVIDIA/cuda-samples/blob/master/Samples/2_Concepts_and_Techniques/reduction/reduction_kernel.cu)
   return false;
 }
 
