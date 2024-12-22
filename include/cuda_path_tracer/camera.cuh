@@ -27,6 +27,11 @@ private:
   float viewportWidth, viewportHeight = 2.0f; // NOLINT
 
   /**
+   * @brief number of samples for each pixels, used for eantialiasing
+   */
+  uint8_t num_samples_ppx = 8; // NOLINT
+
+  /**
    * @brief They are, respectively, the horizontal and vertical vectors of the
    * distance between each pixel center in world coordinates.
    */

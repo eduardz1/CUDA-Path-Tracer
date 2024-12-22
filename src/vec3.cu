@@ -16,6 +16,13 @@ __host__ __device__ auto Vec3::operator-() const -> Vec3 {
 __host__ __device__ auto Vec3::operator==(const Vec3 &other) const -> bool {
   return x == other.x && y == other.y && z == other.z;
 }
+__host__ __device__ auto Vec3::operator+=(const Vec3 &other) -> Vec3 & {
+  x += other.x;
+  y += other.y;
+  z += other.z;
+
+  return *this;
+}
 __device__ Vec3::operator float4() const { return make_float4(x, y, z, 1.0f); }
 
 __host__ __device__ auto Vec3::dot(const Vec3 &other) const -> float {

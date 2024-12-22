@@ -30,6 +30,7 @@ public:
 
   __host__ __device__ auto operator-() const -> Vec3;
   __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
+  __host__ __device__ auto operator+=(const Vec3 &v) -> Vec3&;
 
   /**
    * @brief Enables implicit conversion to the float4 type, useful for image
