@@ -1,6 +1,7 @@
 #include <climits>
 #include <cstdint>
 #include <cuda_runtime_api.h>
+#include <curand_kernel.h>
 
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
@@ -11,13 +12,14 @@
 #include "cuda_path_tracer/vec3.cuh"
 
 namespace {
+constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
-                       const Vec3 deltaV, const uint16_t x,
-                       const uint16_t y) -> Ray {
+                       const Vec3 deltaV, const uint16_t x, const uint16_t y)
+    -> Ray {
   auto center = pixel00 + deltaU * x + deltaV * y;
-  return {origin, center*64};
+  return {origin, center * 64};
 }
 
 /**
@@ -74,13 +76,19 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
  * @param width Width of the image
  * @param height Height of the image
  * @param image Image to render
- * @param camera Camera to render the image with
+ * @param origin Camera's origin
+ * @param pixel00 Pixel at the top left corner of the image
+ * @param deltaU Horizontal vector of the distance between each pixel center
+ * @param deltaV Vertical vector of the distance between each pixel center
+ * @param shapes Array of shapes to check for hits
+ * @param num_shapes Number of shapes in the array
+ * @param states Random number generator states for each pixel
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
                             const Vec3 deltaV, const Shape *shapes,
-                            const size_t num_shapes) {
+                            const size_t num_shapes, curandState *states) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -89,6 +97,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   }
 
   const auto index = y * width + x;
+  curand_init(SEED, index, 0, &states[index]);
+
   const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
   image[index] = convertColorTo8Bit(getColor(ray, shapes, num_shapes));
 }
@@ -101,6 +111,9 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
+  curandState *states;
+  CUDA_ERROR_CHECK(
+      cudaMalloc((void **)&states, width * height * sizeof(curandState)));
 
   const std::vector<Shape> &h_shapes = scene->getShapes();
   const size_t num_shapes = h_shapes.size();
@@ -118,7 +131,8 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   deltaU = viewportU / float(width);
   deltaV = viewportV / float(height);
 
-  pixel00 = (origin - viewportU / 2 - viewportV / 2 + origin);//+ (deltaU + deltaV) / 2;
+  pixel00 = (origin - viewportU / 2 - viewportV / 2 +
+             origin); //+ (deltaU + deltaV) / 2; // FIXME: this is wrong
 
   uchar4 *image_device;
 
@@ -131,7 +145,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
                                     pixel00, deltaU, deltaV, d_shapes,
-                                    num_shapes);
+                                    num_shapes, states);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 
