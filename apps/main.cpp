@@ -8,8 +8,8 @@
 #include <vector_types.h>
 
 auto main() -> int {
-  constexpr uint16_t image_width = 64;
-  constexpr uint16_t image_height = 64;
+  constexpr uint16_t image_width = 128;
+  constexpr uint16_t image_height = 128;
 
   uchar4 *image = new uchar4[image_width * image_height];
 
