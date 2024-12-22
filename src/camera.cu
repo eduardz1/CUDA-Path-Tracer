@@ -14,7 +14,7 @@
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
-constexpr size_t MAX_NUM_SHAPES_BEFORE_PARALLEL = 128;
+constexpr uint16_t MAX_NUM_SHAPES_BEFORE_PARALLEL = 128;
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
                        const Vec3 deltaV, const uint16_t x, const uint16_t y,
@@ -25,21 +25,26 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   auto sample = pixel00 + ((float(x) + offset.getX()) * deltaU) +
                 ((float(y) + offset.getY()) * deltaV);
 
-  // auto center = pixel00 + deltaU * x + deltaV * y;
-  // auto direction = sample - center;
-
-  // return {origin, direction};
   return {origin, sample - origin};
 }
 
-__device__ auto _hitShapesSequential(const Ray &ray, const Shape *shapes,
-                                     const size_t num_shapes, HitInfo &hi)
-    -> bool {
+/**
+ * @brief Saves the closest hit information in the HitInfo struct from the given
+ * ray and shapes. Returns true if a hit was found, false otherwise.
+ *
+ * @param ray Ray to check for hits
+ * @param shapes Array of shapes to check for hits
+ * @param num_shapes Number of shapes in the array
+ * @param hi HitInfo struct to save the hit information
+ * @return bool true if a hit was found, false otherwise
+ */
+__device__ auto hitShapes(const Ray &ray, const Shape *shapes,
+                          const uint16_t num_shapes, HitInfo &hi) -> bool {
   auto tmp = HitInfo();
   auto closest = RAY_T_MAX;
   auto hit_anything = false;
 
-  for (size_t i = 0; i < num_shapes; i++) {
+  for (auto i = 0; i < num_shapes; i++) {
     const bool hit = cuda::std::visit(
         [&ray, &tmp, closest](const auto &shape) {
           return shape.hit(ray, RAY_T_MIN, closest, tmp);
@@ -56,42 +61,8 @@ __device__ auto _hitShapesSequential(const Ray &ray, const Shape *shapes,
   return hit_anything;
 }
 
-__global__ void _hitShapesParallel(const Ray &ray, const Shape *shapes,
-                                   HitInfo &hi) {
-  const auto i = blockIdx.x * blockDim.x + threadIdx.x;
-
-  // TODO: check if it's correct to do "&shapes[i]"
-  const bool hit = _hitShapesSequential(ray, &shapes[i], 1, hi);
-}
-
-/**
- * @brief Saves the closest hit information in the HitInfo struct from the given
- * ray and shapes. Returns true if a hit was found, false otherwise.
- *
- * @param ray Ray to check for hits
- * @param shapes Array of shapes to check for hits
- * @param num_shapes Number of shapes in the array
- * @param hi HitInfo struct to save the hit information
- * @return bool true if a hit was found, false otherwise
- */
-__device__ auto hitShapes(const Ray &ray, const Shape *shapes,
-                          const size_t num_shapes, HitInfo &hi) -> bool {
-  // If the number of shapes is small enough a simple for loop is faster
-  if (num_shapes < MAX_NUM_SHAPES_BEFORE_PARALLEL) {
-    return _hitShapesSequential(ray, shapes, num_shapes, hi);
-  }
-
-  dim3 grid_size((num_shapes + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
-                 (num_shapes + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
-  _hitShapesParallel<<<grid_size, BLOCK_SIZE>>>(ray, shapes, hi);
-  __syncthreads();
-  // TODO: Reduction to find the closest hit (suggestion:
-  // https://github.com/NVIDIA/cuda-samples/blob/master/Samples/2_Concepts_and_Techniques/reduction/reduction_kernel.cu)
-  return false;
-}
-
 __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> Vec3 {
+                         const uint16_t num_shapes) -> Vec3 {
   auto hi = HitInfo();
   const bool hit = hitShapes(ray, shapes, num_shapes, hi);
 
@@ -102,6 +73,31 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
   auto unit_direction = makeUnitVector(ray.getDirection());
   auto t = 0.5f * (unit_direction.getY() + 1.0f);
   return (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+}
+
+__global__ void getColorParallel(const Ray &ray, const Shape *shapes,
+                                 const uint16_t num_shapes, Vec3 *color) {
+  const auto index = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (index >= num_shapes) {
+    return;
+  }
+
+  auto hi = HitInfo();
+
+  const bool hit = cuda::std::visit(
+      [&ray, &hi](const auto &shape) {
+        return shape.hit(ray, RAY_T_MIN, RAY_T_MAX, hi);
+      },
+      shapes[index]);
+
+  if (hit) {
+    color[index] = 0.5f * (hi.getNormal() + 1.0f);
+  } else {
+    auto unit_direction = makeUnitVector(ray.getDirection());
+    auto t = 0.5f * (unit_direction.getY() + 1.0f);
+    color[index] = (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+  }
 }
 
 /**
@@ -126,7 +122,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
                             const Vec3 deltaV, const Shape *shapes,
-                            const size_t num_shapes, curandState *states,
+                            const uint16_t num_shapes, curandState *states,
                             const uint8_t num_samples_ppx) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -142,7 +138,28 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   auto color = Vec3{};
   for (auto s = 0; s < num_samples_ppx; s++) {
     const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y, state);
-    color += getColor(ray, shapes, num_shapes);
+
+    // If the number of shapes is small enough a simple for loop is faster
+    if (num_shapes < MAX_NUM_SHAPES_BEFORE_PARALLEL) {
+      color += getColor(ray, shapes, num_shapes);
+    } else {
+      int block_size = 0;
+      int min_grid_size = 0;
+      int grid_size = 0;
+
+      cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size,
+                                         getColorParallel, 0, 0);
+      grid_size = (num_shapes + block_size - 1) / block_size;
+
+      extern __shared__ Vec3 colors[];
+      auto shared_memory_size = num_shapes * sizeof(Vec3);
+      getColorParallel<<<grid_size, block_size, shared_memory_size>>>(
+          ray, shapes, num_shapes, colors);
+      __syncthreads();
+      // TODO: Reduction to find the closest hit (suggestion:
+      // https://github.com/NVIDIA/cuda-samples/blob/master/Samples/2_Concepts_and_Techniques/reduction/reduction_kernel.cu)
+      __syncthreads();
+    }
   }
 
   image[index] = convertColorTo8Bit(color / float(num_samples_ppx));
@@ -161,7 +178,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
       cudaMalloc((void **)&states, width * height * sizeof(curandState)));
 
   const std::vector<Shape> &h_shapes = scene->getShapes();
-  const size_t num_shapes = h_shapes.size();
+  const uint16_t num_shapes = h_shapes.size();
   Shape *d_shapes;
   CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
   CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
@@ -196,9 +213,9 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   grid_size = (width * height + block_size - 1) / block_size;
 
-  renderImage<<<grid_size, block_size>>>(width, height, image_device, origin,
-                                         pixel00, deltaU, deltaV, d_shapes,
-                                         num_shapes, states, this->num_samples_ppx);
+  renderImage<<<grid_size, block_size>>>(
+      width, height, image_device, origin, pixel00, deltaU, deltaV, d_shapes,
+      num_shapes, states, this->num_samples_ppx);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 

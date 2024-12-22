@@ -24,6 +24,9 @@
 #eqcolumns(2)[
   = Design Methodology
 
+  - Dynamic parallelism for large amount of shapes
+  - CUDA Occupacy API for optimal block size
+
   // Give a brief overview of the overall algorithm (what is the algorithm you are parallelizing?). Identify where parallelism can be introduced to the algorithm. Discuss the code executed by the master and the slaves. Discuss how the master and slaves communicate and why they communicate. Provide figures and equations to support your explanations. There should be no results in this section. After reading this section, we should have a complete understanding of how you solved the problem without having to read your code for further details. At the same time, there should be little to no code in your report.
 
   #lorem(300)

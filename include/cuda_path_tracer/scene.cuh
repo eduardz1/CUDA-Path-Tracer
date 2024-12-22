@@ -17,7 +17,7 @@ public:
   // TODO: deconstructor
 
 private:
-  std::vector<Shape> shapes;
+  std::vector<Shape> shapes; // TODO: fix maxsize to uint16_t
 
   /**
    * @brief The width and height of the image in pixels.
