@@ -16,10 +16,19 @@ constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
 
 __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
-                       const Vec3 deltaV, const uint16_t x,
-                       const uint16_t y) -> Ray {
-  auto center = pixel00 + deltaU * x + deltaV * y;
-  return {origin, center};
+                       const Vec3 deltaV, const uint16_t x, const uint16_t y,
+                       curandState &state) -> Ray {
+  // We sample an area of "half pixel" around the pixel centers
+  auto offset =
+      Vec3{curand_uniform(&state) - 0.5f, curand_uniform(&state) - 0.5f, 0};
+  auto sample = pixel00 + ((float(x) + offset.getX()) * deltaU) +
+                ((float(y) + offset.getY()) * deltaV);
+
+  // auto center = pixel00 + deltaU * x + deltaV * y;
+  // auto direction = sample - center;
+
+  // return {origin, direction};
+  return {origin, sample - origin};
 }
 
 /**
@@ -54,7 +63,7 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
 }
 
 __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> float4 {
+                         const size_t num_shapes) -> Vec3 {
   auto hi = HitInfo();
   const bool hit = hitShapes(ray, shapes, num_shapes, hi);
 
@@ -83,12 +92,14 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
  * @param shapes Array of shapes to check for hits
  * @param num_shapes Number of shapes in the array
  * @param states Random number generator states for each pixel
+ * @param num_samples_ppx Number of samples for each pixel
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
                             const Vec3 deltaV, const Shape *shapes,
-                            const size_t num_shapes, curandState *states) {
+                            const size_t num_shapes, curandState *states,
+                            const uint8_t num_samples_ppx) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -99,8 +110,14 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   const auto index = y * width + x;
   curand_init(SEED, index, 0, &states[index]);
 
-  const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y);
-  image[index] = convertColorTo8Bit(getColor(ray, shapes, num_shapes));
+  curandState state = states[index];
+  auto color = Vec3{};
+  for (auto s = 0; s < num_samples_ppx; s++) {
+    const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y, state);
+    color += getColor(ray, shapes, num_shapes);
+  }
+
+  image[index] = convertColorTo8Bit(color / float(num_samples_ppx));
 }
 } // namespace
 
@@ -131,8 +148,8 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   deltaU = viewportU / float(width);
   deltaV = viewportV / float(height);
 
-  pixel00 = (origin - viewportU / 2 - viewportV / 2 + origin) +
-            (deltaU + deltaV) / 2;
+  pixel00 =
+      (origin - viewportU / 2 - viewportV / 2 + origin) + (deltaU + deltaV) / 2;
 
   uchar4 *image_device;
 
@@ -145,7 +162,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
                                     pixel00, deltaU, deltaV, d_shapes,
-                                    num_shapes, states);
+                                    num_shapes, states, this->num_samples_ppx);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 
