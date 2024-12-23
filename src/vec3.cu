@@ -25,15 +25,11 @@ __host__ __device__ auto Vec3::operator+=(const Vec3 &other) -> Vec3 & {
 }
 __device__ Vec3::operator float4() const { return make_float4(x, y, z, 1.0f); }
 
-__host__ __device__ auto Vec3::dot(const Vec3 &other) const -> float {
-  return x * other.x + y * other.y + z * other.z;
-}
-
-__device__ auto Vec3::getLengthSquared() const -> float {
+__host__ __device__ auto Vec3::getLengthSquared() const -> float {
   return x * x + y * y + z * z;
 }
 
-__device__ auto Vec3::getLength() const -> float {
+__host__ __device__ auto Vec3::getLength() const -> float {
   return sqrt(getLengthSquared());
 }
 
@@ -57,6 +53,16 @@ __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3 {
   return {v.getX() / t, v.getY() / t, v.getZ() / t};
 }
 
-__device__ auto makeUnitVector(const Vec3 &v) -> Vec3 {
+__host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3 {
   return v / v.getLength();
+}
+
+__host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float {
+  return v1.getX() * v2.getX() + v1.getY() * v2.getY() + v1.getZ() * v2.getZ();
+}
+
+__host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
+  return {v1.getY() * v2.getZ() - v1.getZ() * v2.getY(),
+          v1.getZ() * v2.getX() - v1.getX() * v2.getZ(),
+          v1.getX() * v2.getY() - v1.getY() * v2.getX()};
 }

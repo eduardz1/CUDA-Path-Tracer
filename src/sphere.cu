@@ -20,22 +20,23 @@ __device__ auto Sphere::hit(const Ray &r, const float hit_t_min,
   //
   // We simplify the formula by using the negative half of b, h = -b/2
 
-  Vec3 const oc = r.getOrigin() - center;
+  const Vec3 oc = this->center - r.getOrigin();
 
-  float const a = r.getDirection().getLengthSquared();
-  float const h = oc.dot(r.getDirection());
-  float const c = oc.getLengthSquared() - radius * radius;
+  const auto a = r.getDirection().getLengthSquared();
+  const auto h = dot(r.getDirection(), oc);
+  const auto c = oc.getLengthSquared() - radius * radius;
 
-  float const discriminant = h * h - a * c;
+  const auto discriminant = h * h - a * c;
 
   if (discriminant < 0) {
     return false;
   }
 
-  auto const sqrtd = sqrt(discriminant);
+  const auto sqrtd = sqrt(discriminant);
 
   // Finds the smallest root that is between the minimum and maximum t or exits
-  float root = (h - sqrtd) / a;
+  auto root = (h - sqrtd) / a;
+
   if (root < hit_t_min || hit_t_max < root) {
     root = (h + sqrtd) / a;
     if (root < hit_t_min || hit_t_max < root) {
