@@ -16,6 +16,7 @@ auto main() -> int {
   auto scene = std::make_shared<Scene>(image_width, image_height);
   scene->addShape(Sphere{{0, 0, -1.2}, 0.5});
   scene->addShape(Sphere{{-1, 0, -1}, 0.5});
+  scene->addShape(Sphere{{1, 0, -1}, 0.5});
   scene->addShape(Sphere{{0, -100.5, -1}, 100});
 
   Camera camera = {Vec3(-2, 2, 1)};

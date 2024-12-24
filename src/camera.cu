@@ -42,7 +42,8 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
   auto tmp = HitInfo();
   auto closest = RAY_T_MAX;
   auto hit_anything = false;
-  for (size_t i = 0; i < num_shapes; i++) {
+
+  for (auto i = 0; i < num_shapes; i++) {
     const bool hit = cuda::std::visit(
         [&ray, &tmp, closest](const auto &shape) {
           return shape.hit(ray, RAY_T_MIN, closest, tmp);
@@ -55,6 +56,7 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
       hi = tmp;
     }
   }
+
   return hit_anything;
 }
 
@@ -122,10 +124,10 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
 
-  const auto theta = float(this->verticalFov * (M_PI / 180));
+  const auto theta = this->verticalFov * M_PIf32 / 180;
   const auto h = std::tan(theta / 2);
 
-  this->viewportHeight = 2 * h * this->focusDistance;
+  this->viewportHeight *= h * this->focusDistance;
   this->viewportWidth = (float(width) / float(height)) * viewportHeight;
 
   const auto w = makeUnitVector(this->origin - this->lookAt);
@@ -143,8 +145,7 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   this->pixel00 = 0.5f * (deltaU + deltaV) + viewportUpperLeft;
 
   const float defocusRadius =
-      this->focusDistance *
-      float(std::tan((this->defocusAngle * (M_PI / 180)) / 2));
+      this->focusDistance * std::tan(this->defocusAngle * M_PIf32 / 360);
   this->defocusDiskU = u * defocusRadius;
   this->defocusDiskV = v * defocusRadius;
 }
@@ -159,8 +160,12 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   CUDA_ERROR_CHECK(
       cudaMalloc((void **)&states, width * height * sizeof(curandState)));
 
-  const std::vector<Shape> &h_shapes = scene->getShapes();
+  std::vector<Shape> &h_shapes = scene->getShapes();
+  // Dummy shape introduced because the last shape always fails to hit, cannot
+  // figure out why so this is a easy workaround
+  h_shapes.emplace_back(Sphere{0, 0});
   const size_t num_shapes = h_shapes.size();
+
   Shape *d_shapes;
   CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
   CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
