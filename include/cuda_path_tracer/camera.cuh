@@ -2,8 +2,12 @@
 
 #include "cuda_path_tracer/scene.cuh"
 #include "cuda_path_tracer/vec3.cuh"
+#include <cmath>
 #include <driver_types.h>
 #include <memory>
+
+//  number of samples for each pixels, used for eantialiasing
+#define NUM_SAMPLES 16
 
 class Camera {
 
@@ -12,6 +16,7 @@ public:
   __host__ Camera(const Vec3 &origin);
 
   __host__ void render(const std::shared_ptr<Scene> &scene, uchar4 *image);
+  __host__ void init(const std::shared_ptr<Scene> &scene);
 
   __host__ __device__ auto getScene() -> Scene *;
   __host__ __device__ auto getOrigin() -> Vec3;
@@ -26,10 +31,7 @@ private:
    */
   float viewportWidth, viewportHeight = 2.0f; // NOLINT
 
-  /**
-   * @brief number of samples for each pixels, used for eantialiasing
-   */
-  uint8_t num_samples_ppx = 8; // NOLINT
+  float verticalFov = 20.0f; // NOLINT
 
   /**
    * @brief They are, respectively, the horizontal and vertical vectors of the
@@ -46,5 +48,19 @@ private:
   /**
    * @brief The X Y Z coordinates of the camera's origin.
    */
-  Vec3 origin;
+  Vec3 origin = {0, 0, 0};
+
+  /**
+   * @brief The point the camera is looking at.
+   */
+  Vec3 lookAt = {0, 0, -1};
+
+  /**
+   * @brief The camera's up vector.
+   */
+  Vec3 up = {0, 1, 0};
+
+  Vec3 defocusDiskU, defocusDiskV;
+
+  float defocusAngle = 10, focusDistance = 3.4; // TODO: make these configurable
 };

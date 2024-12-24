@@ -12,6 +12,6 @@ __device__ auto HitInfo::getTime() const -> float { return time; }
 __device__ void HitInfo::setPoint(const Vec3 &point) { this->point = point; }
 __device__ void HitInfo::setTime(const float time) { this->time = time; }
 __device__ void HitInfo::setNormal(const Ray &r, const Vec3 &outward_normal) {
-  this->front = r.getDirection().dot(outward_normal) < 0;
+  this->front = dot(r.getDirection(), outward_normal) < 0;
   normal = this->front ? outward_normal : -outward_normal;
 }

@@ -24,10 +24,6 @@ __device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
   auto sample = pixel00 + ((float(x) + offset.getX()) * deltaU) +
                 ((float(y) + offset.getY()) * deltaV);
 
-  // auto center = pixel00 + deltaU * x + deltaV * y;
-  // auto direction = sample - center;
-
-  // return {origin, direction};
   return {origin, sample - origin};
 }
 
@@ -92,14 +88,12 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
  * @param shapes Array of shapes to check for hits
  * @param num_shapes Number of shapes in the array
  * @param states Random number generator states for each pixel
- * @param num_samples_ppx Number of samples for each pixel
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
                             const Vec3 deltaV, const Shape *shapes,
-                            const size_t num_shapes, curandState *states,
-                            const uint8_t num_samples_ppx) {
+                            const size_t num_shapes, curandState *states) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -112,20 +106,53 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 
   curandState state = states[index];
   auto color = Vec3{};
-  for (auto s = 0; s < num_samples_ppx; s++) {
+  for (auto s = 0; s < NUM_SAMPLES; s++) {
     const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y, state);
     color += getColor(ray, shapes, num_shapes);
   }
 
-  image[index] = convertColorTo8Bit(color / float(num_samples_ppx));
+  image[index] = convertColorTo8Bit(color / float(NUM_SAMPLES));
 }
 } // namespace
 
 __host__ Camera::Camera() : origin() {}
 __host__ Camera::Camera(const Vec3 &origin) : origin(origin) {}
 
+__host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
+  const auto width = scene->getWidth();
+  const auto height = scene->getHeight();
+
+  const auto theta = float(this->verticalFov * (M_PI / 180));
+  const auto h = std::tan(theta / 2);
+
+  this->viewportHeight = 2 * h * this->focusDistance;
+  this->viewportWidth = (float(width) / float(height)) * viewportHeight;
+
+  const auto w = makeUnitVector(this->origin - this->lookAt);
+  const auto u = makeUnitVector(cross(this->up, w));
+  const auto v = cross(w, u);
+
+  const auto viewportU = u * viewportWidth;
+  const auto viewportV = -v * viewportHeight;
+
+  this->deltaU = viewportU / float(width);
+  this->deltaV = viewportV / float(height);
+
+  const auto viewportUpperLeft =
+      this->origin - (this->focusDistance * w) - viewportU / 2 - viewportV / 2;
+  this->pixel00 = 0.5f * (deltaU + deltaV) + viewportUpperLeft;
+
+  const float defocusRadius =
+      this->focusDistance *
+      float(std::tan((this->defocusAngle * (M_PI / 180)) / 2));
+  this->defocusDiskU = u * defocusRadius;
+  this->defocusDiskV = v * defocusRadius;
+}
+
 __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                              uchar4 *image) {
+  this->init(scene);
+
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
   curandState *states;
@@ -140,17 +167,6 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                               num_shapes * sizeof(Sphere),
                               cudaMemcpyHostToDevice));
 
-  viewportWidth = (float(width) / float(height)) * viewportHeight;
-
-  auto viewportU = Vec3(viewportWidth, 0, 0);
-  auto viewportV = Vec3(0, -viewportHeight, 0);
-
-  deltaU = viewportU / float(width);
-  deltaV = viewportV / float(height);
-
-  pixel00 =
-      (origin - viewportU / 2 - viewportV / 2 + origin) + (deltaU + deltaV) / 2;
-
   uchar4 *image_device;
 
   const auto size = static_cast<long>(width) * height * sizeof(uchar4);
@@ -162,7 +178,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
                                     pixel00, deltaU, deltaV, d_shapes,
-                                    num_shapes, states, this->num_samples_ppx);
+                                    num_shapes, states);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 

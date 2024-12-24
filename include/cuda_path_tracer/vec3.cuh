@@ -30,7 +30,7 @@ public:
 
   __host__ __device__ auto operator-() const -> Vec3;
   __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
-  __host__ __device__ auto operator+=(const Vec3 &v) -> Vec3&;
+  __host__ __device__ auto operator+=(const Vec3 &v) -> Vec3 &;
 
   /**
    * @brief Enables implicit conversion to the float4 type, useful for image
@@ -42,10 +42,8 @@ public:
    */
   __device__ operator float4() const;
 
-  __host__ __device__ auto dot(const Vec3 &v) const -> float;
-
-  __device__ auto getLengthSquared() const -> float;
-  __device__ auto getLength() const -> float;
+  __host__ __device__ auto getLengthSquared() const -> float;
+  __host__ __device__ auto getLength() const -> float;
 
 private:
   float x, y, z;
@@ -58,4 +56,7 @@ __host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3;
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3;
 
-__device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
+__host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3;
+__host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float;
+
+__host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
