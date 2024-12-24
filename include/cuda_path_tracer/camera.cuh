@@ -7,7 +7,7 @@
 #include <memory>
 
 //  number of samples for each pixels, used for eantialiasing
-#define NUM_SAMPLES 16
+#define NUM_SAMPLES 512
 
 class Camera {
 

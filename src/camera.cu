@@ -15,21 +15,47 @@ namespace {
 constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
 
-__device__ auto getRay(const Vec3 origin, const Vec3 pixel00, const Vec3 deltaU,
-                       const Vec3 deltaV, const uint16_t x, const uint16_t y,
-                       curandState &state) -> Ray {
+__device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
+  while (true) {
+    auto p = Vec3{2.0f * curand_uniform(&state) - 1.0f,
+                  2.0f * curand_uniform(&state) - 1.0f, 0};
+
+    if (p.getLengthSquared() < 1.0f) {
+      return p;
+    }
+  }
+}
+
+__device__ auto defocusDiskSample(curandState &state, const Vec3 &center,
+                                  const Vec3 &u, const Vec3 &v) -> Vec3 {
+  auto p = randomInUnitDisk(state);
+  return center + p.getX() * u + p.getY() * v;
+}
+
+__device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
+                       const Vec3 &deltaU, const Vec3 &deltaV,
+                       const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+                       const float defocusAngle, const uint16_t x,
+                       const uint16_t y, curandState &state) -> Ray {
   // We sample an area of "half pixel" around the pixel centers
   auto offset =
       Vec3{curand_uniform(&state) - 0.5f, curand_uniform(&state) - 0.5f, 0};
+
   auto sample = pixel00 + ((float(x) + offset.getX()) * deltaU) +
                 ((float(y) + offset.getY()) * deltaV);
 
-  return {origin, sample - origin};
+  auto newOrigin =
+      defocusAngle <= 0
+          ? origin
+          : defocusDiskSample(state, origin, defocusDiskU, defocusDiskV);
+  auto direction = sample - newOrigin;
+
+  return {newOrigin, direction};
 }
 
 /**
- * @brief Saves the closest hit information in the HitInfo struct from the given
- * ray and shapes. Returns true if a hit was found, false otherwise.
+ * @brief Saves the closest hit information in the HitInfo struct from the
+ * given ray and shapes. Returns true if a hit was found, false otherwise.
  *
  * @param ray Ray to check for hits
  * @param shapes Array of shapes to check for hits
@@ -77,8 +103,8 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
 /**
  * @brief Kernel for rendering the image, works by calculating the pixel index
  * in the image, computing the Ray that goes from the camera's origin to the
- * pixel center, querying it for a color and then saving this color value in the
- * image buffer.
+ * pixel center, querying it for a color and then saving this color value in
+ * the image buffer.
  *
  * @param width Width of the image
  * @param height Height of the image
@@ -87,6 +113,9 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
  * @param pixel00 Pixel at the top left corner of the image
  * @param deltaU Horizontal vector of the distance between each pixel center
  * @param deltaV Vertical vector of the distance between each pixel center
+ * @param defocusDiskU Horizontal vector of the defocus disk
+ * @param defocusDiskV Vertical vector of the defocus disk
+ * @param defocusAngle Angle of the defocus disk
  * @param shapes Array of shapes to check for hits
  * @param num_shapes Number of shapes in the array
  * @param states Random number generator states for each pixel
@@ -94,8 +123,10 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             uchar4 *image, const Vec3 origin,
                             const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV, const Shape *shapes,
-                            const size_t num_shapes, curandState *states) {
+                            const Vec3 deltaV, const Vec3 defocusDiskU,
+                            const Vec3 defocusDiskV, const float defocusAngle,
+                            const Shape *shapes, const size_t num_shapes,
+                            curandState *states) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -109,7 +140,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   curandState state = states[index];
   auto color = Vec3{};
   for (auto s = 0; s < NUM_SAMPLES; s++) {
-    const auto ray = getRay(origin, pixel00, deltaU, deltaV, x, y, state);
+    const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
+                            defocusDiskV, defocusAngle, x, y, state);
     color += getColor(ray, shapes, num_shapes);
   }
 
@@ -181,9 +213,9 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
-  renderImage<<<grid, BLOCK_SIZE>>>(width, height, image_device, origin,
-                                    pixel00, deltaU, deltaV, d_shapes,
-                                    num_shapes, states);
+  renderImage<<<grid, BLOCK_SIZE>>>(
+      width, height, image_device, origin, pixel00, deltaU, deltaV,
+      defocusDiskU, defocusDiskV, defocusAngle, d_shapes, num_shapes, states);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 
