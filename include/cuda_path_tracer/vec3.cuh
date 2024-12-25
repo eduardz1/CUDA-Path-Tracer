@@ -13,6 +13,7 @@
 
 #include <driver_types.h>
 #include <ostream>
+#include <curand_kernel.h>
 
 /**
  * @brief Class for a 3D vector
@@ -60,3 +61,4 @@ __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float;
 
 __host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
+__device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3;

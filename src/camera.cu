@@ -87,9 +87,11 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
 }
 
 __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> Vec3 {
+                         const size_t num_shapes, curandState &state) -> Vec3 {
   auto hi = HitInfo();
   const bool hit = hitShapes(ray, shapes, num_shapes, hi);
+
+  Vec3 onSphere = vectorOnHemisphere(hi.getNormal(), state);
 
   if (hit) {
     return 0.5f * (hi.getNormal() + 1.0f);
@@ -142,7 +144,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   for (auto s = 0; s < NUM_SAMPLES; s++) {
     const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                             defocusDiskV, defocusAngle, x, y, state);
-    color += getColor(ray, shapes, num_shapes);
+    color += getColor(ray, shapes, num_shapes, state);
   }
 
   image[index] = convertColorTo8Bit(color / float(NUM_SAMPLES));
