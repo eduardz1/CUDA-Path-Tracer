@@ -14,6 +14,7 @@
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
+constexpr int DEPTH = 10;
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
@@ -87,19 +88,28 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
 }
 
 __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes, curandState &state) -> Vec3 {
-  auto hi = HitInfo();
-  const bool hit = hitShapes(ray, shapes, num_shapes, hi);
+                         const size_t num_shapes, curandState &state,
+                         int depth) -> Vec3 {
 
-  Vec3 onSphere = vectorOnHemisphere(hi.getNormal(), state);
+  Vec3 color = Vec3{1.0f, 1.0f, 1.0f};
+  Ray current = ray;
 
-  if (hit) {
-    return 0.5f * (hi.getNormal() + 1.0f);
+  for (int i = 0; i < depth; i++) {
+    auto hi = HitInfo();
+    const bool hit = hitShapes(current, shapes, num_shapes, hi);
+
+    if (hit) {
+      Vec3 direction = vectorOnHemisphere(hi.getNormal(), state);
+      color = 0.5f * color;
+      current = Ray(hi.getPoint(), direction);
+    } else {
+      auto unit_direction = makeUnitVector(current.getDirection());
+      auto t = 0.5f * (unit_direction.getY() + 1.0f);
+      color = color * (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+      break;
+    }
   }
-
-  auto unit_direction = makeUnitVector(ray.getDirection());
-  auto t = 0.5f * (unit_direction.getY() + 1.0f);
-  return (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+  return color;
 }
 
 /**
@@ -144,7 +154,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   for (auto s = 0; s < NUM_SAMPLES; s++) {
     const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                             defocusDiskV, defocusAngle, x, y, state);
-    color += getColor(ray, shapes, num_shapes, state);
+    color += getColor(ray, shapes, num_shapes, state, DEPTH);
   }
 
   image[index] = convertColorTo8Bit(color / float(NUM_SAMPLES));

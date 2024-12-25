@@ -79,5 +79,5 @@ __device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3 {
   if (dot(randomUnit, v) > 0.0) {
     return randomUnit;
   }
-  return randomUnit;
+  return -randomUnit;
 }
