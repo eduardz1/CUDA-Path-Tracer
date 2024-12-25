@@ -98,9 +98,11 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
     auto hi = HitInfo();
     const bool hit = hitShapes(current, shapes, num_shapes, hi);
 
+    // could possibly remove the shadow acne problem but this is a little change
     if (hit) {
-      Vec3 direction = vectorOnHemisphere(hi.getNormal(), state);
-      color = 0.5f * color;
+      Vec3 direction =
+          hi.getNormal() + vectorOnHemisphere(hi.getNormal(), state);
+      color = 0.1f * color;
       current = Ray(hi.getPoint(), direction);
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
