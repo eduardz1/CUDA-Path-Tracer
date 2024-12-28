@@ -7,10 +7,10 @@
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
+#include "cuda_path_tracer/lambertian.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-#include "cuda_path_tracer/lambertian.cuh"
 
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
@@ -106,10 +106,22 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
       Vec3 direction =
           hi.getNormal() + vectorOnHemisphere(hi.getNormal(), state);
 
-      // if (hi.getMaterial().scatter(ray, hi, attenuation, scattered, state)) {
-      //   color = attenuation * color;
-      //   current = Ray(hi.getPoint(), direction);
-      // };
+      Vec3 normal = hi.getNormal();
+      Vec3 point = hi.getPoint();
+      Material material = hi.getMaterial();
+
+      const bool scatter = cuda::std::visit(
+          [&ray, &normal, &point, &attenuation, &scattered,
+           &state](auto &material) {
+            return material.scatter(ray, normal, point, attenuation, scattered,
+                                    state);
+          },
+          material);
+
+      if (scatter) {
+        color = attenuation * color;
+        current = Ray(hi.getPoint(), direction);
+      }
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
