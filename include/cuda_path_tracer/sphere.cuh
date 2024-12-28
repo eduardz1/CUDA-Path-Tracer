@@ -15,7 +15,9 @@
 
 class Sphere {
 public:
-  __host__ Sphere(const Vec3 &center, float radius);
+
+  __host__ Sphere();
+  __host__ Sphere(const Vec3 &center, float radius, const Material &material);
 
   /**
    * @brief Saves the normal vector of the sphere at the point of intersection
@@ -33,8 +35,10 @@ public:
   __device__ auto hit(const Ray &r, const float hit_t_min,
                       const float hit_t_max, HitInfo &hi) const -> bool;
   __device__ auto getCenter() const -> Vec3;
+  __device__ auto getMaterial() const -> Material;
 
 private:
   Vec3 center;
   float radius;
+  Material material;
 };

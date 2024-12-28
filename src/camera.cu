@@ -10,6 +10,7 @@
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
+#include "cuda_path_tracer/lambertian.cuh"
 
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
@@ -100,10 +101,16 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
 
     // could possibly remove the shadow acne problem but this is a little change
     if (hit) {
+      Ray scattered;
+      Vec3 attenuation;
       Vec3 direction =
           hi.getNormal() + vectorOnHemisphere(hi.getNormal(), state);
-      color = 0.1f * color;
-      current = Ray(hi.getPoint(), direction);
+
+      // if (hi.getMaterial().scatter(ray, hi, attenuation, scattered, state)) {
+      //   color = attenuation * color;
+      //   current = Ray(hi.getPoint(), direction);
+      // };
+
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
       auto t = 0.5f * (unit_direction.getY() + 1.0f);
@@ -209,7 +216,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   std::vector<Shape> &h_shapes = scene->getShapes();
   // Dummy shape introduced because the last shape always fails to hit, cannot
   // figure out why so this is a easy workaround
-  h_shapes.emplace_back(Sphere{0, 0});
+  h_shapes.emplace_back(Sphere{});
   const size_t num_shapes = h_shapes.size();
 
   Shape *d_shapes;

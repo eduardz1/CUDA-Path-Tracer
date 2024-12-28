@@ -1,13 +1,15 @@
 #pragma once
 
 #include "cuda_path_tracer/ray.cuh"
+#include "cuda_path_tracer/vec3.cuh"
+#include "cuda_path_tracer/material.cuh"
+// #include "cuda_path_tracer/cudasharedptr.h"
 
 // minimum distance before considering a hit, to avoid self-intersection
 #define RAY_T_MIN 0.001f
 
 // maximum distance before considering a hit, to avoid infinite loops
 #define RAY_T_MAX 100000.0f
-
 /**
  * @brief Stores information about a ray hit on a Shape, including the time of
  * intersection, the point of intersection, and the normal vector at the point
@@ -16,14 +18,16 @@
 class HitInfo {
 public:
   __device__ HitInfo();
-  __device__ HitInfo(const Vec3 &point, const Vec3 &normal, const float time);
+  __device__ HitInfo(const Vec3 &point, const Vec3 &normal, const float time, const Material &material);
 
   __device__ auto getPoint() const -> Vec3;
   __device__ auto getNormal() const -> Vec3;
+  __device__ auto getMaterial() const -> Material;
   __device__ auto getTime() const -> float;
   __device__ auto getFront() const -> bool;
 
   __device__ void setPoint(const Vec3 &point);
+  __device__ void setMaterial(const Material &material);
 
   /**
    * @brief Set the Normal object, when a ray hits a Shape from outside, the
@@ -40,6 +44,7 @@ public:
 private:
   Vec3 point, normal;
   float time;
+  Material material;
 
   /**
    * @brief Stores whether the hit is on the front or back of the Shape

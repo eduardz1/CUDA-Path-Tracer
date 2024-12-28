@@ -1,8 +1,12 @@
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/sphere.cuh"
+#include "cuda_path_tracer/material.cuh"
 
-__host__ Sphere::Sphere(const Vec3 &center, const float radius)
-    : center(center), radius(static_cast<float>(std::fmax(0, radius))) {}
+__host__ Sphere::Sphere()
+    : center(Vec3(0,0,0)), radius(0), material(Material(Lambertian(Vec3(0,0,0)))) {}
+
+__host__ Sphere::Sphere(const Vec3 &center, const float radius, const Material &material)
+    : center(center), radius(static_cast<float>(std::fmax(0, radius))), material(material) {}
 
 __device__ auto Sphere::hit(const Ray &r, const float hit_t_min,
                             const float hit_t_max, HitInfo &hi) const -> bool {
@@ -47,8 +51,10 @@ __device__ auto Sphere::hit(const Ray &r, const float hit_t_min,
   hi.setTime(root);
   hi.setPoint(r.at(root));
   hi.setNormal(r, (hi.getPoint() - center) / radius);
+  hi.setMaterial(material);
 
   return true;
 }
 
 __device__ auto Sphere::getCenter() const -> Vec3 { return center; }
+__device__ auto Sphere::getMaterial() const -> Material { return material; }

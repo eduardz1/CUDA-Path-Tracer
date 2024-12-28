@@ -2,6 +2,7 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/sphere.cuh"
+#include "cuda_path_tracer/lambertian.cuh"
 #include <cstdint>
 #include <cstdlib>
 #include <vector_functions.h>
@@ -14,10 +15,10 @@ auto main() -> int {
   uchar4 *image = new uchar4[image_width * image_height];
 
   auto scene = std::make_shared<Scene>(image_width, image_height);
-  scene->addShape(Sphere{{0, 0, -1.2}, 0.5});
-  scene->addShape(Sphere{{-1, 0, -1}, 0.5});
-  scene->addShape(Sphere{{1, 0, -1}, 0.5});
-  scene->addShape(Sphere{{0, -100.5, -1}, 100});
+  scene->addShape(Sphere{{0, 0, -1.2}, 0.5, Lambertian(Vec3{0,0,0})});
+  scene->addShape(Sphere{{-1, 0, -1}, 0.5,  Lambertian(Vec3{0,0,0})});
+  scene->addShape(Sphere{{1, 0, -1}, 0.5,  Lambertian(Vec3{0,0,0})});
+  scene->addShape(Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0,0,0})});
 
   Camera camera = {Vec3(-2, 2, 1)};
   camera.render(scene, image);
