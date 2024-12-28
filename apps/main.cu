@@ -2,16 +2,17 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/sphere.cuh"
-#include <cstdint>
 #include <cstdlib>
+#include <thrust/host_vector.h>
 #include <vector_functions.h>
 #include <vector_types.h>
 
 auto main() -> int {
-  constexpr uint16_t image_width = 512;
-  constexpr uint16_t image_height = 512;
+  constexpr auto image_width = 512;
+  constexpr auto image_height = 512;
+  constexpr auto num_pixels = image_width * image_height;
 
-  uchar4 *image = new uchar4[image_width * image_height];
+  thrust::host_vector<uchar4> image(num_pixels);
 
   auto scene = std::make_shared<Scene>(image_width, image_height);
   scene->addShape(Sphere{{0, 0, -1.2}, 0.5});
@@ -22,9 +23,7 @@ auto main() -> int {
   Camera camera = {Vec3(-2, 2, 1)};
   camera.render(scene, image);
 
-  const std::vector<uchar4> image_v(image, image + image_width * image_height);
-
-  saveImageAsPPM("test_image.ppm", image_width, image_height, image_v);
+  saveImageAsPPM("test_image.ppm", image_width, image_height, image);
 
   return EXIT_SUCCESS;
 }

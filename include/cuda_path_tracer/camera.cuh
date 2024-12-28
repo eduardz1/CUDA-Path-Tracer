@@ -2,9 +2,9 @@
 
 #include "cuda_path_tracer/scene.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-#include <cmath>
 #include <driver_types.h>
 #include <memory>
+#include <thrust/host_vector.h>
 
 //  number of samples for each pixels, used for eantialiasing
 #define NUM_SAMPLES 512
@@ -15,7 +15,8 @@ public:
   __host__ Camera();
   __host__ Camera(const Vec3 &origin);
 
-  __host__ void render(const std::shared_ptr<Scene> &scene, uchar4 *image);
+  __host__ void render(const std::shared_ptr<Scene> &scene,
+                       thrust::host_vector<uchar4> &image);
   __host__ void init(const std::shared_ptr<Scene> &scene);
 
   __host__ __device__ auto getScene() -> Scene *;

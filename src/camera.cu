@@ -1,8 +1,3 @@
-#include <climits>
-#include <cstdint>
-#include <cuda_runtime_api.h>
-#include <curand_kernel.h>
-
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
@@ -10,6 +5,11 @@
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/vec3.cuh"
+#include <climits>
+#include <cstdint>
+#include <cuda_runtime_api.h>
+#include <curand_kernel.h>
+#include <vector>
 
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
@@ -183,45 +183,37 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
 }
 
 __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
-                             uchar4 *image) {
+                             thrust::host_vector<uchar4> &image) {
   this->init(scene);
 
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
-  curandState *states;
-  CUDA_ERROR_CHECK(
-      cudaMalloc((void **)&states, width * height * sizeof(curandState)));
 
-  std::vector<Shape> &h_shapes = scene->getShapes();
+  const auto num_pixels = width * height;
+
+  auto states = thrust::device_vector<curandState>(num_pixels);
+  curandState *states_array = thrust::raw_pointer_cast(states.data());
+
+  auto shapes = scene->getShapes();
+
   // Dummy shape introduced because the last shape always fails to hit, cannot
   // figure out why so this is a easy workaround
-  h_shapes.emplace_back(Sphere{0, 0});
-  const size_t num_shapes = h_shapes.size();
+  shapes.push_back(Sphere{0, 0});
 
-  Shape *d_shapes;
-  CUDA_ERROR_CHECK(cudaMalloc((void **)&d_shapes, num_shapes * sizeof(Shape)));
-  CUDA_ERROR_CHECK(cudaMemcpy(d_shapes, h_shapes.data(),
-                              num_shapes * sizeof(Sphere),
-                              cudaMemcpyHostToDevice));
-
-  uchar4 *image_device;
-
-  const auto size = static_cast<long>(width) * height * sizeof(uchar4);
-
-  CUDA_ERROR_CHECK(cudaMalloc((void **)&image_device, size));
+  thrust::device_vector<uchar4> image_d = image;
+  uchar4 *image_array = thrust::raw_pointer_cast(image_d.data());
+  Shape *shapes_array = thrust::raw_pointer_cast(shapes.data());
 
   dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
             (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
 
   renderImage<<<grid, BLOCK_SIZE>>>(
-      width, height, image_device, origin, pixel00, deltaU, deltaV,
-      defocusDiskU, defocusDiskV, defocusAngle, d_shapes, num_shapes, states);
+      width, height, image_array, origin, pixel00, deltaU, deltaV, defocusDiskU,
+      defocusDiskV, defocusAngle, shapes_array, shapes.size(), states_array);
   cudaDeviceSynchronize();
   CUDA_ERROR_CHECK(cudaGetLastError());
 
-  CUDA_ERROR_CHECK(
-      cudaMemcpy(image, image_device, size, cudaMemcpyDeviceToHost));
+  shapes.pop_back();
 
-  cudaFree(d_shapes);
-  CUDA_ERROR_CHECK(cudaGetLastError());
+  thrust::copy(image_d.begin(), image_d.end(), image.begin());
 }

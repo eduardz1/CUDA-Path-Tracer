@@ -13,12 +13,11 @@
 #include "cuda_path_tracer/image.cuh"
 #include <algorithm>
 #include <fstream>
-#include <vector>
 #include <vector_functions.h>
 
-__host__ void saveImageAsPPM(const char *filename, const int width,
-                             const int height,
-                             const std::vector<uchar4> &image) {
+__host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
+                             const uint16_t height,
+                             const thrust::host_vector<uchar4> &image) {
   std::ofstream file(filename);
 
   file << "P3\n";
