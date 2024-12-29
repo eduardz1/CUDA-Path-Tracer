@@ -10,29 +10,22 @@
 #define NUM_SAMPLES 512
 
 class Camera {
-
 public:
-  __host__ Camera();
-  __host__ Camera(const Vec3 &origin);
+  friend class CameraBuilder;
 
+  __host__ Camera();
   __host__ void render(const std::shared_ptr<Scene> &scene,
                        thrust::host_vector<uchar4> &image);
-  __host__ void init(const std::shared_ptr<Scene> &scene);
-
-  __host__ __device__ auto getScene() -> Scene *;
-  __host__ __device__ auto getOrigin() -> Vec3;
-  __host__ __device__ auto getViewportWidth() -> float;
-  __host__ __device__ auto getViewportHeight() -> float;
 
 private:
+  __host__ void init(const std::shared_ptr<Scene> &scene);
+
   /**
    * @brief viewportWidth and viewportHeight are the dimensions of the camera's
    * view. The viewport is a rectangle that represents the camera's view (our
    * world coordinates).
    */
   float viewportWidth, viewportHeight = 2.0f; // NOLINT
-
-  float verticalFov = 20.0f; // NOLINT
 
   /**
    * @brief They are, respectively, the horizontal and vertical vectors of the
@@ -49,19 +42,34 @@ private:
   /**
    * @brief The X Y Z coordinates of the camera's origin.
    */
-  Vec3 origin = {0, 0, 0};
+  Vec3 origin;
 
   /**
    * @brief The point the camera is looking at.
    */
-  Vec3 lookAt = {0, 0, -1};
+  Vec3 lookAt;
 
   /**
    * @brief The camera's up vector.
    */
-  Vec3 up = {0, 1, 0};
+  Vec3 up;
 
   Vec3 defocusDiskU, defocusDiskV;
 
-  float defocusAngle = 10, focusDistance = 3.4; // TODO: make these configurable
+  float defocusAngle, focusDistance, verticalFov;
+};
+
+class CameraBuilder {
+public:
+  __host__ CameraBuilder();
+  __host__ auto origin(const Vec3 &origin) -> CameraBuilder &;
+  __host__ auto lookAt(const Vec3 &lookAt) -> CameraBuilder &;
+  __host__ auto up(const Vec3 &up) -> CameraBuilder &;
+  __host__ auto verticalFov(float verticalFov) -> CameraBuilder &;
+  __host__ auto focusDistance(float focusDistance) -> CameraBuilder &;
+  __host__ auto defocusAngle(float defocusAngle) -> CameraBuilder &;
+  __host__ auto build() -> Camera;
+
+private:
+  Camera camera;
 };

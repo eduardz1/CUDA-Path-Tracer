@@ -1,4 +1,8 @@
 set(HEADER_LIST
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/parallelogram.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rectangular_cuboid.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rotation.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/sphere.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
@@ -6,23 +10,24 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/sphere.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/utilities.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/world.cuh"
 )
 
 add_library(cuda_path_tracer_lib
 
     # SHARED
+    shapes/parallelogram.cu
+    shapes/rectangular_cuboid.cu
+    shapes/rotation.cu
+    shapes/sphere.cu
     camera.cu
     error.cu
     hit_info.cu
     image.cu
     ray.cu
     scene.cu
-    sphere.cu
     vec3.cu
-    world.cu
     ${HEADER_LIST}
 )
 

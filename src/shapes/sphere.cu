@@ -1,5 +1,5 @@
 #include "cuda_path_tracer/hit_info.cuh"
-#include "cuda_path_tracer/sphere.cuh"
+#include "cuda_path_tracer/shapes/sphere.cuh"
 
 __host__ Sphere::Sphere(const Vec3 &center, const float radius)
     : center(center), radius(static_cast<float>(std::fmax(0, radius))) {}

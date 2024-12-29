@@ -35,6 +35,7 @@ public:
    * @param outward_normal Normal vector at the point of intersection
    */
   __device__ void setNormal(const Ray &r, const Vec3 &outward_normal);
+  __device__ void setNormal(const Vec3 &normal);
   __device__ void setTime(const float time);
 
 private:
