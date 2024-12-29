@@ -4,12 +4,12 @@
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
+#include "cuda_path_tracer/utilities.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 #include <climits>
 #include <cstdint>
 #include <cuda_runtime_api.h>
 #include <curand_kernel.h>
-#include <vector>
 
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
@@ -150,13 +150,12 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 } // namespace
 
 __host__ Camera::Camera() : origin() {}
-__host__ Camera::Camera(const Vec3 &origin) : origin(origin) {}
 
 __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
 
-  const auto theta = this->verticalFov * M_PIf32 / 180;
+  const auto theta = DEGREE_TO_RADIAN(this->verticalFov);
   const auto h = std::tan(theta / 2);
 
   this->viewportHeight *= h * this->focusDistance;
@@ -177,7 +176,8 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   this->pixel00 = 0.5f * (deltaU + deltaV) + viewportUpperLeft;
 
   const float defocusRadius =
-      this->focusDistance * std::tan(this->defocusAngle * M_PIf32 / 360);
+      this->focusDistance *
+      std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0f);
   this->defocusDiskU = u * defocusRadius;
   this->defocusDiskV = v * defocusRadius;
 }
@@ -217,3 +217,33 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   thrust::copy(image_d.begin(), image_d.end(), image.begin());
 }
+
+__host__ CameraBuilder::CameraBuilder() : camera() {}
+__host__ auto CameraBuilder::origin(const Vec3 &origin) -> CameraBuilder & {
+  this->camera.origin = origin;
+  return *this;
+}
+__host__ auto CameraBuilder::lookAt(const Vec3 &lookAt) -> CameraBuilder & {
+  this->camera.lookAt = lookAt;
+  return *this;
+}
+__host__ auto CameraBuilder::up(const Vec3 &up) -> CameraBuilder & {
+  this->camera.up = up;
+  return *this;
+}
+__host__ auto
+CameraBuilder::verticalFov(const float verticalFov) -> CameraBuilder & {
+  this->camera.verticalFov = verticalFov;
+  return *this;
+}
+__host__ auto
+CameraBuilder::defocusAngle(const float defocusAngle) -> CameraBuilder & {
+  this->camera.defocusAngle = defocusAngle;
+  return *this;
+}
+__host__ auto
+CameraBuilder::focusDistance(const float focusDistance) -> CameraBuilder & {
+  this->camera.focusDistance = focusDistance;
+  return *this;
+}
+__host__ auto CameraBuilder::build() -> Camera { return this->camera; }

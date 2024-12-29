@@ -15,3 +15,6 @@ __device__ void HitInfo::setNormal(const Ray &r, const Vec3 &outward_normal) {
   this->front = dot(r.getDirection(), outward_normal) < 0;
   normal = this->front ? outward_normal : -outward_normal;
 }
+__device__ void HitInfo::setNormal(const Vec3 &normal) {
+  this->normal = normal;
+}
