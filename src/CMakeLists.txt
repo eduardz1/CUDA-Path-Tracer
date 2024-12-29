@@ -15,8 +15,6 @@ set(HEADER_LIST
 )
 
 add_library(cuda_path_tracer_lib
-
-    # SHARED
     shapes/parallelogram.cu
     shapes/rectangular_cuboid.cu
     shapes/rotation.cu
@@ -43,13 +41,14 @@ if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
     target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
 endif()
 
+if (CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")
+    target_compile_options(cuda_path_tracer_lib PRIVATE --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13)
+endif()
+
 set_target_properties(cuda_path_tracer_lib
     PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
     CUDA_RESOLVE_DEVICE_SYMBOLS ON
-
-    # CUDA_RUNTIME_LIBRARY Shared
-    CUDA_ARCHITECTURES 50
 )
 
 source_group(

@@ -6,7 +6,7 @@ Project for the course in GPU Computing at the University of Grenoble Alpes, INP
 To run the project use the following command:
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ./build/apps/cuda_path_tracer
 ```

@@ -7,6 +7,9 @@ __host__ Rotation::Rotation(const Vec3 &angles) : angles(angles) {
 
 __host__ auto Rotation::cacheTrigValues() -> void {
   struct {
+#ifdef __NVCC__
+#pragma nv_diag_suppress 2361
+#endif
     float x, y, z;
   } angles_rad = {DEGREE_TO_RADIAN(angles.getX()),
                   DEGREE_TO_RADIAN(angles.getY()),
