@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "cuda_path_tracer/vec3.cuh"
 #include <cstdint>
 #include <driver_types.h>
 #include <string>
@@ -31,9 +32,9 @@ __host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
                              const thrust::host_vector<uchar4> &image);
 
 /**
- * @brief Convert a float4 color to a char4 color
+ * @brief Convert a Vec3 color to a char4 color
  *
- * @param color float4 color with values between 0 and 1
+ * @param color Vec3 color with values between 0 and 1
  * @return char4 color with values between 0 and 255
  */
-__device__ auto convertColorTo8Bit(float4 color) -> uchar4;
+__device__ auto convertColorTo8Bit(Vec3 color) -> uchar4;

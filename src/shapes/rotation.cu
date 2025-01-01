@@ -11,9 +11,8 @@ __host__ auto Rotation::cacheTrigValues() -> void {
 #pragma nv_diag_suppress 2361
 #endif
     float x, y, z;
-  } angles_rad = {DEGREE_TO_RADIAN(angles.getX()),
-                  DEGREE_TO_RADIAN(angles.getY()),
-                  DEGREE_TO_RADIAN(angles.getZ())};
+  } angles_rad = {DEGREE_TO_RADIAN(angles.x), DEGREE_TO_RADIAN(angles.y),
+                  DEGREE_TO_RADIAN(angles.z)};
 
   x = {
       std::sin(angles_rad.x),
@@ -60,19 +59,19 @@ __device__ auto Rotation::rotatePoint(const Vec3 &point,
   }
 
   const auto x_rot = Vec3{
-      point.getX(),
-      x.cos * point.getY() - x.sin * point.getZ(),
-      x.sin * point.getY() + x.cos * point.getZ(),
+      point.x,
+      x.cos * point.y - x.sin * point.z,
+      x.sin * point.y + x.cos * point.z,
   };
   const auto y_rot = Vec3{
-      y.cos * x_rot.getX() + y.sin * x_rot.getZ(),
-      x_rot.getY(),
-      -y.sin * x_rot.getX() + y.cos * x_rot.getZ(),
+      y.cos * x_rot.x + y.sin * x_rot.z,
+      x_rot.y,
+      -y.sin * x_rot.x + y.cos * x_rot.z,
   };
   const auto z_rot = Vec3{
-      z.cos * y_rot.getX() - z.sin * y_rot.getY(),
-      z.sin * y_rot.getX() + z.cos * y_rot.getY(),
-      y_rot.getZ(),
+      z.cos * y_rot.x - z.sin * y_rot.y,
+      z.sin * y_rot.x + z.cos * y_rot.y,
+      y_rot.z,
   };
 
   return z_rot;

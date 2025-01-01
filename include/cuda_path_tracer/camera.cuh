@@ -1,13 +1,19 @@
 #pragma once
 
 #include "cuda_path_tracer/scene.cuh"
+#include "cuda_path_tracer/utilities.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 #include <driver_types.h>
 #include <memory>
 #include <thrust/host_vector.h>
 
-//  number of samples for each pixels, used for eantialiasing
-#define NUM_SAMPLES 512
+// number of samples for each pixels, used for eantialiasing
+#define NUM_SAMPLES 64
+// number of images to render and then average together, provides a similar
+// effect to antialiasing (controlled by NUM_SAMPLES) but it's more
+// parallelizable ideally try to balance the two hyper parameters. They are
+// pretty much the same thing, so 16x32 is the same as 32x16.
+#define NUM_IMAGES 16
 
 class Camera {
 public:
@@ -15,7 +21,7 @@ public:
 
   __host__ Camera();
   __host__ void render(const std::shared_ptr<Scene> &scene,
-                       thrust::host_vector<uchar4> &image);
+                       universal_host_pinned_vector<uchar4> &image);
 
 private:
   __host__ void init(const std::shared_ptr<Scene> &scene);

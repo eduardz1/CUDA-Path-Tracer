@@ -5,22 +5,20 @@
 __host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b)
     : a(a), b(b) {
   const auto min =
-      Vec3(std::fmin(a.getX(), b.getX()), std::fmin(a.getY(), b.getY()),
-           std::fmin(a.getZ(), b.getZ()));
+      Vec3(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
   const auto max =
-      Vec3(std::fmax(a.getX(), b.getX()), std::fmax(a.getY(), b.getY()),
-           std::fmax(a.getZ(), b.getZ()));
+      Vec3(std::fmax(a.x, b.x), std::fmax(a.y, b.y), std::fmax(a.z, b.z));
 
-  const auto dx = Vec3(max.getX() - min.getX(), 0, 0);
-  const auto dy = Vec3(0, max.getY() - min.getY(), 0);
-  const auto dz = Vec3(0, 0, max.getZ() - min.getZ());
+  const auto dx = Vec3(max.x - min.x, 0, 0);
+  const auto dy = Vec3(0, max.y - min.y, 0);
+  const auto dz = Vec3(0, 0, max.z - min.z);
 
   faces.left = Parallelogram(min, dz, dy);
   faces.bottom = Parallelogram(min, dx, dz);
-  faces.front = Parallelogram({min.getX(), min.getY(), max.getZ()}, dx, dy);
-  faces.right = Parallelogram({max.getX(), min.getY(), max.getZ()}, -dz, dy);
-  faces.back = Parallelogram({max.getX(), min.getY(), min.getZ()}, -dx, dy);
-  faces.top = Parallelogram({min.getX(), max.getY(), max.getZ()}, dx, -dz);
+  faces.front = Parallelogram({min.x, min.y, max.z}, dx, dy);
+  faces.right = Parallelogram({max.x, min.y, max.z}, -dz, dy);
+  faces.back = Parallelogram({max.x, min.y, min.z}, -dx, dy);
+  faces.top = Parallelogram({min.x, max.y, max.z}, dx, -dz);
 };
 
 __host__ auto
@@ -30,8 +28,7 @@ RectangularCuboid::rotate(const Vec3 &angles) -> RectangularCuboid & {
 };
 __host__ auto
 RectangularCuboid::translate(const Vec3 &translation) -> RectangularCuboid & {
-  this->translation +=
-      {-translation.getX(), translation.getY(), translation.getZ()};
+  this->translation += {-translation.x, translation.y, translation.z};
   return *this;
 };
 

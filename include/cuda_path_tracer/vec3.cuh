@@ -18,15 +18,13 @@
  * @brief Class for a 3D vector
  *
  */
-class Vec3 {
-public:
-  __host__ __device__ Vec3();
-  __host__ __device__ Vec3(float x);
-  __host__ __device__ Vec3(float x, float y, float z);
+struct Vec3 {
+  float x, y, z; // NOLINT
 
-  __host__ __device__ auto getX() const -> float;
-  __host__ __device__ auto getY() const -> float;
-  __host__ __device__ auto getZ() const -> float;
+  __host__ __device__ Vec3();
+  __host__ __device__ Vec3(const float x);
+  __host__ __device__ Vec3(const float x, const float y, const float z);
+  __host__ __device__ Vec3(const float4 &v);
 
   __host__ __device__ auto operator-() const -> Vec3;
   __host__ __device__ auto operator==(const Vec3 &v) const -> bool;
@@ -44,9 +42,6 @@ public:
 
   __host__ __device__ auto getLengthSquared() const -> float;
   __host__ __device__ auto getLength() const -> float;
-
-private:
-  float x, y, z;
 };
 
 __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream &;

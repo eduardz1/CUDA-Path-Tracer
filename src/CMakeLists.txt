@@ -38,7 +38,7 @@ target_include_directories(cuda_path_tracer_lib
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
-    target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
+    target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
 endif()
 
 if (CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")

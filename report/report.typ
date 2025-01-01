@@ -32,6 +32,15 @@
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
 
+  - Talk about changing block size
+  - talk about LTO
+  - talk about reducing `poll` and `ioctl` calls
+  - talk about reducing in parallel with `thrust`
+  - talk about avaraging multiple images in combination of shooting multiple rays
+  - talk about pinned memory because it's a nice flex
+  - talk about no dynamic parallelysm because clang does not support it
+  - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
+
   = Conclusion
 
   // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)

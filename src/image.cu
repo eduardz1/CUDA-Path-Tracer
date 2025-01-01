@@ -12,6 +12,7 @@
 
 #include "cuda_path_tracer/image.cuh"
 #include <algorithm>
+#include <climits>
 #include <fstream>
 #include <vector_functions.h>
 
@@ -31,7 +32,7 @@ __host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
   file.close();
 }
 
-__device__ auto convertColorTo8Bit(const float4 color) -> uchar4 {
+__device__ auto convertColorTo8Bit(const Vec3 color) -> uchar4 {
   return make_uchar4(
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
                                  std::clamp(color.x, 0.0f, 1.0f)),
@@ -39,6 +40,5 @@ __device__ auto convertColorTo8Bit(const float4 color) -> uchar4 {
                                  std::clamp(color.y, 0.0f, 1.0f)),
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
                                  std::clamp(color.z, 0.0f, 1.0f)),
-      static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
-                                 std::clamp(color.w, 0.0f, 1.0f)));
+      UCHAR_MAX);
 }
