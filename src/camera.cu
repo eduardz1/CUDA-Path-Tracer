@@ -97,40 +97,40 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
 
   for (int i = 0; i < depth; i++) {
     auto hi = HitInfo();
-    const bool hit = hitShapes(current, shapes, num_shapes, hi);
+    bool hit = hitShapes(current, shapes, num_shapes, hi);
 
     // could possibly remove the shadow acne problem but this is a little change
     if (hit) {
       Ray scattered;
       Vec3 attenuation;
-      Vec3 direction =
-          hi.getNormal() + vectorOnHemisphere(hi.getNormal(), state);
 
       Vec3 normal = hi.getNormal();
       Vec3 point = hi.getPoint();
       Material material = hi.getMaterial();
 
-      const bool scatter = cuda::std::visit(
-          [&ray, &normal, &point, &attenuation, &scattered,
+      bool scatter = cuda::std::visit(
+          [&current, &normal, &point, &attenuation, &scattered,
            &state](auto &material) {
-            return material.scatter(ray, normal, point, attenuation, scattered,
-                                    state);
+            return material.scatter(current, normal, point, attenuation,
+                                    scattered, state);
           },
           material);
 
       if (scatter) {
-        color = attenuation * color;
-        current = Ray(hi.getPoint(), direction);
+        color = color * attenuation;
+        current = scattered;
+      } else {
+        return Vec3{0.0f, 0.0f, 0.0f};
       }
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
       auto t = 0.5f * (unit_direction.getY() + 1.0f);
-      color = color * (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
-      break;
+      return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
+             t * Vec3{0.5f, 0.7f, 1.0f};
     }
   }
-  return color;
+  return Vec3{0, 0, 0};
 }
 
 /**

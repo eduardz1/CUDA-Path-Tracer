@@ -91,3 +91,7 @@ __device__ auto roundScatterDirection(const Vec3 &direction,
   }
   return direction;
 }
+
+__device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3 {
+  return v - 2*dot(v, n)*n;
+}

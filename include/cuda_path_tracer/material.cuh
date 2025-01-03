@@ -2,6 +2,7 @@
 
 
 #include "lambertian.cuh"
+#include "metal.cuh"
 #include <cuda/std/variant>
 
-using Material = cuda::std::variant<Lambertian>;
+using Material = cuda::std::variant<Lambertian, Metal>;
