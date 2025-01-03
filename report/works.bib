@@ -64,3 +64,37 @@
   abstract  = {Publisher Summary
                This chapter presents a simple, but powerful implementation of Interval arithmetic (IA) on CUDA graphics processing units (GPUs). Applications running on GPU systems can be considered as ill-conditioned, and no catastrophic or exceptional event may be blamed for computed results that fall too far from their target. One solution is to spend some of the impressive computing power offered by GPUs to compute a validated range for the results instead of the uncontrolled estimation delivered by regular floating-point arithmetic. Interval arithmetic (IA) accounts for uncertainties in data at operator level and returns reliable bounds that include the correct result of an expression. The basic principle of IA is to replace approximate floating-point numbers by intervals enclosing the results. Expressions and programs are then evaluated on intervals instead of points. Naive use of IA often provides very little insights, but common techniques of IA are profitably used in computer graphics (including ray tracing of implicit surfaces), root finding, and in various other fields to estimate and reduce the effects of rounding errors and characterize tolerance on parameters. This chapter also describes the procedure to implement IA in CUDA and take advantage of the latest features of NVIDIA GPUs. The proposed implementation is easier to use than an equivalent CPU implementation such as the Boost Interval package as there is no need to deal with different executions mode, and it is faster and more work efficient as it increases arithmetic intensity.}
 }
+@misc{DynParallelism,
+  title  = {CUDA Dynamic Parallelism API and Principles},
+  author = {Andy Adinets},
+  year   = {2014},
+  month  = {May},
+  day    = {20},
+  url    = {https://developer.nvidia.com/blog/cuda-dynamic-parallelism-api-principles/}
+}
+@misc{PinnedMemory,
+  title  = {How to Optimize Data Transfers in CUDA C/C++},
+  author = {Mark Harris},
+  year   = {2012},
+  month  = {December},
+  day    = {4},
+  url    = {https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/}
+}
+@misc{CUDAGuide,
+  title  = {CUDA C++ Programming Guide},
+  author = {NVIDIA Corporation},
+  url    = {https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html}
+}
+@misc{ThrustLib,
+  title  = {Thrust: The C++ Parallel Algorithms Library},
+  author = {NVIDIA Corporation},
+  url    = {https://nvidia.github.io/cccl/thrust/}
+}
+@misc{CUDAStream,
+  title  = {CUDA Stream},
+  author = {Lei Mao},
+  year   = {2020},
+  month  = {February},
+  day    = {2},
+  url    = {https://leimao.github.io/blog/CUDA-Stream/}
+}

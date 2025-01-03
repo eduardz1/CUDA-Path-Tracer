@@ -1,4 +1,5 @@
-#import "template.typ": template, eqcolumns
+#import "template.typ": template, eqcolumns, pseudocode-list
+
 
 #show: template.with(
   title: [CUDA Path Tracer],
@@ -26,39 +27,98 @@
 
   // Give a brief overview of the overall algorithm (what is the algorithm you are parallelizing?). Identify where parallelism can be introduced to the algorithm. Discuss the code executed by the master and the slaves. Discuss how the master and slaves communicate and why they communicate. Provide figures and equations to support your explanations. There should be no results in this section. After reading this section, we should have a complete understanding of how you solved the problem without having to read your code for further details. At the same time, there should be little to no code in your report.
 
-  #lorem(300)
+  The code we are parallelizing is that of a path tracer. This algorithm has the advantage of being embarrassingly parallel due to its nature. Each pixel is sampled $N$ times and each sample is independent of the other. The rendering of an image in our path tracer can be summarized in the following pseudocode:
+
+  #figure(
+    kind: "algorithm",
+    supplement: [Algorithm],
+
+    pseudocode-list(
+      booktabs: true,
+      numbered-title: [Rendering algorithm for a generic path tracer],
+    )[
+      + *function* #smallcaps[Render]\(image)
+        + *for each* pixel in image:
+          + *for each* sample in samples:
+            + ray = #smallcaps[GetRay]\(pixel, sample)
+            + color = #smallcaps[GetColor]\(ray)
+            + pixel.color += color
+          + *end for*
+          + pixel.color /= samples.size()
+        + *end for*
+      + *end function*
+
+    ],
+  )
+
+  // TODO: Pseudocode for the GetRay and GetColor functions
+
+  The algorithm can be visualized as a map-reduce operation, where each ray is mapped to a color and then reduced to a single color.
+
+  When parallelizing the code, we considered multiple approaches.
+
+  On one hand spectrum we could parallelize only the rendering of each pixel, by invoking a thread for each pixel and then maintaining the loop over the samples in the kernel. This is the first approach we explored, it's the most straight-forward but becomes inefficient when the number of samples is high. In this configuration, the reduce operation is done at each step, making it more efficient.
+
+  On the other hand, we could effectively consider the image as having size $("WIDTH" times "SAMPLES" / 2) times ("HEIGHT" times "SAMPLES" / 2)$ and parallelize the rendering of each pixel-sample pair. The reduce operation is then done in parallel and corresponds to a subsampling of the image to the original size. This approach is more efficient and provides the highest possible parallelism, however, it requires a lot of memory, consider for example a 1080p image with 1024 samples per pixel, the expanded image array, considering that each pixel is represented by 4 bytes, would occupy $1920 times 1080 times 4 times 1024 = 8493465600 "bytes" approx 8 "GB"$ of memory.
+
+  Another approach we considered was to parallelize the sampling directly by launching a nested kernel inside each pixel kernel. This approach utilizes a niche feature of CUDA, dynamic parallelism @DynParallelism, which allows a kernel to launch another kernel. While we explored initially this approach, we wanted to keep the code compilable with clang, which does not support this feature.
+
+  Finally, we could consider a hybrid approach, where we maintain the loop over the samples in the kernel, but we diminish the need to have a high number of samples by averaging multiple images. This is the approach that we decided to present as the final implementation.
+
+  #figure(
+    image("imgs/camera.drawio.svg"),
+    caption: [Camera rendering model],
+  )
+
+  == Streams
+
+  To parallelize the rendering of multiple images we utilized CUDA streams @CUDAStream. This allowed us to render multiple images in parallel, by launching multiple kernels in different streams.
+
+  == Pinned Memory
+
+  To eliminate completely the need for copying data between the host and the device, we used pinned memory to allocate the image buffer @PinnedMemory. This allows us to directly access the memory from the device without the need to copy it. This proves useful also when reducing multiple images into the final one, as we can directly write the result in the final image buffer without the need to allocate a temporary buffer.
+
+  == Thrust
+
+  In our project we used the Thrust library @ThrustLib to abstract away some operations, like the array allocations. This makes it explicit where we are using device allocated arrays, and where we are using host allocated arrays.
+
+  == Polymorphism
+
+  Given that CUDA does not
 
   = Results
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
 
+  == Different compiler and Link Time Optimization (LTO)
+
+  CUDA code can be compiled with different compilers, we tested our code with `nvcc` and `clang`. While we had a preference with clang due to the great integration with the LLVM suite of tools (like `clang-format`, `clang-tidy` and in particular `clangd`, which provides modern LSP features), we found it lacking in some features, notably the aforementioned dynamic parallelism but more importantly the lack of support for LTO (also known as _Interprocedural Optimization_ or IPO).
+
+  While the code compiled with clang was generally faster without LTO, this feature caused `nvcc` to completely overtake the performance of clang. In our CMake configuration LTO support is checked and enabled automatically with the `checkIPOSupported` function of CMake.
+
+  ```cmake
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT supported OUTPUT error)
+
+  if (supported)
+      set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  else()
+      message(WARNING "IPO is not supported: ${error}")
+  endif()
+  ```
+
+  For this reason, all the benchmarks presented in this report were done with code compiled using `nvcc` with LTO enabled.
+
+  == Notes
+
   - Talk about changing block size
   - talk about LTO
   - talk about reducing `poll` and `ioctl` calls
   - talk about reducing in parallel with `thrust`
-  - talk about avaraging multiple images in combination of shooting multiple rays
-  - talk about pinned memory because it's a nice flex
-  - talk about no dynamic parallelysm because clang does not support it
   - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
+  - talk about cudaOccupacyAPI.
 
   = Conclusion
 
   // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)
-]
-
-#place(bottom + center, scope: "parent", float: true)[
-  ```cpp
-  __device__ auto getColor(const Ray &ray, const Shape *shapes,
-                           const size_t num_shapes) -> uchar4 {
-    for (size_t i = 0; i < num_shapes; i++) {
-      bool hit = cuda::std::visit(
-          [&ray](const auto &shape) { return shape.hit(ray); }, shapes[i]);
-
-      if (hit) {
-        return make_uchar4(1, 0, 0, UCHAR_MAX);
-      }
-    }
-    return make_uchar4(0, 0, 1, UCHAR_MAX);
-  }
-  ```
 ]

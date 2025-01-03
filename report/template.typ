@@ -1,5 +1,7 @@
 #import "@preview/codly:1.1.1": *
 #import "@preview/codly-languages:0.1.3": *
+#import "@preview/lovelace:0.3.0": *
+
 
 #let eqcolumns(n, gutter: 4%, content) = {
   layout(size => [
@@ -39,9 +41,7 @@
   {
     // Title Page
     set align(center)
-    set page(
-      footer: text(fill: gray)[ #subtitle \ #datetime.today().display()],
-    )
+    set page(footer: text(fill: gray)[ #subtitle \ #datetime.today().display()])
     let width = 70%
 
     v(0.1fr)
@@ -75,6 +75,7 @@
   }
 
   show raw: set text(font: "Fira Code")
+  show raw: set text(size: 0.8em)
   show: codly-init
   codly(
     languages: codly-languages,
@@ -91,5 +92,13 @@
   body
 
   pagebreak()
-  bibliography(bibliography-file)
+  bibliography(bibliography-file, full: true)
 }
+
+#let my-lovelace-defaults = (
+  line-numbering: "1:",
+  booktabs-stroke: 1pt + black,
+)
+
+#let pseudocode = pseudocode.with(..my-lovelace-defaults)
+#let pseudocode-list = pseudocode-list.with(..my-lovelace-defaults)

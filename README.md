@@ -1,5 +1,9 @@
 # CUDA-Path-Tracer
-Project for the course in GPU Computing at the University of Grenoble Alpes, INP ENSIMAG
+
+Project for the course in GPU Computing at the University of Grenoble Alpes, INP ENSIMAG.
+
+> [!CAUTION]
+> The minimum required version of the CUDA Toolkit is 12.4.
 
 ## Running
 
