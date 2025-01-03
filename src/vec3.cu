@@ -81,3 +81,13 @@ __device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3 {
   }
   return -randomUnit;
 }
+
+__device__ auto roundScatterDirection(const Vec3 &direction,
+                                        const Vec3 &normal) -> Vec3 {
+  auto s = 1e-8;
+  if (fabs(direction.getX() < s) && fabs(direction.getY() < s) &&
+      fabs(direction.getZ() < s)) {
+    return normal;
+  }
+  return direction;
+}
