@@ -11,8 +11,16 @@ public:
                           curandState &state) {
     double ri = front ? (1.0f / refraction) : refraction;
     auto scatter_direction = makeUnitVector(ray.getDirection());
-    auto refracted = refract(scatter_direction, normal, ri);
-    scattered = Ray(point, refracted);
+
+    double cos_theta = fmin(dot(-scatter_direction, normal), 1.0f);
+    double sin_theta = sqrt(1.0f - cos_theta * cos_theta);
+    bool reflecting = ri * sin_theta > 1;
+
+    if (reflecting) {
+      scattered = Ray(point, reflect(scatter_direction, normal));
+    } else {
+      scattered = Ray(point, refract(scatter_direction, normal, ri));
+    }
     attenuation = Vec3{1.0f, 1.0f, 1.0f};
     return true;
   }
