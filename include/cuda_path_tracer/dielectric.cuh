@@ -27,4 +27,9 @@ public:
 
 private:
   double refraction;
+
+  static double reflectance(double cos, double refraction) {
+    auto r0 = (1 - refraction) / (1 + refraction);
+    return r0 * r0 + (1 - r0 * r0) * pow((1 - cos), 5);
+  }
 };
