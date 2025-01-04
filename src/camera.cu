@@ -15,7 +15,7 @@
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
-constexpr int DEPTH = 10;
+constexpr int DEPTH = 40;
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
