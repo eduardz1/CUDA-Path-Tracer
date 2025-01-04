@@ -65,3 +65,4 @@ __device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3;
 __device__ auto randomVector(curandState &state) -> Vec3;
 __device__ auto roundScatterDirection(const Vec3 &direction, const Vec3 &normal) -> Vec3;
 __device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3;
+__device__ auto refract(const Vec3 &v, const Vec3 &n, double eta_component) -> Vec3;

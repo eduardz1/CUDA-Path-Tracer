@@ -83,7 +83,7 @@ __device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3 {
 }
 
 __device__ auto roundScatterDirection(const Vec3 &direction,
-                                        const Vec3 &normal) -> Vec3 {
+                                      const Vec3 &normal) -> Vec3 {
   auto s = 1e-8;
   if (fabs(direction.getX() < s) && fabs(direction.getY() < s) &&
       fabs(direction.getZ() < s)) {
@@ -93,5 +93,13 @@ __device__ auto roundScatterDirection(const Vec3 &direction,
 }
 
 __device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3 {
-  return v - 2*dot(v, n)*n;
+  return v - 2 * dot(v, n) * n;
+}
+
+__device__ auto refract(const Vec3 &v, const Vec3 &n,
+                        double eta_component) -> Vec3 {
+  auto cos_theta = fmin(dot(-v, n), 1.0);
+  Vec3 R_perp = eta_component * (v + cos_theta * n);
+  Vec3 R_par = -sqrt(fabs(1.0f - R_perp.getLengthSquared())) * n;
+  return R_perp + R_par;
 }

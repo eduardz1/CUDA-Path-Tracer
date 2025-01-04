@@ -15,7 +15,7 @@
 namespace {
 constexpr unsigned long long SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(16, 16);
-constexpr int DEPTH = 40;
+constexpr int DEPTH = 50;
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
@@ -107,11 +107,12 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
       Vec3 normal = hi.getNormal();
       Vec3 point = hi.getPoint();
       Material material = hi.getMaterial();
+      bool front = hi.getFront();
 
       bool scatter = cuda::std::visit(
-          [&current, &normal, &point, &attenuation, &scattered,
+          [&current, &normal, &point, front, &attenuation, &scattered,
            &state](auto &material) {
-            return material.scatter(current, normal, point, attenuation,
+            return material.scatter(current, normal, point, front, attenuation,
                                     scattered, state);
           },
           material);
