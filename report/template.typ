@@ -33,7 +33,7 @@
 
   show figure.caption: emph
 
-  set heading(numbering: "1")
+  set heading(numbering: "1.1")
   show heading: smallcaps
   show heading: set block(above: 1.4em, below: 1em)
   set align(horizon)

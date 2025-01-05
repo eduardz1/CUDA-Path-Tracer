@@ -27,7 +27,13 @@
 
   // Give a brief overview of the overall algorithm (what is the algorithm you are parallelizing?). Identify where parallelism can be introduced to the algorithm. Discuss the code executed by the master and the slaves. Discuss how the master and slaves communicate and why they communicate. Provide figures and equations to support your explanations. There should be no results in this section. After reading this section, we should have a complete understanding of how you solved the problem without having to read your code for further details. At the same time, there should be little to no code in your report.
 
-  The code we are parallelizing is that of a path tracer. This algorithm has the advantage of being embarrassingly parallel due to its nature. Each pixel is sampled $N$ times and each sample is independent of the other. The rendering of an image in our path tracer can be summarized in the following pseudocode:
+  The code we are parallelizing is that of a path tracer. This algorithm has the advantage of being embarrassingly parallel due to its nature. Each pixel is sampled $N$ times and each sample is independent of the other.
+
+  The algorithm can be visualized as a map-reduce operation, where each ray is mapped to a color and then the group of rays corresponding to each pixel is reduced to a single color.
+
+  == Rendering
+
+  The rendering of an image in our path tracer can be summarized in the following pseudocode:
 
   #figure(
     kind: "algorithm",
@@ -51,40 +57,46 @@
     ],
   )
 
-  // TODO: Pseudocode for the GetRay and GetColor functions
+  When parallelizing the rendering code, we considered multiple approaches.
 
-  The algorithm can be visualized as a map-reduce operation, where each ray is mapped to a color and then reduced to a single color.
+  - On one hand spectrum we could parallelize only the rendering of each pixel, by invoking a thread for each pixel and then maintaining the loop over the samples in the kernel. This is the first approach we explored, it's the most straight-forward but becomes inefficient when the number of samples is high. In this configuration, the reduce operation is done at each step, making it more efficient.
 
-  When parallelizing the code, we considered multiple approaches.
+  - On the other hand, we could effectively consider the image as having size $("WIDTH" times "SAMPLES" / 2) times ("HEIGHT" times "SAMPLES" / 2)$ and parallelize the rendering of each pixel-sample pair. The reduce operation is then done in parallel and corresponds to a subsampling of the image to the original size. This approach is more efficient and provides the highest possible parallelism, however, it requires a lot of memory, consider for example a 1080p image with 1024 samples per pixel, the expanded image array, considering that each pixel is represented by 16 bytes (during the computations each pixel is represented as a 3D vector of type `Vec3` composed of three floats for a total of 12 bytes plus 4 bytes of padding for alignment purposes), would occupy $1920 times 1080 times 16 times 1024 = 33973862400 "bytes" approx 34 "GB"$ of memory.
 
-  On one hand spectrum we could parallelize only the rendering of each pixel, by invoking a thread for each pixel and then maintaining the loop over the samples in the kernel. This is the first approach we explored, it's the most straight-forward but becomes inefficient when the number of samples is high. In this configuration, the reduce operation is done at each step, making it more efficient.
+  - Another approach we considered was to parallelize the sampling directly by launching a nested kernel inside each pixel kernel. This approach utilizes a niche feature of CUDA, dynamic parallelism @DynParallelism, which allows a kernel to launch another kernel. While we explored initially this approach, we wanted to keep the code compilable with clang, which does not support this feature.
 
-  On the other hand, we could effectively consider the image as having size $("WIDTH" times "SAMPLES" / 2) times ("HEIGHT" times "SAMPLES" / 2)$ and parallelize the rendering of each pixel-sample pair. The reduce operation is then done in parallel and corresponds to a subsampling of the image to the original size. This approach is more efficient and provides the highest possible parallelism, however, it requires a lot of memory, consider for example a 1080p image with 1024 samples per pixel, the expanded image array, considering that each pixel is represented by 4 bytes, would occupy $1920 times 1080 times 4 times 1024 = 8493465600 "bytes" approx 8 "GB"$ of memory.
-
-  Another approach we considered was to parallelize the sampling directly by launching a nested kernel inside each pixel kernel. This approach utilizes a niche feature of CUDA, dynamic parallelism @DynParallelism, which allows a kernel to launch another kernel. While we explored initially this approach, we wanted to keep the code compilable with clang, which does not support this feature.
-
-  Finally, we could consider a hybrid approach, where we maintain the loop over the samples in the kernel, but we diminish the need to have a high number of samples by averaging multiple images. This is the approach that we decided to present as the final implementation.
+  - Finally, we could consider a hybrid approach, where we maintain the loop over the samples in the kernel, but we diminish the need to have a high number of samples by averaging multiple images. This is the approach that we decided to present as the final implementation and is summarized in @camera-rendering-model.
 
   #figure(
     image("imgs/camera.drawio.svg"),
     caption: [Camera rendering model],
-  )
+  ) <camera-rendering-model>
 
-  == Streams
+  == Querying for Rays
+
+  // talk about getRay (pseudocode), show image with the querying in the circle inscribed in each pixel
+
+  == Tracing Rays
+
+  // talk about getColor (pseudocode)
+
+  == CUDA Features
+
+  === Streams
 
   To parallelize the rendering of multiple images we utilized CUDA streams @CUDAStream. This allowed us to render multiple images in parallel, by launching multiple kernels in different streams.
 
-  == Pinned Memory
+  === Pinned Memory
 
   To eliminate completely the need for copying data between the host and the device, we used pinned memory to allocate the image buffer @PinnedMemory. This allows us to directly access the memory from the device without the need to copy it. This proves useful also when reducing multiple images into the final one, as we can directly write the result in the final image buffer without the need to allocate a temporary buffer.
 
-  == Thrust
+  === Thrust
 
   In our project we used the Thrust library @ThrustLib to abstract away some operations, like the array allocations. This makes it explicit where we are using device allocated arrays, and where we are using host allocated arrays.
 
-  == Polymorphism
+  === Polymorphism
 
-  Given that CUDA does not
+  CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
 
   = Results
 
