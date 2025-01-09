@@ -2,8 +2,10 @@
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shapes/sphere.cuh"
-#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+
+const auto epsilon = 1e-6f;
 
 __global__ void testGetCenter(const Sphere *sphere, Vec3 *result) {
   *result = sphere->getCenter();
@@ -59,7 +61,7 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
     REQUIRE(*d_hit_result == true);
-    REQUIRE(d_hit_info->time == Catch::Approx(4.0f));
+    REQUIRE_THAT(d_hit_info->time, Catch::Matchers::WithinAbs(4.0f, epsilon));
   }
 
   SECTION("Ray miss") {

@@ -35,8 +35,8 @@ RectangularCuboid::translate(const Vec3 &translation) -> RectangularCuboid & {
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                                        const float hit_t_max,
                                        HitInfo &hi) const -> bool {
-  const auto origin = rotation.rotatePoint(r.getOrigin(), true);
-  const auto direction = rotation.rotatePoint(r.getDirection(), true);
+  const auto origin = rotation.rotate(r.getOrigin(), true);
+  const auto direction = rotation.rotate(r.getDirection(), true);
   const Ray rotated_ray = {origin - this->translation, direction};
 
   HitInfo temp_hi;
@@ -60,8 +60,8 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
     return false;
   }
 
-  hi.point = rotation.rotatePoint(hi.point, false) + this->translation;
-  hi.normal = rotation.rotatePoint(hi.normal, false);
+  hi.point = rotation.rotate(hi.point, false) + this->translation;
+  hi.normal = rotation.rotate(hi.normal, false);
 
   return true;
 }

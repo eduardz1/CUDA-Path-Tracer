@@ -1,11 +1,13 @@
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-__global__ void testFloat4Conversion(Vec3 input, float4* output) {
-    float4 result = input;
-    *output = result;
+const auto epsilon = 1e-6f;
+
+__global__ void testFloat4Conversion(Vec3 input, float4 *output) {
+  float4 result = input;
+  *output = result;
 }
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
@@ -131,9 +133,9 @@ TEST_CASE("vec3 length calculations", "[vec3]") {
 TEST_CASE("vec3 unit vector", "[vec3]") {
   Vec3 v1(3.0f, 4.0f, 0.0f);
   Vec3 unit = makeUnitVector(v1);
-  REQUIRE(unit.x == Catch::Approx(0.6f));
-  REQUIRE(unit.y == Catch::Approx(0.8f));
-  REQUIRE(unit.z == Catch::Approx(0.0f));
+  REQUIRE_THAT(unit.x, Catch::Matchers::WithinAbs(0.6f, epsilon));
+  REQUIRE_THAT(unit.y, Catch::Matchers::WithinAbs(0.8f, epsilon));
+  REQUIRE_THAT(unit.z, Catch::Matchers::WithinAbs(0.0f, epsilon));
 }
 
 // Test case for vec3 += operator

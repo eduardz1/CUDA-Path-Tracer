@@ -34,8 +34,8 @@ __host__ auto Rotation::operator+=(const Rotation &r) -> Rotation & {
   return *this;
 };
 
-__device__ auto Rotation::rotatePoint(const Vec3 &point,
-                                      const bool inverse) const -> Vec3 {
+__device__ auto Rotation::rotate(const Vec3 &point,
+                                 const bool inverse) const -> Vec3 {
   struct {
     float cos, sin;
   } x{}, y{}, z{};

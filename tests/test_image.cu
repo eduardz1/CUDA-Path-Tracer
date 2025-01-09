@@ -2,7 +2,6 @@
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 #include <catch2/catch_test_macros.hpp>
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <vector_functions.h>
