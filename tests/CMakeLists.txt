@@ -1,7 +1,7 @@
 FetchContent_Declare(
   Catch2
   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v3.7.1
+  GIT_TAG v3.8.0
 )
 
 FetchContent_MakeAvailable(Catch2)
@@ -9,9 +9,9 @@ FetchContent_MakeAvailable(Catch2)
 # TODO: Separate them into different test executables
 add_executable(tests
   test_error.cpp
-  test_image.cpp
-  test_vec3.cpp
+  test_image.cu
   test_ray.cpp
+  test_vec3.cu
 )
 
 include(Catch)
@@ -19,8 +19,9 @@ include(Catch)
 catch_discover_tests(tests)
 
 set_target_properties(tests
-  PROPERTIES CUDA_SEPARABLE_COMPILATION ON
-  CUDA_ARCHITECTUREs 50
+  PROPERTIES
+  CUDA_SEPARABLE_COMPILATION ON
+  CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
 
 target_compile_features(tests PRIVATE cxx_std_20)
