@@ -83,7 +83,7 @@ __device__ auto hitShapes(const Ray &ray, cuda::std::span<const Shape> shapes,
 
     if (hit) {
       hit_anything = true;
-      closest = tmp.getTime();
+      closest = tmp.time;
       hi = tmp;
     }
   }
@@ -97,7 +97,7 @@ __device__ auto getColor(const Ray &ray,
   const bool hit = hitShapes(ray, shapes, hi);
 
   if (hit) {
-    return 0.5f * (hi.getNormal() + 1.0f);
+    return 0.5f * (hi.normal + 1.0f);
   }
 
   auto unit_direction = makeUnitVector(ray.getDirection());

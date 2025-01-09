@@ -36,8 +36,8 @@ __device__ auto Parallelogram::hit(const Ray &r, const float hit_t_min,
     return false;
   }
 
-  hi.setTime(t);
-  hi.setPoint(point);
+  hi.time = t;
+  hi.point = point;
   hi.setNormal(r, normal);
 
   return true;

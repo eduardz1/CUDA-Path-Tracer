@@ -11,6 +11,7 @@ add_executable(tests
   test_error.cpp
   test_image.cu
   test_ray.cpp
+  test_sphere.cu
   test_vec3.cu
 )
 

@@ -51,7 +51,7 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
   for (auto &i : faces_arr) {
     if (i->hit(rotated_ray, hit_t_min, closest_t, temp_hi)) {
       hit_any = true;
-      closest_t = temp_hi.getTime();
+      closest_t = temp_hi.time;
       hi = temp_hi;
     }
   }
@@ -60,8 +60,8 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
     return false;
   }
 
-  hi.setPoint(rotation.rotatePoint(hi.getPoint(), false) + this->translation);
-  hi.setNormal(rotation.rotatePoint(hi.getNormal(), false));
+  hi.point = rotation.rotatePoint(hi.point, false) + this->translation;
+  hi.normal = rotation.rotatePoint(hi.normal, false);
 
   return true;
 }
