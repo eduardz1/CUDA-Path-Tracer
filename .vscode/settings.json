@@ -2,6 +2,7 @@
     "cmake.configureArgs": [
         "-DCMAKE_CXX_COMPILER=clang++",
         "-DCMAKE_CUDA_COMPILER=clang++",
+        "-DBUILD_TESTING=ON"
     ],
     "cmake.buildDirectory": "${workspaceFolder}/debug",
     "clangd.arguments": [
