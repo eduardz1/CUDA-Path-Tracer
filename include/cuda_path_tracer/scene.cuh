@@ -15,8 +15,6 @@ public:
   __host__ auto getShapes() -> thrust::device_vector<Shape> &;
   __host__ auto addShape(Shape shape) -> void;
 
-  // TODO: deconstructor
-
 private:
   thrust::device_vector<Shape> shapes;
 

@@ -42,6 +42,7 @@ if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
 endif()
 
 if (CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")
+    # FIXME: Ugly workaround for issue https://github.com/llvm/llvm-project/issues/95183 remove once fixed
     target_compile_options(cuda_path_tracer_lib PRIVATE --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13)
 endif()
 

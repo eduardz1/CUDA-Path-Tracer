@@ -1,13 +1,14 @@
-# CMake build directory
+# CMake build directories
 *build*
+debug/
 
 # Clangd server cache
 .cache/
 
-# Specify "clangd.arguments": ["--query-driver=/usr/bin/g++"] in settings.json
-.vscode/
+# IDE settings
+.vscode/*
+!.vscode/settings.json
 
-# Jetbrains IDEs
 .idea/
 
 # Rendered images
@@ -15,3 +16,6 @@
 
 # Compiled files
 *.pdf
+
+# Benchmarks
+bench/

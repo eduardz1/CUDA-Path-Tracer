@@ -1,0 +1,11 @@
+{
+    "cmake.configureArgs": [
+        "-DCMAKE_CXX_COMPILER=clang++",
+        "-DCMAKE_CUDA_COMPILER=clang++",
+    ],
+    "cmake.buildDirectory": "${workspaceFolder}/debug",
+    "clangd.arguments": [
+        "-background-index",
+        "--compile-commands-dir=debug"
+    ]
+}

@@ -5,23 +5,16 @@ Project for the course in GPU Computing at the University of Grenoble Alpes, INP
 > [!CAUTION]
 > The minimum required version of the CUDA Toolkit is 12.4.
 
-## Running
+## Commands
 
-To run the project use the following command:
+If you have the [just](https://github.com/casey/just) command runner installed you can run
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/apps/cuda_path_tracer
+just
 ```
 
-## Testing
-
-<!-- FIXME: Broken linking -->
-
-To run tests use the following command:
+to see the list of available commands. In particular, to run the application use
 
 ```bash
-cmake --build build --target test
-ctest
+just run
 ```
