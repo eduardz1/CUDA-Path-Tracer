@@ -1,3 +1,5 @@
+set positional-arguments
+
 type      := "Release"
 build_dir := "build"
 bench_dir := "bench"
@@ -8,22 +10,20 @@ target    := build_dir / "apps/cuda_path_tracer"
     just --list
 
 # Builds the application with the specified CMake arguments
-[positional-arguments]
-@build *args='':
+@build *CMAKE_ARGS:
     cmake -S . -B {{build_dir}} -DCMAKE_BUILD_TYPE={{type}} $@
     cmake --build {{build_dir}}
 
 # Builds the application with testing enabled
-@test:
-    just build -DBUILD_TESTING=ON
+@test *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" CMAKE_ARGS)
     ctest
 
 # Runs the application
-@run: build
+@run *CMAKE_ARGS: (build CMAKE_ARGS)
     ./{{target}}
 
 # Benchmarks the application using NVIDIA Nsight Systems
-@bench: build
+@bench *CMAKE_ARGS: (build CMAKE_ARGS)
     mkdir -p {{bench_dir}}
     rm -rf {{bench_dir}}/*
     nsys profile --stats=true -o {{bench_dir}}/bench ./{{target}}
