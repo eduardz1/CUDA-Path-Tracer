@@ -21,7 +21,7 @@ protected:
   friend class RectangularCuboid;
 
 private:
-  Vec3 angles{};
+  Vec3 angles;
 
   struct {
     float sin{}, cos = 1;

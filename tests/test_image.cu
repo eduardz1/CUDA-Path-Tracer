@@ -13,11 +13,11 @@ __global__ void wrapperConvertColorTo8Bit(Vec3 *output, const Vec3 color) {
   output->z = res.z;
 }
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 // Test case for saveImageAsPPM
 TEST_CASE("saveImageAsPPM function", "[saveImageAsPPM]") {
-  auto filename = "test_image.ppm";
+  const auto *filename = "test_image.ppm";
   int width = 2;
   int height = 2;
   std::vector<uchar4> image = {
@@ -65,7 +65,7 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
 
   // Test case 1: Normal values
   wrapperConvertColorTo8Bit<<<1, 1>>>(color,
-                                      make_float4(0.5f, 0.5f, 0.5f, 1.0f));
+                                      make_float4(0.5F, 0.5F, 0.5F, 1.0F));
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
 
@@ -75,7 +75,7 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
 
   // Test case 2: Clamping values
   wrapperConvertColorTo8Bit<<<1, 1>>>(color,
-                                      make_float4(1.5f, -0.5f, 0.0f, 1.0f));
+                                      make_float4(1.5F, -0.5F, 0.0F, 1.0F));
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
 
@@ -85,7 +85,7 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
 
   // Test case 3: Edge values
   wrapperConvertColorTo8Bit<<<1, 1>>>(color,
-                                      make_float4(1.0f, 1.0f, 1.0f, 1.0f));
+                                      make_float4(1.0F, 1.0F, 1.0F, 1.0F));
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
 
@@ -94,7 +94,7 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
   REQUIRE(color->z == 255);
 
   wrapperConvertColorTo8Bit<<<1, 1>>>(color,
-                                      make_float4(0.0f, 0.0f, 0.0f, 1.0f));
+                                      make_float4(0.0F, 0.0F, 0.0F, 1.0F));
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
 
@@ -105,4 +105,4 @@ TEST_CASE("convertColorTo8Bit function", "[convertColorTo8Bit]") {
   CUDA_ERROR_CHECK(cudaFree(color));
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

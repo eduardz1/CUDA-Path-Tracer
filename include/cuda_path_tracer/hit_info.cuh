@@ -14,13 +14,13 @@
  * of intersection
  */
 struct HitInfo {
-  Vec3 point, normal; // NOLINT
-  float time;         // NOLINT
+  Vec3 point, normal;
+  float time;
 
   /**
    * @brief Stores whether the hit is on the front or back of the Shape
    */
-  bool front; // NOLINT
+  bool front;
 
   __host__ __device__ HitInfo();
   __host__ __device__ HitInfo(const Vec3 &point, const Vec3 &normal,

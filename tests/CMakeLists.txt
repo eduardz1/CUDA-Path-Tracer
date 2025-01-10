@@ -8,7 +8,6 @@ FetchContent_MakeAvailable(Catch2)
 
 # TODO: Separate them into different test executables
 add_executable(tests
-  test_error.cpp
   test_image.cu
   test_ray.cpp
   test_rotation.cu

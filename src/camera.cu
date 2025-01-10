@@ -17,15 +17,15 @@
 #include <thrust/transform_reduce.h>
 
 namespace {
-constexpr unsigned long long SEED = 0xba0bab;
+constexpr uint64_t SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(8, 8);
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
-    auto p = Vec3{2.0f * curand_uniform(&state) - 1.0f,
-                  2.0f * curand_uniform(&state) - 1.0f, 0};
+    auto p = Vec3{2.0F * curand_uniform(&state) - 1.0F,
+                  2.0F * curand_uniform(&state) - 1.0F, 0};
 
-    if (p.getLengthSquared() < 1.0f) {
+    if (p.getLengthSquared() < 1.0F) {
       return p;
     }
   }
@@ -44,10 +44,10 @@ __device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
                        const uint16_t y, curandState &state) -> Ray {
   // We sample an area of "half pixel" around the pixel centers
   auto offset =
-      Vec3{curand_uniform(&state) - 0.5f, curand_uniform(&state) - 0.5f, 0};
+      Vec3{curand_uniform(&state) - 0.5F, curand_uniform(&state) - 0.5F, 0};
 
-  auto sample = pixel00 + ((float(x) + offset.x) * deltaU) +
-                ((float(y) + offset.y) * deltaV);
+  auto sample = pixel00 + ((static_cast<float>(x) + offset.x) * deltaU) +
+                ((static_cast<float>(y) + offset.y) * deltaV);
 
   auto newOrigin =
       defocusAngle <= 0
@@ -97,12 +97,12 @@ __device__ auto getColor(const Ray &ray,
   const bool hit = hitShapes(ray, shapes, hi);
 
   if (hit) {
-    return 0.5f * (hi.normal + 1.0f);
+    return 0.5F * (hi.normal + 1.0F);
   }
 
   auto unit_direction = makeUnitVector(ray.getDirection());
-  auto t = 0.5f * (unit_direction.y + 1.0f);
-  return (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+  auto t = 0.5F * (unit_direction.y + 1.0F);
+  return (1.0F - t) * Vec3{1.0F} + t * Vec3{0.5F, 0.7F, 1.0F};
 }
 
 /**
@@ -176,7 +176,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 // }
 } // namespace
 
-__host__ Camera::Camera() : origin() {}
+__host__ Camera::Camera() = default;
 
 __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto width = scene->getWidth();
@@ -186,7 +186,8 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto h = std::tan(theta / 2);
 
   this->viewportHeight *= h * this->focusDistance;
-  this->viewportWidth = (float(width) / float(height)) * viewportHeight;
+  this->viewportWidth =
+      (static_cast<float>(width) / static_cast<float>(height)) * viewportHeight;
 
   const auto w = makeUnitVector(this->origin - this->lookAt);
   const auto u = makeUnitVector(cross(this->up, w));
@@ -195,16 +196,16 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto viewportU = u * viewportWidth;
   const auto viewportV = -v * viewportHeight;
 
-  this->deltaU = viewportU / float(width);
-  this->deltaV = viewportV / float(height);
+  this->deltaU = viewportU / static_cast<float>(width);
+  this->deltaV = viewportV / static_cast<float>(height);
 
   const auto viewportUpperLeft =
       this->origin - (this->focusDistance * w) - viewportU / 2 - viewportV / 2;
-  this->pixel00 = 0.5f * (deltaU + deltaV) + viewportUpperLeft;
+  this->pixel00 = 0.5F * (deltaU + deltaV) + viewportUpperLeft;
 
   const float defocusRadius =
       this->focusDistance *
-      std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0f);
+      std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0F);
   this->defocusDiskU = u * defocusRadius;
   this->defocusDiskV = v * defocusRadius;
 }
@@ -215,8 +216,10 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
 
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
+  const auto num_pixels = image.size();
 
-  const auto num_pixels = static_cast<size_t>(width * height);
+  assert(num_pixels == static_cast<size_t>(width * height) &&
+         "Image size does not match the scene's width and height");
 
   std::array<cudaStream_t, NUM_IMAGES> streams{};
   for (auto &stream : streams) {
@@ -244,7 +247,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
         states_span.subspan(i * num_pixels), i);
   }
 
-  constexpr float scale = 1.0f / (NUM_IMAGES * NUM_SAMPLES);
+  constexpr float scale = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
   // averagePixels<<<grid, BLOCK_SIZE>>>(width, height, scale, image_3d_ptr,
   //                                     image_ptr);
@@ -265,7 +268,7 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   }
 }
 
-__host__ CameraBuilder::CameraBuilder() : camera() {}
+__host__ CameraBuilder::CameraBuilder()  = default;
 __host__ auto CameraBuilder::origin(const Vec3 &origin) -> CameraBuilder & {
   this->camera.origin = origin;
   return *this;

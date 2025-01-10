@@ -10,8 +10,8 @@ public:
   __host__ Scene(uint16_t width, uint16_t height,
                  thrust::device_vector<Shape> shapes);
 
-  __host__ auto getWidth() -> uint16_t;
-  __host__ auto getHeight() -> uint16_t;
+  __host__ auto getWidth() const -> uint16_t;
+  __host__ auto getHeight() const -> uint16_t;
   __host__ auto getShapes() -> thrust::device_vector<Shape> &;
   __host__ auto addShape(Shape shape) -> void;
 

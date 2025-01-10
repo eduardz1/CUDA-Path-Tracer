@@ -5,7 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-const auto epsilon = 1e-6f;
+const auto epsilon = 1e-6F;
 
 __global__ void testGetCenter(const Sphere *sphere, Vec3 *result) {
   *result = sphere->getCenter();
@@ -17,7 +17,7 @@ __global__ void testSphereHit(const Sphere *sphere, const Ray *ray, float t_min,
   *hit_result = sphere->hit(*ray, t_min, t_max, *hit_info);
 }
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 TEST_CASE("Sphere construction and basic properties", "[sphere]") {
   Vec3 *d_center = nullptr;
@@ -26,8 +26,8 @@ TEST_CASE("Sphere construction and basic properties", "[sphere]") {
   CUDA_ERROR_CHECK(cudaMallocManaged(&d_center, sizeof(Vec3)));
   CUDA_ERROR_CHECK(cudaMallocManaged(&d_sphere, sizeof(Sphere)));
 
-  Vec3 center(1.0f, 2.0f, 3.0f);
-  float radius = 2.0f;
+  Vec3 center(1.0F, 2.0F, 3.0F);
+  float radius = 2.0F;
 
   *d_sphere = Sphere(center, radius);
   testGetCenter<<<1, 1>>>(d_sphere, d_center);
@@ -53,22 +53,22 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   CUDA_ERROR_CHECK(cudaMallocManaged(&d_ray, sizeof(Ray)));
 
   SECTION("Direct hit") {
-    *d_sphere = Sphere(Vec3(0, 0, 0), 1.0f);
+    *d_sphere = Sphere(Vec3(0, 0, 0), 1.0F);
     *d_ray = Ray(Vec3(0, 0, -5), Vec3(0, 0, 1));
 
-    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0f, 100.0f, d_hit_result,
+    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0F, 100.0F, d_hit_result,
                             d_hit_info);
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
     REQUIRE(*d_hit_result == true);
-    REQUIRE_THAT(d_hit_info->time, Catch::Matchers::WithinAbs(4.0f, epsilon));
+    REQUIRE_THAT(d_hit_info->time, Catch::Matchers::WithinAbs(4.0F, epsilon));
   }
 
   SECTION("Ray miss") {
-    *d_sphere = Sphere(Vec3(0, 0, 0), 1.0f);
+    *d_sphere = Sphere(Vec3(0, 0, 0), 1.0F);
     *d_ray = Ray(Vec3(2, 2, -5), Vec3(0, 0, 1));
 
-    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0f, 100.0f, d_hit_result,
+    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0F, 100.0F, d_hit_result,
                             d_hit_info);
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
@@ -76,10 +76,10 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   }
 
   SECTION("Ray from inside") {
-    *d_sphere = Sphere(Vec3(0, 0, 0), 2.0f);
+    *d_sphere = Sphere(Vec3(0, 0, 0), 2.0F);
     *d_ray = Ray(Vec3(0, 0, 0), Vec3(0, 0, 1));
 
-    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0f, 100.0f, d_hit_result,
+    testSphereHit<<<1, 1>>>(d_sphere, d_ray, 0.0F, 100.0F, d_hit_result,
                             d_hit_info);
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
@@ -92,4 +92,4 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   CUDA_ERROR_CHECK(cudaFree(d_ray));
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
