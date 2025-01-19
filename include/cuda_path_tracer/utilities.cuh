@@ -18,3 +18,28 @@ using pinned_allocator = thrust::mr::stateless_resource_allocator<T, mr>;
 template <typename T>
 using universal_host_pinned_vector =
     thrust::host_vector<T, pinned_allocator<T>>;
+
+/**
+ * @brief A guard for a CUDA stream that will automatically destroy the stream
+ * when it goes out of scope. Uses the RAII idiom.
+ */
+class StreamGuard {
+public:
+  StreamGuard();
+
+  ~StreamGuard();
+
+  [[nodiscard]] auto get() const -> cudaStream_t;
+  operator cudaStream_t() const;
+
+  // We don't want it to be copyable
+  StreamGuard(const StreamGuard &) = delete;
+  auto operator=(const StreamGuard &) -> StreamGuard & = delete;
+
+  // But it's fine to have it be moveable
+  StreamGuard(StreamGuard &&other) noexcept;
+  auto operator=(StreamGuard &&other) noexcept -> StreamGuard &;
+
+private:
+  cudaStream_t stream{};
+};

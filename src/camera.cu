@@ -19,6 +19,7 @@
 namespace {
 constexpr uint64_t SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(8, 8);
+constexpr float RENDER_SCALE = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
@@ -221,24 +222,21 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
   assert(num_pixels == static_cast<size_t>(width * height) &&
          "Image size does not match the scene's width and height");
 
-  std::array<cudaStream_t, NUM_IMAGES> streams{};
-  for (auto &stream : streams) {
-    CUDA_ERROR_CHECK(cudaStreamCreate(&stream));
-  }
-
-  const auto shapes = scene->getShapes();
   thrust::device_vector<curandState> states(num_pixels * NUM_IMAGES);
   thrust::device_vector<Vec3> image_3d(num_pixels * NUM_IMAGES);
 
   cuda::std::span<curandState> states_span{
       thrust::raw_pointer_cast(states.data()), states.size()};
   cuda::std::span<const Shape> shapes_span{
-      thrust::raw_pointer_cast(shapes.data()), shapes.size()};
+      thrust::raw_pointer_cast(scene->getShapes().data()),
+      scene->getShapes().size()};
   cuda::std::span<Vec3> image_3d_span{thrust::raw_pointer_cast(image_3d.data()),
                                       image_3d.size()};
 
-  dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
-            (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
+  const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
+                  std::ceil(height / BLOCK_SIZE.y));
+
+  std::array<StreamGuard, NUM_IMAGES> streams{};
 
   for (auto i = 0; i < NUM_IMAGES; i++) {
     renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
@@ -246,8 +244,6 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
         deltaU, deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span,
         states_span.subspan(i * num_pixels), i);
   }
-
-  constexpr float scale = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
   // averagePixels<<<grid, BLOCK_SIZE>>>(width, height, scale, image_3d_ptr,
   //                                     image_ptr);
@@ -260,15 +256,11 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
                       for (int img = 0; img < NUM_IMAGES; img++) {
                         sum += image_3d_span[img * num_pixels + pixel_idx];
                       }
-                      return convertColorTo8Bit(sum * scale);
+                      return convertColorTo8Bit(sum * RENDER_SCALE);
                     });
-
-  for (auto &stream : streams) {
-    CUDA_ERROR_CHECK(cudaStreamDestroy(stream));
-  }
 }
 
-__host__ CameraBuilder::CameraBuilder()  = default;
+__host__ CameraBuilder::CameraBuilder() = default;
 __host__ auto CameraBuilder::origin(const Vec3 &origin) -> CameraBuilder & {
   this->camera.origin = origin;
   return *this;

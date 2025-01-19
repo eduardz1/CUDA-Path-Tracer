@@ -31,7 +31,7 @@ private:
    * view. The viewport is a rectangle that represents the camera's view (our
    * world coordinates).
    */
-  float viewportWidth, viewportHeight = 2.0f;
+  float viewportWidth, viewportHeight = 2.0F;
 
   /**
    * @brief They are, respectively, the horizontal and vertical vectors of the

@@ -25,6 +25,7 @@ add_library(cuda_path_tracer_lib
     image.cu
     ray.cu
     scene.cu
+    utilities.cu
     vec3.cu
     ${HEADER_LIST}
 )

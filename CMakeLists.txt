@@ -14,6 +14,9 @@ project(
     LANGUAGES CXX CUDA
 )
 
+# TODO: add clang-tidy integration in the build once support for CUDA is added
+# https://gitlab.kitware.com/cmake/cmake/-/issues/25399
+
 # Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/25763
 if(CMAKE_CUDA_ARCHITECTURES STREQUAL "native")
   set(CMAKE_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES_NATIVE})
