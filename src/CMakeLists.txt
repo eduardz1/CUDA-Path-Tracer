@@ -25,6 +25,7 @@ add_library(cuda_path_tracer_lib
     image.cu
     ray.cu
     scene.cu
+    utilities.cu
     vec3.cu
     ${HEADER_LIST}
 )
@@ -32,23 +33,23 @@ add_library(cuda_path_tracer_lib
 target_include_directories(cuda_path_tracer_lib
     PUBLIC
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} # Explicit for clang
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
+target_link_libraries(cuda_path_tracer_lib PRIVATE CCCL::CCCL)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
     target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
 endif()
 
-if (CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")
+if(CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")
+    # FIXME: Ugly workaround for issue https://github.com/llvm/llvm-project/issues/95183 remove once fixed
     target_compile_options(cuda_path_tracer_lib PRIVATE --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13)
 endif()
 
 set_target_properties(cuda_path_tracer_lib
     PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
-    CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
 
 source_group(

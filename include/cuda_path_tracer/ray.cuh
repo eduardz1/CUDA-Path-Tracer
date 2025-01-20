@@ -13,7 +13,6 @@
 #pragma once
 
 #include "cuda_path_tracer/vec3.cuh"
-#include <driver_types.h>
 
 class Ray {
 public:

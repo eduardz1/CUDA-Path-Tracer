@@ -1,5 +1,4 @@
 #include "cuda_path_tracer/camera.cuh"
-#include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/ray.cuh"
@@ -10,21 +9,23 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <cuda/std/span>
 #include <cuda_runtime_api.h>
 #include <curand_kernel.h>
 #include <thrust/execution_policy.h>
 #include <thrust/transform_reduce.h>
 
 namespace {
-constexpr unsigned long long SEED = 0xba0bab;
+constexpr uint64_t SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(8, 8);
+constexpr float RENDER_SCALE = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
 __device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
   while (true) {
-    auto p = Vec3{2.0f * curand_uniform(&state) - 1.0f,
-                  2.0f * curand_uniform(&state) - 1.0f, 0};
+    auto p = Vec3{2.0F * curand_uniform(&state) - 1.0F,
+                  2.0F * curand_uniform(&state) - 1.0F, 0};
 
-    if (p.getLengthSquared() < 1.0f) {
+    if (p.getLengthSquared() < 1.0F) {
       return p;
     }
   }
@@ -43,10 +44,10 @@ __device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
                        const uint16_t y, curandState &state) -> Ray {
   // We sample an area of "half pixel" around the pixel centers
   auto offset =
-      Vec3{curand_uniform(&state) - 0.5f, curand_uniform(&state) - 0.5f, 0};
+      Vec3{curand_uniform(&state) - 0.5F, curand_uniform(&state) - 0.5F, 0};
 
-  auto sample = pixel00 + ((float(x) + offset.x) * deltaU) +
-                ((float(y) + offset.y) * deltaV);
+  auto sample = pixel00 + ((static_cast<float>(x) + offset.x) * deltaU) +
+                ((static_cast<float>(y) + offset.y) * deltaV);
 
   auto newOrigin =
       defocusAngle <= 0
@@ -67,22 +68,22 @@ __device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
  * @param hi HitInfo struct to save the hit information
  * @return bool true if a hit was found, false otherwise
  */
-__device__ auto hitShapes(const Ray &ray, const Shape *shapes,
-                          const size_t num_shapes, HitInfo &hi) -> bool {
+__device__ auto hitShapes(const Ray &ray, cuda::std::span<const Shape> shapes,
+                          HitInfo &hi) -> bool {
   auto tmp = HitInfo();
   auto closest = RAY_T_MAX;
   auto hit_anything = false;
 
-  for (auto i = 0; i < num_shapes; i++) {
+  for (const auto &shape : shapes) {
     const bool hit = cuda::std::visit(
         [&ray, &tmp, closest](const auto &shape) {
           return shape.hit(ray, RAY_T_MIN, closest, tmp);
         },
-        shapes[i]);
+        shape);
 
     if (hit) {
       hit_anything = true;
-      closest = tmp.getTime();
+      closest = tmp.time;
       hi = tmp;
     }
   }
@@ -90,18 +91,18 @@ __device__ auto hitShapes(const Ray &ray, const Shape *shapes,
   return hit_anything;
 }
 
-__device__ auto getColor(const Ray &ray, const Shape *shapes,
-                         const size_t num_shapes) -> Vec3 {
+__device__ auto getColor(const Ray &ray,
+                         cuda::std::span<const Shape> shapes) -> Vec3 {
   auto hi = HitInfo();
-  const bool hit = hitShapes(ray, shapes, num_shapes, hi);
+  const bool hit = hitShapes(ray, shapes, hi);
 
   if (hit) {
-    return 0.5f * (hi.getNormal() + 1.0f);
+    return 0.5F * (hi.normal + 1.0F);
   }
 
   auto unit_direction = makeUnitVector(ray.getDirection());
-  auto t = 0.5f * (unit_direction.y + 1.0f);
-  return (1.0f - t) * Vec3{1.0f} + t * Vec3{0.5f, 0.7f, 1.0f};
+  auto t = 0.5F * (unit_direction.y + 1.0F);
+  return (1.0F - t) * Vec3{1.0F} + t * Vec3{0.5F, 0.7F, 1.0F};
 }
 
 /**
@@ -125,11 +126,12 @@ __device__ auto getColor(const Ray &ray, const Shape *shapes,
  * @param states Random number generator states for each pixel
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
-                            Vec3 *image, const Vec3 origin, const Vec3 pixel00,
-                            const Vec3 deltaU, const Vec3 deltaV,
-                            const Vec3 defocusDiskU, const Vec3 defocusDiskV,
-                            const float defocusAngle, const Shape *shapes,
-                            const size_t num_shapes, curandState *states,
+                            cuda::std::span<Vec3> image, const Vec3 origin,
+                            const Vec3 pixel00, const Vec3 deltaU,
+                            const Vec3 deltaV, const Vec3 defocusDiskU,
+                            const Vec3 defocusDiskV, const float defocusAngle,
+                            cuda::std::span<const Shape> shapes,
+                            cuda::std::span<curandState> states,
                             const size_t stream_index) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -146,15 +148,17 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   for (auto s = 0; s < NUM_SAMPLES; s++) {
     const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                             defocusDiskV, defocusAngle, x, y, state);
-    color += getColor(ray, shapes, num_shapes);
+    color += getColor(ray, shapes);
   }
 
   image[index] = color;
 }
 
+#if AVERAGE_WITH_THRUST == false
 __global__ void averagePixels(const uint16_t width, const uint16_t height,
-                              const float scale, const Vec3 *image,
-                              uchar4 *image_out) {
+                              const float scale,
+                              const cuda::std::span<Vec3> image,
+                              cuda::std::span<uchar4> image_out) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -172,9 +176,10 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
 
   image_out[index] = convertColorTo8Bit(sum * scale);
 }
+#endif
 } // namespace
 
-__host__ Camera::Camera() : origin() {}
+__host__ Camera::Camera() = default;
 
 __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto width = scene->getWidth();
@@ -184,7 +189,8 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto h = std::tan(theta / 2);
 
   this->viewportHeight *= h * this->focusDistance;
-  this->viewportWidth = (float(width) / float(height)) * viewportHeight;
+  this->viewportWidth =
+      (static_cast<float>(width) / static_cast<float>(height)) * viewportHeight;
 
   const auto w = makeUnitVector(this->origin - this->lookAt);
   const auto u = makeUnitVector(cross(this->up, w));
@@ -193,75 +199,86 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   const auto viewportU = u * viewportWidth;
   const auto viewportV = -v * viewportHeight;
 
-  this->deltaU = viewportU / float(width);
-  this->deltaV = viewportV / float(height);
+  this->deltaU = viewportU / static_cast<float>(width);
+  this->deltaV = viewportV / static_cast<float>(height);
 
   const auto viewportUpperLeft =
       this->origin - (this->focusDistance * w) - viewportU / 2 - viewportV / 2;
-  this->pixel00 = 0.5f * (deltaU + deltaV) + viewportUpperLeft;
+  this->pixel00 = 0.5F * (deltaU + deltaV) + viewportUpperLeft;
 
   const float defocusRadius =
       this->focusDistance *
-      std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0f);
+      std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0F);
   this->defocusDiskU = u * defocusRadius;
   this->defocusDiskV = v * defocusRadius;
 }
 
-__host__ void Camera::render(const std::shared_ptr<Scene> &scene,
-                             universal_host_pinned_vector<uchar4> &image) {
+__host__ void
+Camera::render(const std::shared_ptr<Scene> &scene,
+               thrust::universal_host_pinned_vector<uchar4> &image) {
   this->init(scene);
 
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
+  const auto num_pixels = image.size();
 
-  const auto num_pixels = static_cast<size_t>(width * height);
+  assert(num_pixels == static_cast<size_t>(width * height) &&
+         "Image size does not match the scene's width and height");
 
-  std::array<cudaStream_t, NUM_IMAGES> streams{};
-  for (auto &stream : streams) {
-    CUDA_ERROR_CHECK(cudaStreamCreate(&stream));
-  }
-
-  auto shapes = scene->getShapes();
-  // Dummy shape introduced because the last shape always fails to hit, cannot
-  // figure out why so this is a easy workaround
-  shapes.push_back(Sphere{0, 0});
   thrust::device_vector<curandState> states(num_pixels * NUM_IMAGES);
   thrust::device_vector<Vec3> image_3d(num_pixels * NUM_IMAGES);
 
-  curandState *states_ptr = thrust::raw_pointer_cast(states.data());
-  Shape *shapes_ptr = thrust::raw_pointer_cast(shapes.data());
-  Vec3 *image_3d_ptr = thrust::raw_pointer_cast(image_3d.data());
-  uchar4 *image_ptr = thrust::raw_pointer_cast(image.data());
+  cuda::std::span<curandState> states_span{
+      thrust::raw_pointer_cast(states.data()), states.size()};
+  cuda::std::span<const Shape> shapes_span{
+      thrust::raw_pointer_cast(scene->getShapes().data()),
+      scene->getShapes().size()};
+  cuda::std::span<Vec3> image_3d_span{thrust::raw_pointer_cast(image_3d.data()),
+                                      image_3d.size()};
 
-  dim3 grid((width + BLOCK_SIZE.x - 1) / BLOCK_SIZE.x,
-            (height + BLOCK_SIZE.y - 1) / BLOCK_SIZE.y);
+  const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
+                  std::ceil(height / BLOCK_SIZE.y));
+
+  std::array<StreamGuard, NUM_IMAGES> streams{};
 
   for (auto i = 0; i < NUM_IMAGES; i++) {
-    renderImage<<<grid, BLOCK_SIZE, 0, streams[i]>>>(
-        width, height, image_3d_ptr + (i * num_pixels), origin, pixel00, deltaU,
-        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_ptr,
-        shapes.size(), states_ptr + (i * num_pixels), i);
+    renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
+        width, height, image_3d_span.subspan(i * num_pixels), origin, pixel00,
+        deltaU, deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span,
+        states_span.subspan(i * num_pixels), i);
   }
 
-  for (auto &stream : streams) {
-    CUDA_ERROR_CHECK(cudaStreamSynchronize(stream));
-  }
-  CUDA_ERROR_CHECK(cudaGetLastError());
-
-  constexpr float scale = 1.0f / (NUM_IMAGES * NUM_SAMPLES);
-
-  averagePixels<<<grid, BLOCK_SIZE>>>(width, height, scale, image_3d_ptr,
-                                      image_ptr);
-  CUDA_ERROR_CHECK(cudaDeviceSynchronize());
-  CUDA_ERROR_CHECK(cudaGetLastError());
-
-  shapes.pop_back();
-  for (auto &stream : streams) {
-    CUDA_ERROR_CHECK(cudaStreamDestroy(stream));
-  }
+  averageRenderedImages(image, image_3d_span, width, height);
 }
 
-__host__ CameraBuilder::CameraBuilder() : camera() {}
+__host__ void Camera::averageRenderedImages(
+    thrust::universal_host_pinned_vector<uchar4> &output,
+    const cuda::std::span<Vec3> &images, const uint16_t width,
+    const uint16_t height) {
+#if AVERAGE_WITH_THRUST
+  const auto num_pixels = output.size();
+  thrust::transform(thrust::make_counting_iterator<size_t>(0),
+                    thrust::make_counting_iterator<size_t>(num_pixels),
+                    output.begin(), [=] __device__(const auto pixel_idx) {
+                      Vec3 sum{};
+                      for (int img = 0; img < NUM_IMAGES; img++) {
+                        sum += images[img * num_pixels + pixel_idx];
+                      }
+                      return convertColorTo8Bit(sum * RENDER_SCALE);
+                    });
+#else
+  const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
+                  std::ceil(height / BLOCK_SIZE.y));
+
+  cuda::std::span<uchar4> output_span{thrust::raw_pointer_cast(output.data()),
+                                      output.size()};
+
+  averagePixels<<<grid, BLOCK_SIZE>>>(width, height, RENDER_SCALE, images,
+                                      output_span);
+#endif
+}
+
+__host__ CameraBuilder::CameraBuilder() = default;
 __host__ auto CameraBuilder::origin(const Vec3 &origin) -> CameraBuilder & {
   this->camera.origin = origin;
   return *this;

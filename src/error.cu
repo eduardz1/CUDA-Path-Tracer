@@ -4,11 +4,12 @@
 #include <iostream>
 
 void cudaAssert(const cudaError_t code, const char *file, const int line) {
-  if (code == cudaSuccess)
+  if (code == cudaSuccess) {
     return;
+  }
 
   std::cerr << "CUDA Error (" << code << "): " << cudaGetErrorString(code)
             << " " << file << " " << line << '\n';
 
-  exit(code);
+  std::quick_exit(code);
 }

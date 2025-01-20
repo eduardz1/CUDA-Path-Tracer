@@ -20,14 +20,14 @@ __host__ __device__ auto Vec3::operator+=(const Vec3 &other) -> Vec3 & {
 
   return *this;
 }
-__device__ Vec3::operator float4() const { return make_float4(x, y, z, 1.0f); }
+__device__ Vec3::operator float4() const { return make_float4(x, y, z, 1.0F); }
 
 __host__ __device__ auto Vec3::getLengthSquared() const -> float {
   return x * x + y * y + z * z;
 }
 
 __host__ __device__ auto Vec3::getLength() const -> float {
-  return sqrt(getLengthSquared());
+  return sqrtf(getLengthSquared());
 }
 
 __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream & {
@@ -40,7 +40,7 @@ __host__ __device__ auto operator+(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
 __host__ __device__ auto operator-(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
   return {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
 }
-__host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3 {
+__host__ __device__ auto operator*(const Vec3 &v, const float t) -> Vec3 {
   return {t * v.x, t * v.y, t * v.z};
 }
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3 {

@@ -13,17 +13,18 @@
  * intersection, the point of intersection, and the normal vector at the point
  * of intersection
  */
-class HitInfo {
-public:
-  __device__ HitInfo();
-  __device__ HitInfo(const Vec3 &point, const Vec3 &normal, const float time);
+struct HitInfo {
+  Vec3 point, normal;
+  float time;
 
-  __device__ auto getPoint() const -> Vec3;
-  __device__ auto getNormal() const -> Vec3;
-  __device__ auto getTime() const -> float;
-  __device__ auto getFront() const -> bool;
+  /**
+   * @brief Stores whether the hit is on the front or back of the Shape
+   */
+  bool front;
 
-  __device__ void setPoint(const Vec3 &point);
+  __host__ __device__ HitInfo();
+  __host__ __device__ HitInfo(const Vec3 &point, const Vec3 &normal,
+                              const float time);
 
   /**
    * @brief Set the Normal object, when a ray hits a Shape from outside, the
@@ -34,16 +35,5 @@ public:
    * @param r Ray object that hit the Shape
    * @param outward_normal Normal vector at the point of intersection
    */
-  __device__ void setNormal(const Ray &r, const Vec3 &outward_normal);
-  __device__ void setNormal(const Vec3 &normal);
-  __device__ void setTime(const float time);
-
-private:
-  Vec3 point, normal;
-  float time;
-
-  /**
-   * @brief Stores whether the hit is on the front or back of the Shape
-   */
-  bool front;
+  __host__ __device__ void setNormal(const Ray &r, const Vec3 &outward_normal);
 };

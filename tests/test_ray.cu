@@ -2,7 +2,7 @@
 #include "cuda_path_tracer/vec3.cuh"
 #include <catch2/catch_test_macros.hpp>
 
-// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 // Test case for ray constructors
 TEST_CASE("ray constructors", "[ray]") {
@@ -43,4 +43,4 @@ TEST_CASE("ray::at", "[ray]") {
   REQUIRE(r.at(t) == expected_position);
 }
 
-// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers)
+// NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

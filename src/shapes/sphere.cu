@@ -44,9 +44,9 @@ __device__ auto Sphere::hit(const Ray &r, const float hit_t_min,
     }
   }
 
-  hi.setTime(root);
-  hi.setPoint(r.at(root));
-  hi.setNormal(r, (hi.getPoint() - center) / radius);
+  hi.time = root;
+  hi.point = r.at(root);
+  hi.setNormal(r, (hi.point - center) / radius);
 
   return true;
 }

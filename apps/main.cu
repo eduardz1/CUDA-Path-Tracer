@@ -2,7 +2,6 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/shapes/sphere.cuh"
-#include "cuda_path_tracer/utilities.cuh"
 #include <cstdlib>
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
@@ -10,7 +9,7 @@
 #include <vector_types.h>
 
 void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
-                  universal_host_pinned_vector<uchar4> &image) {
+                  thrust::universal_host_pinned_vector<uchar4> &image) {
   const auto shapes = thrust::device_vector<Shape>{
       Sphere{{0, 0, -1.2}, 0.5}, Sphere{{-1, 0, -1}, 0.5},
       Sphere{{1, 0, -1}, 0.5}, Sphere{{0, -100.5, -1}, 100}};
@@ -28,7 +27,7 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
 }
 
 void cornellBox(const uint16_t image_width, const uint16_t image_height,
-                universal_host_pinned_vector<uchar4> &image) {
+                thrust::universal_host_pinned_vector<uchar4> &image) {
   const auto shapes = thrust::device_vector<Shape>{
       Parallelogram{{555, 0, 0}, {0, 555, 0}, {0, 0, 555}},       // left wall
       Parallelogram{{0, 0, 0}, {0, 555, 0}, {0, 0, 555}},         // right wall
@@ -61,7 +60,7 @@ auto main() -> int {
   constexpr auto image_height = 512;
   constexpr auto num_pixels = image_width * image_height;
 
-  universal_host_pinned_vector<uchar4> image(num_pixels);
+  thrust::universal_host_pinned_vector<uchar4> image(num_pixels);
 
   demo3Spheres(image_width, image_height, image);
 

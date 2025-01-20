@@ -1,25 +1,15 @@
 # CUDA-Path-Tracer
 
-> [!CAUTION]
-> The minimum required version of the CUDA Toolkit is 12.4.
+## Commands
 
-## Running
-
-To run the project use the following command:
+If you have the [just](https://github.com/casey/just) command runner installed you can run the command `just` to see the list of available commands. In particular, to run the application use:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-./build/apps/cuda_path_tracer
+just run
 ```
 
-## Testing
-
-<!-- FIXME: Broken linking -->
-
-To run tests use the following command:
+Each argument passed to each `just` command is forwarded to `cmake`, for example, to build the project for all major CUDA architectures use:
 
 ```bash
-cmake --build build --target test
-ctest
+just build -DCMAKE_CUDA_ARCHITECTURES=all-major
 ```

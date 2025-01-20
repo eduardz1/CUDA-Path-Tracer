@@ -1,6 +1,6 @@
 #include "cuda_path_tracer/shapes/rectangular_cuboid.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-#include <array>
+#include <cuda/std/array>
 
 __host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b)
     : a(a), b(b) {
@@ -35,23 +35,21 @@ RectangularCuboid::translate(const Vec3 &translation) -> RectangularCuboid & {
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                                        const float hit_t_max,
                                        HitInfo &hi) const -> bool {
-  const auto origin = rotation.rotatePoint(r.getOrigin(), true);
-  const auto direction = rotation.rotatePoint(r.getDirection(), true);
+  const auto origin = rotation.rotate(r.getOrigin(), true);
+  const auto direction = rotation.rotate(r.getDirection(), true);
   const Ray rotated_ray = {origin - this->translation, direction};
 
   HitInfo temp_hi;
   bool hit_any = false;
   float closest_t = hit_t_max;
 
-  std::array<const Parallelogram *, 6> faces_arr{// NOLINT
-                                                 &faces.left,  &faces.bottom,
-                                                 &faces.front, &faces.right,
-                                                 &faces.back,  &faces.top};
+  cuda::std::array faces_arr{&faces.left,  &faces.bottom, &faces.front,
+                             &faces.right, &faces.back,   &faces.top};
 
-  for (auto &i : faces_arr) {
+  for (const auto &i : faces_arr) {
     if (i->hit(rotated_ray, hit_t_min, closest_t, temp_hi)) {
       hit_any = true;
-      closest_t = temp_hi.getTime();
+      closest_t = temp_hi.time;
       hi = temp_hi;
     }
   }
@@ -60,8 +58,8 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
     return false;
   }
 
-  hi.setPoint(rotation.rotatePoint(hi.getPoint(), false) + this->translation);
-  hi.setNormal(rotation.rotatePoint(hi.getNormal(), false));
+  hi.point = rotation.rotate(hi.point, false) + this->translation;
+  hi.normal = rotation.rotate(hi.normal, false);
 
   return true;
 }

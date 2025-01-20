@@ -11,7 +11,6 @@
 
 #pragma once
 
-#include <driver_types.h>
 #include <ostream>
 
 /**
@@ -19,7 +18,7 @@
  *
  */
 struct Vec3 {
-  float x, y, z; // NOLINT
+  float x, y, z;
 
   __host__ __device__ Vec3();
   __host__ __device__ Vec3(const float x);
@@ -47,7 +46,7 @@ struct Vec3 {
 __host__ auto operator<<(std::ostream &os, const Vec3 &v) -> std::ostream &;
 __host__ __device__ auto operator+(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto operator-(const Vec3 &v1, const Vec3 &v2) -> Vec3;
-__host__ __device__ auto operator*(const Vec3 &v, float t) -> Vec3;
+__host__ __device__ auto operator*(const Vec3 &v, const float t) -> Vec3;
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3;
 

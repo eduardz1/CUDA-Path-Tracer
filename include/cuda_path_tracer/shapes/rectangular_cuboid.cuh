@@ -30,7 +30,7 @@ public:
   __host__ auto translate(const Vec3 &translation) -> RectangularCuboid &;
 
 private:
-  Vec3 a, b, translation{};
+  Vec3 a, b, translation;
 
   // Always performs the rotation first, then the translation
 
