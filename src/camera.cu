@@ -1,5 +1,4 @@
 #include "cuda_path_tracer/camera.cuh"
-#include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/ray.cuh"
@@ -155,26 +154,29 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   image[index] = color;
 }
 
-// __global__ void averagePixels(const uint16_t width, const uint16_t height,
-//                               const float scale, const Vec3 *image,
-//                               uchar4 *image_out) {
-//   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
-//   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
+#if AVERAGE_WITH_THRUST == false
+__global__ void averagePixels(const uint16_t width, const uint16_t height,
+                              const float scale,
+                              const cuda::std::span<Vec3> image,
+                              cuda::std::span<uchar4> image_out) {
+  const auto x = blockIdx.x * blockDim.x + threadIdx.x;
+  const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
-//   if (x >= width || y >= height) {
-//     return;
-//   }
+  if (x >= width || y >= height) {
+    return;
+  }
 
-//   const auto index = y * width + x;
+  const auto index = y * width + x;
 
-//   auto sum = Vec3{};
-//   for (auto i = 0; i < NUM_IMAGES; i++) {
-//     const auto index_stream = i * width * height + index;
-//     sum += image[index_stream];
-//   }
+  auto sum = Vec3{};
+  for (auto i = 0; i < NUM_IMAGES; i++) {
+    const auto index_stream = i * width * height + index;
+    sum += image[index_stream];
+  }
 
-//   image_out[index] = convertColorTo8Bit(sum * scale);
-// }
+  image_out[index] = convertColorTo8Bit(sum * scale);
+}
+#endif
 } // namespace
 
 __host__ Camera::Camera() = default;
@@ -211,8 +213,9 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   this->defocusDiskV = v * defocusRadius;
 }
 
-__host__ void Camera::render(const std::shared_ptr<Scene> &scene,
-                             universal_host_pinned_vector<uchar4> &image) {
+__host__ void
+Camera::render(const std::shared_ptr<Scene> &scene,
+               thrust::universal_host_pinned_vector<uchar4> &image) {
   this->init(scene);
 
   const auto width = scene->getWidth();
@@ -245,19 +248,34 @@ __host__ void Camera::render(const std::shared_ptr<Scene> &scene,
         states_span.subspan(i * num_pixels), i);
   }
 
-  // averagePixels<<<grid, BLOCK_SIZE>>>(width, height, scale, image_3d_ptr,
-  //                                     image_ptr);
-  // CUDA_ERROR_CHECK(cudaDeviceSynchronize());
-  // CUDA_ERROR_CHECK(cudaGetLastError());
+  averageRenderedImages(image, image_3d_span, width, height);
+}
+
+__host__ void Camera::averageRenderedImages(
+    thrust::universal_host_pinned_vector<uchar4> &output,
+    const cuda::std::span<Vec3> &images, const uint16_t width,
+    const uint16_t height) {
+#if AVERAGE_WITH_THRUST
+  const auto num_pixels = output.size();
   thrust::transform(thrust::make_counting_iterator<size_t>(0),
                     thrust::make_counting_iterator<size_t>(num_pixels),
-                    image.begin(), [=] __device__(const auto pixel_idx) {
+                    output.begin(), [=] __device__(const auto pixel_idx) {
                       Vec3 sum{};
                       for (int img = 0; img < NUM_IMAGES; img++) {
-                        sum += image_3d_span[img * num_pixels + pixel_idx];
+                        sum += images[img * num_pixels + pixel_idx];
                       }
                       return convertColorTo8Bit(sum * RENDER_SCALE);
                     });
+#else
+  const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
+                  std::ceil(height / BLOCK_SIZE.y));
+
+  cuda::std::span<uchar4> output_span{thrust::raw_pointer_cast(output.data()),
+                                      output.size()};
+
+  averagePixels<<<grid, BLOCK_SIZE>>>(width, height, RENDER_SCALE, images,
+                                      output_span);
+#endif
 }
 
 __host__ CameraBuilder::CameraBuilder() = default;
