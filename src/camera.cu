@@ -52,7 +52,10 @@ get2Rays(const Vec3 &origin, const Vec3 &pixel00, const Vec3 &deltaU,
          curandStatePhilox4_32_10_t &state) -> cuda::std::tuple<Ray, Ray> {
   const auto values = curand_uniform4(&state);
 
-  // We sample an area of "half pixel" around the pixel centers
+  // We sample an area of "half pixel" around the pixel centers to achieve
+  // anti-aliasing. This helps in reducing the jagged edges by averaging the
+  // colors of multiple samples within each pixel, resulting in smoother
+  // transitions and more realistic images.
   const auto offsetA = Vec3{values.z - 0.5F, values.w - 0.5F, 0};
   const auto offsetB = Vec3{values.x - 0.5F, values.y - 0.5F, 0};
 
@@ -96,7 +99,7 @@ __device__ auto hitShapes(const Ray &ray,
 
   for (const auto &shape : shapes) {
     const bool hit = cuda::std::visit(
-        [&ray, &tmp, closest](const auto &shape) {
+        [&ray, &tmp, &closest](const auto &shape) {
           return shape.hit(ray, RAY_T_MIN, closest, tmp);
         },
         shape);
@@ -247,7 +250,7 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   this->defocusDiskV = v * defocusRadius;
 }
 
-// Align for coalesced memory access
+// Align to prevent control divergence
 // TODO(eduard): Write about it in the report
 __host__ inline auto getPaddedSize(size_t size,
                                    size_t alignment = WARP_SIZE) -> size_t {
@@ -266,7 +269,10 @@ Camera::render(const std::shared_ptr<Scene> &scene,
   const auto num_padded_pixels = padded_width * padded_height;
 
   assert(image.size() == static_cast<size_t>(width * height) &&
-         "Image size does not match the scene's width and height");
+         ("Image size does not match the scene's width and height. Actual: " +
+          std::to_string(image.size()) +
+          ", Expected: " + std::to_string(width * height))
+             .c_str());
 
   thrust::device_vector<Vec3> image_3d(num_padded_pixels * NUM_IMAGES);
 
