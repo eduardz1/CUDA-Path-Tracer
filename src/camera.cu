@@ -87,7 +87,8 @@ get2Rays(const Vec3 &origin, const Vec3 &pixel00, const Vec3 &deltaU,
  * @param hi HitInfo struct to save the hit information
  * @return bool true if a hit was found, false otherwise
  */
-__device__ auto hitShapes(const Ray &ray, cuda::std::span<const Shape> shapes,
+__device__ auto hitShapes(const Ray &ray,
+                          const cuda::std::span<const Shape> shapes,
                           HitInfo &hi) -> bool {
   auto tmp = HitInfo();
   auto closest = RAY_T_MAX;
@@ -111,7 +112,7 @@ __device__ auto hitShapes(const Ray &ray, cuda::std::span<const Shape> shapes,
 }
 
 __device__ auto getColor(const Ray &ray,
-                         cuda::std::span<const Shape> shapes) -> Vec3 {
+                         const cuda::std::span<const Shape> shapes) -> Vec3 {
   auto hi = HitInfo();
   const bool hit = hitShapes(ray, shapes, hi);
 
@@ -144,11 +145,12 @@ __device__ auto getColor(const Ray &ray,
  * @param stream_index Index of the stream to use
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
-                            cuda::std::span<Vec3> image, const Vec3 origin,
-                            const Vec3 pixel00, const Vec3 deltaU,
-                            const Vec3 deltaV, const Vec3 defocusDiskU,
-                            const Vec3 defocusDiskV, const float defocusAngle,
-                            cuda::std::span<const Shape> shapes,
+                            const cuda::std::span<Vec3> image,
+                            const Vec3 origin, const Vec3 pixel00,
+                            const Vec3 deltaU, const Vec3 deltaV,
+                            const Vec3 defocusDiskU, const Vec3 defocusDiskV,
+                            const float defocusAngle,
+                            const cuda::std::span<const Shape> shapes,
                             const size_t stream_index) {
   // Initialize states in shared memory with the Philox4_32_10_t initializer
   // This enables us, at the cost of 16 extra bytes per thread, to generate
@@ -175,7 +177,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   curand_init(SEED, index + (stream_index * width * height), 0,
               &states[local_index]);
 
-  // Save in local memory because we have no use for the final value
+  // Save in register because we have no use for the final value
   auto local_state = states[local_index];
 
   auto color = Vec3{};
