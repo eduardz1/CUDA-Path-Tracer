@@ -6,6 +6,8 @@
 
 #define DEGREE_TO_RADIAN(deg) (deg * M_PIf32 / 180.0f)
 
+#define WARP_SIZE 32
+
 /**
  * @brief A guard for a CUDA stream that will automatically destroy the stream
  * when it goes out of scope. Uses the RAII idiom.

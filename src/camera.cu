@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cuda/std/span>
+#include <cuda/std/tuple>
 #include <cuda_runtime_api.h>
 #include <curand_kernel.h>
 #include <thrust/execution_policy.h>
@@ -20,42 +21,60 @@ constexpr uint64_t SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(8, 8);
 constexpr float RENDER_SCALE = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
-__device__ auto randomInUnitDisk(curandState &state) -> Vec3 {
+__device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state) -> Vec3 {
+  // Iterate two at a time for better chances at each loop
   while (true) {
-    auto p = Vec3{2.0F * curand_uniform(&state) - 1.0F,
-                  2.0F * curand_uniform(&state) - 1.0F, 0};
+    const auto values = curand_uniform4(&state);
+
+    const auto p = Vec3{2.0F * values.w - 1.0F, 2.0F * values.x - 1.0F, 0};
+    const auto q = Vec3{2.0F * values.y - 1.0F, 2.0F * values.z - 1.0F, 0};
 
     if (p.getLengthSquared() < 1.0F) {
       return p;
     }
+    if (q.getLengthSquared() < 1.0F) {
+      return q;
+    }
   }
 }
 
-__device__ auto defocusDiskSample(curandState &state, const Vec3 &center,
-                                  const Vec3 &u, const Vec3 &v) -> Vec3 {
+__device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
+                                  const Vec3 &center, const Vec3 &u,
+                                  const Vec3 &v) -> Vec3 {
   auto p = randomInUnitDisk(state);
   return center + p.x * u + p.y * v;
 }
 
-__device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
-                       const Vec3 &deltaU, const Vec3 &deltaV,
-                       const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
-                       const float defocusAngle, const uint16_t x,
-                       const uint16_t y, curandState &state) -> Ray {
+__device__ auto
+get2Rays(const Vec3 &origin, const Vec3 &pixel00, const Vec3 &deltaU,
+         const Vec3 &deltaV, const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+         const float defocusAngle, const uint16_t x, const uint16_t y,
+         curandStatePhilox4_32_10_t &state) -> cuda::std::tuple<Ray, Ray> {
+  const auto values = curand_uniform4(&state);
+
   // We sample an area of "half pixel" around the pixel centers
-  auto offset =
-      Vec3{curand_uniform(&state) - 0.5F, curand_uniform(&state) - 0.5F, 0};
+  const auto offsetA = Vec3{values.z - 0.5F, values.w - 0.5F, 0};
+  const auto offsetB = Vec3{values.x - 0.5F, values.y - 0.5F, 0};
 
-  auto sample = pixel00 + ((static_cast<float>(x) + offset.x) * deltaU) +
-                ((static_cast<float>(y) + offset.y) * deltaV);
+  const auto sampleA = pixel00 +
+                       ((static_cast<float>(x) + offsetA.x) * deltaU) +
+                       ((static_cast<float>(y) + offsetA.y) * deltaV);
+  const auto sampleB = pixel00 +
+                       ((static_cast<float>(x) + offsetB.x) * deltaU) +
+                       ((static_cast<float>(y) + offsetB.y) * deltaV);
 
-  auto newOrigin =
-      defocusAngle <= 0
-          ? origin
-          : defocusDiskSample(state, origin, defocusDiskU, defocusDiskV);
-  auto direction = sample - newOrigin;
+  auto newOriginA = origin;
+  auto newOriginB = origin;
 
-  return {newOrigin, direction};
+  if (defocusAngle > 0) {
+    newOriginA = defocusDiskSample(state, origin, defocusDiskU, defocusDiskV);
+    newOriginB = defocusDiskSample(state, origin, defocusDiskU, defocusDiskV);
+  }
+
+  const auto directionA = sampleA - newOriginA;
+  const auto directionB = sampleB - newOriginB;
+
+  return {{newOriginA, directionA}, {newOriginB, directionB}};
 }
 
 /**
@@ -121,9 +140,8 @@ __device__ auto getColor(const Ray &ray,
  * @param defocusDiskU Horizontal vector of the defocus disk
  * @param defocusDiskV Vertical vector of the defocus disk
  * @param defocusAngle Angle of the defocus disk
- * @param shapes Array of shapes to check for hits
- * @param num_shapes Number of shapes in the array
- * @param states Random number generator states for each pixel
+ * @param shapes span of shapes to check for hits
+ * @param stream_index Index of the stream to use
  */
 __global__ void renderImage(const uint16_t width, const uint16_t height,
                             cuda::std::span<Vec3> image, const Vec3 origin,
@@ -131,8 +149,14 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
                             const Vec3 deltaV, const Vec3 defocusDiskU,
                             const Vec3 defocusDiskV, const float defocusAngle,
                             cuda::std::span<const Shape> shapes,
-                            cuda::std::span<curandState> states,
                             const size_t stream_index) {
+  // Initialize states in shared memory with the Philox4_32_10_t initializer
+  // This enables us, at the cost of 16 extra bytes per thread, to generate
+  // efficiently four random numbers at a time.
+  extern __shared__ curandStatePhilox4_32_10_t states[]; // NOLINT
+
+  const auto local_index = threadIdx.y * blockDim.x + threadIdx.x;
+
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
 
@@ -141,14 +165,26 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   }
 
   const auto index = y * width + x;
-  curand_init(SEED, index + (stream_index * width * height), 0, &states[index]);
 
-  curandState state = states[index];
+  // Random state generation is extremely expensive, generating it with a
+  // separate kernel does not improve perfomance, talk about it in the report
+  // TODO(eduard): https://docs.nvidia.com/cuda/pdf/CURAND_Library.pdf (3.6)
+  // It would be much better, however, to memoize the random states so that
+  // rendering multiple images with the same resolution would not require
+  // generating the random states again.
+  curand_init(SEED, index + (stream_index * width * height), 0,
+              &states[local_index]);
+
+  // Save in local memory because we have no use for the final value
+  auto local_state = states[local_index];
+
   auto color = Vec3{};
-  for (auto s = 0; s < NUM_SAMPLES; s++) {
-    const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
-                            defocusDiskV, defocusAngle, x, y, state);
-    color += getColor(ray, shapes);
+  for (auto s = 0; s < (NUM_SAMPLES >> 1); s++) {
+    const auto ray = get2Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
+                              defocusDiskV, defocusAngle, x, y, local_state);
+
+    color += getColor(cuda::std::get<0>(ray), shapes);
+    color += getColor(cuda::std::get<1>(ray), shapes);
   }
 
   image[index] = color;
@@ -156,7 +192,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
 
 #if AVERAGE_WITH_THRUST == false
 __global__ void averagePixels(const uint16_t width, const uint16_t height,
-                              const float scale,
+                              const uint16_t padded_width, const float scale,
                               const cuda::std::span<Vec3> image,
                               cuda::std::span<uchar4> image_out) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -166,15 +202,15 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
     return;
   }
 
-  const auto index = y * width + x;
+  const auto output_idx = y * width + x;
+  const auto padded_idx = y * padded_width + x;
 
   auto sum = Vec3{};
-  for (auto i = 0; i < NUM_IMAGES; i++) {
-    const auto index_stream = i * width * height + index;
-    sum += image[index_stream];
+  for (auto img = 0; img < NUM_IMAGES; img++) {
+    sum += images[img * (padded_width * height) + padded_idx];
   }
 
-  image_out[index] = convertColorTo8Bit(sum * scale);
+  image_out[output_idx] = convertColorTo8Bit(sum * scale);
 }
 #endif
 } // namespace
@@ -213,6 +249,13 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
   this->defocusDiskV = v * defocusRadius;
 }
 
+// Align for coalesced memory access
+// TODO(eduard): Write about it in the report
+__host__ inline auto getPaddedSize(size_t size,
+                                   size_t alignment = WARP_SIZE) -> size_t {
+  return (size + alignment - 1) & ~(alignment - 1);
+}
+
 __host__ void
 Camera::render(const std::shared_ptr<Scene> &scene,
                thrust::universal_host_pinned_vector<uchar4> &image) {
@@ -220,49 +263,57 @@ Camera::render(const std::shared_ptr<Scene> &scene,
 
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
-  const auto num_pixels = image.size();
+  const auto padded_width = getPaddedSize(width);
+  const auto padded_height = getPaddedSize(height);
+  const auto num_padded_pixels = padded_width * padded_height;
 
-  assert(num_pixels == static_cast<size_t>(width * height) &&
+  assert(image.size() == static_cast<size_t>(width * height) &&
          "Image size does not match the scene's width and height");
 
-  thrust::device_vector<curandState> states(num_pixels * NUM_IMAGES);
-  thrust::device_vector<Vec3> image_3d(num_pixels * NUM_IMAGES);
+  thrust::device_vector<Vec3> image_3d(num_padded_pixels * NUM_IMAGES);
 
-  cuda::std::span<curandState> states_span{
-      thrust::raw_pointer_cast(states.data()), states.size()};
   cuda::std::span<const Shape> shapes_span{
       thrust::raw_pointer_cast(scene->getShapes().data()),
       scene->getShapes().size()};
   cuda::std::span<Vec3> image_3d_span{thrust::raw_pointer_cast(image_3d.data()),
                                       image_3d.size()};
 
-  const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
-                  std::ceil(height / BLOCK_SIZE.y));
+  const dim3 grid(std::ceil(padded_width / BLOCK_SIZE.x),
+                  std::ceil(padded_height / BLOCK_SIZE.y));
 
   std::array<StreamGuard, NUM_IMAGES> streams{};
 
+  const auto shared_mem_size =
+      static_cast<uint64_t>(BLOCK_SIZE.x * BLOCK_SIZE.y) *
+      sizeof(curandStatePhilox4_32_10_t);
+
   for (auto i = 0; i < NUM_IMAGES; i++) {
-    renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
-        width, height, image_3d_span.subspan(i * num_pixels), origin, pixel00,
-        deltaU, deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span,
-        states_span.subspan(i * num_pixels), i);
+    renderImage<<<grid, BLOCK_SIZE, shared_mem_size, streams.at(i)>>>(
+        padded_width, padded_height,
+        image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
+        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i);
   }
 
-  averageRenderedImages(image, image_3d_span, width, height);
+  averageRenderedImages(image, image_3d_span, width, height, padded_width);
 }
 
 __host__ void Camera::averageRenderedImages(
     thrust::universal_host_pinned_vector<uchar4> &output,
     const cuda::std::span<Vec3> &images, const uint16_t width,
-    const uint16_t height) {
+    const uint16_t height, const uint16_t padded_width) {
 #if AVERAGE_WITH_THRUST
   const auto num_pixels = output.size();
   thrust::transform(thrust::make_counting_iterator<size_t>(0),
                     thrust::make_counting_iterator<size_t>(num_pixels),
-                    output.begin(), [=] __device__(const auto pixel_idx) {
+                    output.begin(), [=] __device__(const auto idx) {
+                      const auto row = idx / width;
+                      const auto col = idx % width;
+                      const auto padded_idx = row * padded_width + col;
+
                       Vec3 sum{};
                       for (int img = 0; img < NUM_IMAGES; img++) {
-                        sum += images[img * num_pixels + pixel_idx];
+                        sum +=
+                            images[img * (padded_width * height) + padded_idx];
                       }
                       return convertColorTo8Bit(sum * RENDER_SCALE);
                     });
@@ -273,8 +324,8 @@ __host__ void Camera::averageRenderedImages(
   cuda::std::span<uchar4> output_span{thrust::raw_pointer_cast(output.data()),
                                       output.size()};
 
-  averagePixels<<<grid, BLOCK_SIZE>>>(width, height, RENDER_SCALE, images,
-                                      output_span);
+  averagePixels<<<grid, BLOCK_SIZE>>>(width, height, padded_width, RENDER_SCALE,
+                                      images, output_span);
 #endif
 }
 

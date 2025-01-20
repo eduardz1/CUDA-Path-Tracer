@@ -18,7 +18,7 @@
 
 // If true, the images will be averaged using thrust, otherwise they will be
 // averaged using a custom kernel.
-#define AVERAGE_WITH_THRUST false
+#define AVERAGE_WITH_THRUST true
 
 class Camera {
 public:
@@ -30,7 +30,8 @@ public:
   __host__ static void
   averageRenderedImages(thrust::universal_host_pinned_vector<uchar4> &output,
                         const cuda::std::span<Vec3> &images,
-                        const uint16_t width, const uint16_t height);
+                        const uint16_t width, const uint16_t height,
+                        const uint16_t padded_width);
 
 private:
   __host__ void init(const std::shared_ptr<Scene> &scene);

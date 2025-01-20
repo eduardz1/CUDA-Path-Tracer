@@ -27,7 +27,7 @@ target    := build_dir / "apps/cuda_path_tracer"
 @run *CMAKE_ARGS: (build CMAKE_ARGS)
     ./{{target}}
 
-# Benchmarks the application using NVIDIA Nsight Systems
+# Benchmarks the application using NVIDIA Nsight Systems, run with `sudo` for better results
 @bench *CMAKE_ARGS: (build CMAKE_ARGS)
     mkdir -p {{bench_dir}}
     rm -rf {{bench_dir}}/*
