@@ -152,12 +152,12 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
                             const float defocusAngle,
                             const cuda::std::span<const Shape> shapes,
                             const size_t stream_index) {
-  // Initialize states in shared memory with the Philox4_32_10_t initializer
-  // This enables us, at the cost of 16 extra bytes per thread, to generate
-  // efficiently four random numbers at a time.
-  extern __shared__ curandStatePhilox4_32_10_t states[]; // NOLINT
+  // TODO(eduard): make use of shared memory
 
-  const auto local_index = threadIdx.y * blockDim.x + threadIdx.x;
+  // Initialize states with the Philox4_32_10_t initializer. This enables us, at
+  // the cost of 16 extra bytes per thread, to generate efficiently four random
+  // numbers at a time.
+  curandStatePhilox4_32_10_t states;
 
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
   const auto y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -174,16 +174,12 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
   // It would be much better, however, to memoize the random states so that
   // rendering multiple images with the same resolution would not require
   // generating the random states again.
-  curand_init(SEED, index + (stream_index * width * height), 0,
-              &states[local_index]);
-
-  // Save in register because we have no use for the final value
-  auto local_state = states[local_index];
+  curand_init(SEED, index + (stream_index * width * height), 0, &states);
 
   auto color = Vec3{};
   for (auto s = 0; s < (NUM_SAMPLES >> 1); s++) {
     const auto ray = get2Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
-                              defocusDiskV, defocusAngle, x, y, local_state);
+                              defocusDiskV, defocusAngle, x, y, states);
 
     color += getColor(cuda::std::get<0>(ray), shapes);
     color += getColor(cuda::std::get<1>(ray), shapes);
@@ -285,12 +281,8 @@ Camera::render(const std::shared_ptr<Scene> &scene,
 
   std::array<StreamGuard, NUM_IMAGES> streams{};
 
-  const auto shared_mem_size =
-      static_cast<uint64_t>(BLOCK_SIZE.x * BLOCK_SIZE.y) *
-      sizeof(curandStatePhilox4_32_10_t);
-
   for (auto i = 0; i < NUM_IMAGES; i++) {
-    renderImage<<<grid, BLOCK_SIZE, shared_mem_size, streams.at(i)>>>(
+    renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
         padded_width, padded_height,
         image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
         deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i);
