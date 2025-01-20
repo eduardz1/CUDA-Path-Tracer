@@ -8,4 +8,4 @@ set_target_properties(cuda_path_tracer
 
 target_compile_features(cuda_path_tracer PRIVATE cxx_std_20)
 
-target_link_libraries(cuda_path_tracer PRIVATE cuda_path_tracer_lib)
+target_link_libraries(cuda_path_tracer PRIVATE CCCL::CCCL cuda_path_tracer_lib)

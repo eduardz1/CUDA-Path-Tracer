@@ -1,23 +1,11 @@
-FetchContent_Declare(
-  Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v3.8.0
-)
-
-FetchContent_MakeAvailable(Catch2)
-
 # TODO: Separate them into different test executables
 add_executable(tests
   test_image.cu
-  test_ray.cpp
+  test_ray.cu
   test_rotation.cu
   test_sphere.cu
   test_vec3.cu
 )
-
-include(Catch)
-
-catch_discover_tests(tests)
 
 set_target_properties(tests
   PROPERTIES
@@ -26,7 +14,11 @@ set_target_properties(tests
 )
 
 target_compile_features(tests PRIVATE cxx_std_20)
+target_link_libraries(tests
+  PRIVATE
+  Catch2::Catch2WithMain
+  CCCL::CCCL
+  cuda_path_tracer_lib
+)
 
-target_link_libraries(tests PRIVATE cuda_path_tracer_lib Catch2::Catch2WithMain)
-
-add_test(NAME test_all COMMAND tests)
+add_test(tests tests)

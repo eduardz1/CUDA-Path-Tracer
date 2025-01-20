@@ -17,6 +17,17 @@ project(
 # TODO: add clang-tidy integration in the build once support for CUDA is added
 # https://gitlab.kitware.com/cmake/cmake/-/issues/25399
 
+# Include CPM.cmake (CMake Package Manager) to download latest CCCL from NVIDIA
+# Github Repository (needed for a couple of features otherwise unsupported in
+# Cuda Toolkit 12.0) and Catch2 for testing
+include(cmake/CPM.cmake)
+
+CPMAddPackage(
+    NAME CCCL
+    GITHUB_REPOSITORY nvidia/cccl
+    GIT_TAG main
+)
+
 # Workaround for https://gitlab.kitware.com/cmake/cmake/-/issues/25763
 if(CMAKE_CUDA_ARCHITECTURES STREQUAL "native")
   set(CMAKE_CUDA_ARCHITECTURES ${CMAKE_CUDA_ARCHITECTURES_NATIVE})
@@ -49,5 +60,7 @@ add_subdirectory(apps)
 
 if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR CUDA_PATH_TRACER_CMAKE_BUILD_TESTING)
     AND BUILD_TESTING)
+    CPMAddPackage("gh:catchorg/Catch2@3.8.0")
+    enable_testing()
     add_subdirectory(tests)
 endif()

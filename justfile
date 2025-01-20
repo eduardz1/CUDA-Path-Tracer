@@ -34,6 +34,10 @@ target    := build_dir / "apps/cuda_path_tracer"
     nsys profile --stats=true -o {{bench_dir}}/bench ./{{target}}
     nsys analyze {{bench_dir}}/bench.sqlite
 
+# Uses the NVIDIA Compute Sanitizer to check for memory leaks
+@memcheck *CMAKE_ARGS: (build CMAKE_ARGS)
+    compute-sanitizer --show-backtrace yes --tool memcheck --leak-check full ./{{target}}
+
 # Cleans the build and benchmark directories, as well as any generated images
 @clean:
     rm -rf {{build_dir}} {{bench_dir}} *.ppm

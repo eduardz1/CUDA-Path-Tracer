@@ -33,10 +33,10 @@ add_library(cuda_path_tracer_lib
 target_include_directories(cuda_path_tracer_lib
     PUBLIC
     ${CMAKE_SOURCE_DIR}/include
-    ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES} # Explicit for clang
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
+target_link_libraries(cuda_path_tracer_lib PRIVATE CCCL::CCCL)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
     target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
