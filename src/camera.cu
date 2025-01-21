@@ -23,6 +23,10 @@ constexpr float RENDER_SCALE = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
 __device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state) -> Vec3 {
   // Iterate two at a time for better chances at each loop
+  // TODO(eduard): calculate 2 at a time with
+  // https://stats.stackexchange.com/questions/481543/generating-random-points-uniformly-on-a-disk
+  // and why it's faster (or not) compared to reject sampling, which normally
+  // would take pi/4 iterations but was already optimised to pi/2
   while (true) {
     const auto values = curand_uniform4(&state);
 
@@ -45,11 +49,12 @@ __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
   return center + p.x * u + p.y * v;
 }
 
-__device__ auto
-get2Rays(const Vec3 &origin, const Vec3 &pixel00, const Vec3 &deltaU,
-         const Vec3 &deltaV, const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
-         const float defocusAngle, const uint16_t x, const uint16_t y,
-         curandStatePhilox4_32_10_t &state) -> cuda::std::tuple<Ray, Ray> {
+__device__ auto get2Rays(const Vec3 &origin, const Vec3 &pixel00,
+                         const Vec3 &deltaU, const Vec3 &deltaV,
+                         const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+                         const float defocusAngle, const uint16_t x,
+                         const uint16_t y, curandStatePhilox4_32_10_t &state)
+    -> cuda::std::tuple<Ray, Ray> {
   const auto values = curand_uniform4(&state);
 
   // We sample an area of "half pixel" around the pixel centers to achieve
@@ -252,8 +257,8 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
 
 // Align to prevent control divergence
 // TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size,
-                                   size_t alignment = WARP_SIZE) -> size_t {
+__host__ inline auto getPaddedSize(size_t size, size_t alignment = WARP_SIZE)
+    -> size_t {
   return (size + alignment - 1) & ~(alignment - 1);
 }
 
@@ -342,18 +347,18 @@ __host__ auto CameraBuilder::up(const Vec3 &up) -> CameraBuilder & {
   this->camera.up = up;
   return *this;
 }
-__host__ auto
-CameraBuilder::verticalFov(const float verticalFov) -> CameraBuilder & {
+__host__ auto CameraBuilder::verticalFov(const float verticalFov)
+    -> CameraBuilder & {
   this->camera.verticalFov = verticalFov;
   return *this;
 }
-__host__ auto
-CameraBuilder::defocusAngle(const float defocusAngle) -> CameraBuilder & {
+__host__ auto CameraBuilder::defocusAngle(const float defocusAngle)
+    -> CameraBuilder & {
   this->camera.defocusAngle = defocusAngle;
   return *this;
 }
-__host__ auto
-CameraBuilder::focusDistance(const float focusDistance) -> CameraBuilder & {
+__host__ auto CameraBuilder::focusDistance(const float focusDistance)
+    -> CameraBuilder & {
   this->camera.focusDistance = focusDistance;
   return *this;
 }
