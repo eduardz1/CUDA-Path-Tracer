@@ -51,7 +51,7 @@ __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3 {
   return {v.x / t, v.y / t, v.z / t};
 }
 
-__device__ auto randomVector(curandState &state) -> Vec3 {
+__device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3 {
   return Vec3{curand_uniform(&state), curand_uniform(&state),
               curand_uniform(&state)};
 }
@@ -69,38 +69,7 @@ __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
           v1.x * v2.y - v1.y * v2.x};
 }
 
-__device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3 {
-  Vec3 randomUnit = makeUnitVector(randomVector(state));
-
-  if (dot(randomUnit, v) > 0.0) {
-    return randomUnit;
-  }
-  return -randomUnit;
-}
-
-__device__ auto roundScatterDirection(const Vec3 &direction,
-                                      const Vec3 &normal) -> Vec3 {
-  auto s = 1e-8;
-  if (fabs(direction.x < s) && fabs(direction.y < s) &&
-      fabs(direction.z < s)) {
-    return normal;
-  }
-  return direction;
-}
-
-__device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3 {
-  return v - 2 * dot(v, n) * n;
-}
-
-__device__ auto refract(const Vec3 &v, const Vec3 &n,
-                        double eta_component) -> Vec3 {
-  auto cos_theta = fmin(dot(-v, n), 1.0);
-  Vec3 R_perp = eta_component * (v + cos_theta * n);
-  Vec3 R_par = -sqrt(fabs(1.0f - R_perp.getLengthSquared())) * n;
-  return R_perp + R_par;
-}
-
-__device__ auto vectorOnHemisphere(const Vec3 &v, curandState &state) -> Vec3 {
+__device__ auto vectorOnHemisphere(const Vec3 &v, curandStatePhilox4_32_10_t &state) -> Vec3 {
   Vec3 randomUnit = makeUnitVector(randomVector(state));
 
   if (dot(randomUnit, v) > 0.0) {

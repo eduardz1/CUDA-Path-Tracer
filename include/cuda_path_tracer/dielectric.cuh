@@ -8,7 +8,7 @@ public:
 
   __device__ bool scatter(const Ray &ray, Vec3 &normal, Vec3 &point, bool front,
                           Vec3 &attenuation, Ray &scattered,
-                          curandState &state) {
+                          curandStatePhilox4_32_10_t &state) {
     double ri = front ? (1.0f / refraction) : refraction;
     auto scatter_direction = makeUnitVector(ray.getDirection());
 

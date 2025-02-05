@@ -21,6 +21,7 @@ namespace {
 constexpr uint64_t SEED = 0xba0bab;
 constexpr dim3 BLOCK_SIZE(8, 8);
 constexpr float RENDER_SCALE = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
+constexpr uint64_t DEPTH = 20;
 
 __device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state) -> Vec3 {
   // Iterate two at a time for better chances at each loop
@@ -121,7 +122,7 @@ __device__ auto hitShapes(const Ray &ray,
 }
 
 __device__ auto getColor(const Ray &ray,
-                         const cuda::std::span<const Shape> shapes, curandState &state,
+                         const cuda::std::span<const Shape> shapes, curandStatePhilox4_32_10_t &state,
                          int depth) -> Vec3 {
 
   Vec3 color = Vec3{1.0f, 1.0f, 1.0f};
@@ -222,8 +223,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
     const auto ray = get2Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-    color += getColor(cuda::std::get<0>(ray), shapes, state, DEPTH);
-    color += getColor(cuda::std::get<1>(ray), shapes, state, DEPTH);
+    color += getColor(cuda::std::get<0>(ray), shapes, states, DEPTH);
+    color += getColor(cuda::std::get<1>(ray), shapes, states, DEPTH);
   }
 
   image[index] = color;
