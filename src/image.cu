@@ -32,6 +32,10 @@ __host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
   file.close();
 }
 
+__device__ auto linToGamma(const float component) -> float {
+  return component > 0 ? sqrtf(component) : 0.0f;
+}
+
 __device__ auto convertColorTo8Bit(const Vec3 color) -> uchar4 {
   return make_uchar4(
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *

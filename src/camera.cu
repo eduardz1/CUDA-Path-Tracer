@@ -1,6 +1,7 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
+#include "cuda_path_tracer/lambertian.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/utilities.cuh"
@@ -120,17 +121,49 @@ __device__ auto hitShapes(const Ray &ray,
 }
 
 __device__ auto getColor(const Ray &ray,
-                         const cuda::std::span<const Shape> shapes) -> Vec3 {
-  auto hi = HitInfo();
-  const bool hit = hitShapes(ray, shapes, hi);
+                         const cuda::std::span<const Shape> shapes, curandState &state,
+                         int depth) -> Vec3 {
 
-  if (hit) {
-    return 0.5F * (hi.normal + 1.0F);
+  Vec3 color = Vec3{1.0f, 1.0f, 1.0f};
+  Ray current = ray;
+
+  for (int i = 0; i < depth; i++) {
+    auto hi = HitInfo();
+    bool hit = hitShapes(current, shapes, hi);
+
+    // could possibly remove the shadow acne problem but this is a little change
+    if (hit) {
+      Ray scattered;
+      Vec3 attenuation;
+
+      Vec3 normal = hi.getNormal();
+      Vec3 point = hi.getPoint();
+      Material material = hi.getMaterial();
+      bool front = hi.getFront();
+
+      bool scatter = cuda::std::visit(
+          [&current, &normal, &point, front, &attenuation, &scattered,
+           &state](auto &material) {
+            return material.scatter(current, normal, point, front, attenuation,
+                                    scattered, state);
+          },
+          material);
+
+      if (scatter) {
+        color = color * attenuation;
+        current = scattered;
+      } else {
+        return Vec3{0.0f, 0.0f, 0.0f};
+      }
+
+    } else {
+      auto unit_direction = makeUnitVector(current.getDirection());
+      auto t = 0.5f * (unit_direction.getY() + 1.0f);
+      return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
+             t * Vec3{0.5f, 0.7f, 1.0f};
+    }
   }
-
-  auto unit_direction = makeUnitVector(ray.getDirection());
-  auto t = 0.5F * (unit_direction.y + 1.0F);
-  return (1.0F - t) * Vec3{1.0F} + t * Vec3{0.5F, 0.7F, 1.0F};
+  return Vec3{0, 0, 0};
 }
 
 /**
@@ -189,8 +222,8 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
     const auto ray = get2Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-    color += getColor(cuda::std::get<0>(ray), shapes);
-    color += getColor(cuda::std::get<1>(ray), shapes);
+    color += getColor(cuda::std::get<0>(ray), shapes, state, DEPTH);
+    color += getColor(cuda::std::get<1>(ray), shapes, state, DEPTH);
   }
 
   image[index] = color;
