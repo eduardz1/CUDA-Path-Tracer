@@ -136,10 +136,10 @@ __device__ auto getColor(const Ray &ray,
       Ray scattered;
       Vec3 attenuation;
 
-      Vec3 normal = hi.getNormal();
-      Vec3 point = hi.getPoint();
-      Material material = hi.getMaterial();
-      bool front = hi.getFront();
+      Vec3 normal = hi.normal;
+      Vec3 point = hi.point;
+      Material material = hi.material;
+      bool front = hi.front;
 
       bool scatter = cuda::std::visit(
           [&current, &normal, &point, front, &attenuation, &scattered,
@@ -158,7 +158,7 @@ __device__ auto getColor(const Ray &ray,
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
-      auto t = 0.5f * (unit_direction.getY() + 1.0f);
+      auto t = 0.5f * (unit_direction.y+ 1.0f);
       return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
              t * Vec3{0.5f, 0.7f, 1.0f};
     }
