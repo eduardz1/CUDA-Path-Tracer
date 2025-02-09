@@ -1,12 +1,4 @@
 #include "cuda_path_tracer/vec3.cuh"
-#include <random>
-
-__host__ __device__ Vec3::Vec3() : x(0), y(0), z(0) {}
-__host__ __device__ Vec3::Vec3(const float value)
-    : x(value), y(value), z(value) {}
-__host__ __device__ Vec3::Vec3(const float x, const float y, const float z)
-    : x(x), y(y), z(z) {}
-__host__ __device__ Vec3::Vec3(const float4 &v) : x(v.x), y(v.y), z(v.z) {}
 
 __host__ __device__ auto Vec3::operator-() const -> Vec3 {
   return {-x, -y, -z};
@@ -69,7 +61,8 @@ __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
           v1.x * v2.y - v1.y * v2.x};
 }
 
-__device__ auto vectorOnHemisphere(const Vec3 &v, curandStatePhilox4_32_10_t &state) -> Vec3 {
+__device__ auto vectorOnHemisphere(const Vec3 &v,
+                                   curandStatePhilox4_32_10_t &state) -> Vec3 {
   Vec3 randomUnit = makeUnitVector(randomVector(state));
 
   if (dot(randomUnit, v) > 0.0) {
@@ -80,9 +73,9 @@ __device__ auto vectorOnHemisphere(const Vec3 &v, curandStatePhilox4_32_10_t &st
 
 __device__ auto roundScatterDirection(const Vec3 &direction,
                                       const Vec3 &normal) -> Vec3 {
-  auto s = 1e-8;
-  if (fabs(direction.x < s) && fabs(direction.y < s) &&
-      fabs(direction.z < s)) {
+  const auto s = 1e-8F;
+  if (std::fabs(direction.x) < s && std::fabs(direction.y) < s &&
+      std::fabs(direction.z) < s) {
     return normal;
   }
   return direction;
@@ -93,9 +86,10 @@ __device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3 {
 }
 
 __device__ auto refract(const Vec3 &v, const Vec3 &n,
-                        double eta_component) -> Vec3 {
-  auto cos_theta = fmin(dot(-v, n), 1.0);
-  Vec3 R_perp = eta_component * (v + cos_theta * n);
-  Vec3 R_par = -sqrt(fabs(1.0f - R_perp.getLengthSquared())) * n;
-  return R_perp + R_par;
+                        float eta_component) -> Vec3 {
+  const auto cos_theta = static_cast<float>(std::fmin(dot(-v, n), 1.0));
+  const Vec3 r_perp = eta_component * (v + cos_theta * n);
+  const Vec3 r_par =
+      -std::sqrtf(std::fabs(1.0F - r_perp.getLengthSquared())) * n;
+  return r_perp + r_par;
 }
