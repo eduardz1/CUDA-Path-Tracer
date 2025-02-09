@@ -67,7 +67,7 @@ constexpr auto Magenta = Color::RGB(255, 0, 255);
 // Captuccin Latte colors, taken from https://catppuccin.com/palette
 namespace Catpuccin::Latte {
 constexpr auto Rosewater = Color::RGB(220, 138, 120);
-constexpr auto Flaming = Color::RGB(221, 120, 120);
+constexpr auto Flamingo = Color::RGB(221, 120, 120);
 constexpr auto Pink = Color::RGB(234, 118, 203);
 constexpr auto Mauve = Color::RGB(136, 57, 239);
 constexpr auto Red = Color::RGB(210, 15, 57);
