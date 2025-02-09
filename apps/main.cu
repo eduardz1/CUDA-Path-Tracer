@@ -1,7 +1,7 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/color.cuh"
 #include "cuda_path_tracer/image.cuh"
-#include "cuda_path_tracer/lambertian.cuh"
+#include "cuda_path_tracer/materials/lambertian.cuh"
 #include "cuda_path_tracer/shapes/sphere.cuh"
 #include <cstdlib>
 #include <thrust/device_vector.h>

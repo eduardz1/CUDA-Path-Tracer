@@ -72,7 +72,14 @@ private:
 
   Vec3 defocusDiskU, defocusDiskV;
 
-  float defocusAngle, focusDistance, verticalFov;
+  /**
+   * @brief The defocus angle is the angle of the cone of the defocus disk from
+   * the camera center to the focus plane. It's similar to the aperture of a
+   * camera, but, contrary to aperture, an higher value offers more bokeh
+   * effect. The focus distance indicates the distance to the focus plane.
+   */
+  float defocusAngle, focusDistance;
+  float verticalFov;
 };
 
 class CameraBuilder {

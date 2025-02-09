@@ -3,18 +3,21 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rectangular_cuboid.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rotation.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/sphere.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/dielectric.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/lambertian.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/metal.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/color.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/utilities.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/lambertian.cuh"
 )
 
 add_library(cuda_path_tracer_lib

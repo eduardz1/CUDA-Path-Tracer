@@ -1,14 +1,15 @@
 #pragma once
 
+#include "cuda_path_tracer/ray.cuh"
 class Dielectric {
 
 public:
   __host__ __device__ Dielectric(const double refraction)
       : refraction(refraction) {}
 
-  __device__ bool scatter(const Ray &ray, Vec3 &normal, Vec3 &point, bool front,
+  __device__ auto scatter(const Ray &ray, Vec3 &normal, Vec3 &point, bool front,
                           Vec3 &attenuation, Ray &scattered,
-                          curandStatePhilox4_32_10_t &state) {
+                          curandStatePhilox4_32_10_t &state) const -> bool {
     double ri = front ? (1.0f / refraction) : refraction;
     auto scatter_direction = makeUnitVector(ray.getDirection());
 

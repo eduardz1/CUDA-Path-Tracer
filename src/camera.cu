@@ -1,7 +1,6 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
-#include "cuda_path_tracer/lambertian.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/shape.cuh"
 #include "cuda_path_tracer/utilities.cuh"
@@ -47,16 +46,15 @@ __device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state) -> Vec3 {
 __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
                                   const Vec3 &center, const Vec3 &u,
                                   const Vec3 &v) -> Vec3 {
-  auto p = randomInUnitDisk(state);
+  const auto p = randomInUnitDisk(state);
   return center + p.x * u + p.y * v;
 }
 
-__device__ auto get2Rays(const Vec3 &origin, const Vec3 &pixel00,
-                         const Vec3 &deltaU, const Vec3 &deltaV,
-                         const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
-                         const float defocusAngle, const uint16_t x,
-                         const uint16_t y, curandStatePhilox4_32_10_t &state)
-    -> cuda::std::tuple<Ray, Ray> {
+__device__ auto
+get2Rays(const Vec3 &origin, const Vec3 &pixel00, const Vec3 &deltaU,
+         const Vec3 &deltaV, const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+         const float defocusAngle, const uint16_t x, const uint16_t y,
+         curandStatePhilox4_32_10_t &state) -> cuda::std::tuple<Ray, Ray> {
   const auto values = curand_uniform4(&state);
 
   // We sample an area of "half pixel" around the pixel centers to achieve
@@ -122,10 +120,10 @@ __device__ auto hitShapes(const Ray &ray,
 }
 
 __device__ auto getColor(const Ray &ray,
-                         const cuda::std::span<const Shape> shapes, curandStatePhilox4_32_10_t &state,
-                         int depth) -> Vec3 {
+                         const cuda::std::span<const Shape> shapes,
+                         curandStatePhilox4_32_10_t &state, int depth) -> Vec3 {
 
-  Vec3 color = Vec3{1.0f, 1.0f, 1.0f};
+  Vec3 color = Vec3{1.0F, 1.0F, 1.0F};
   Ray current = ray;
 
   for (int i = 0; i < depth; i++) {
@@ -154,14 +152,14 @@ __device__ auto getColor(const Ray &ray,
         color = color * attenuation;
         current = scattered;
       } else {
-        return Vec3{0.0f, 0.0f, 0.0f};
+        return Vec3{0.0F, 0.0F, 0.0F};
       }
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
-      auto t = 0.5f * (unit_direction.y+ 1.0f);
-      return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
-             t * Vec3{0.5f, 0.7f, 1.0f};
+      auto t = 0.5F * (unit_direction.y + 1.0F);
+      return color * (1.0F - t) * Vec3{1.0F, 1.0F, 1.0F} +
+             t * Vec3{0.5F, 0.7F, 1.0F};
     }
   }
   return Vec3{0, 0, 0};
@@ -253,6 +251,13 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
   image_out[output_idx] = convertColorTo8Bit(sum * scale);
 }
 #endif
+
+// Align to prevent control divergence
+// TODO(eduard): Write about it in the report
+__host__ inline auto getPaddedSize(size_t size,
+                                   size_t alignment = WARP_SIZE) -> size_t {
+  return (size + alignment - 1) & ~(alignment - 1);
+}
 } // namespace
 
 __host__ Camera::Camera() = default;
@@ -287,13 +292,6 @@ __host__ void Camera::init(const std::shared_ptr<Scene> &scene) {
       std::tan(DEGREE_TO_RADIAN(this->defocusAngle) / 2.0F);
   this->defocusDiskU = u * defocusRadius;
   this->defocusDiskV = v * defocusRadius;
-}
-
-// Align to prevent control divergence
-// TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size, size_t alignment = WARP_SIZE)
-    -> size_t {
-  return (size + alignment - 1) & ~(alignment - 1);
 }
 
 __host__ void
