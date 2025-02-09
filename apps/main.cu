@@ -1,8 +1,7 @@
-
 #include "cuda_path_tracer/camera.cuh"
+#include "cuda_path_tracer/color.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/lambertian.cuh"
-#include "cuda_path_tracer/metal.cuh"
 #include "cuda_path_tracer/shapes/sphere.cuh"
 #include <cstdlib>
 #include <thrust/device_vector.h>
@@ -10,11 +9,14 @@
 #include <vector_functions.h>
 #include <vector_types.h>
 
+namespace {
 void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
                   thrust::universal_host_pinned_vector<uchar4> &image) {
   const auto shapes = thrust::device_vector<Shape>{
-      Sphere{{0, 0, -1.2}, 0.5, Lambertian(Vec3{0.1, 0.2, 0.5})}, Sphere{{-1, 0, -1}, 0.5, Dielectric(1.50)},
-      Sphere{{1, 0, -1}, 0.5, Dielectric(1.00 / 1.50)}, Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0.8, 0.8, 0.0})}};
+      Sphere{{0, 0, -1.2}, 0.5, Lambertian(Catpuccin::Latte::Flamingo)},
+      Sphere{{-1, 0, -1}, 0.5, Dielectric(1.50)},
+      Sphere{{1, 0, -1}, 0.5, Dielectric(1.00 / 1.50)},
+      Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0.8, 0.8, 0.0})}};
   const auto scene = std::make_shared<Scene>(image_width, image_height, shapes);
 
   auto camera = CameraBuilder()
@@ -56,6 +58,7 @@ void cornellBox(const uint16_t image_width, const uint16_t image_height,
                     .build();
   camera.render(scene, image);
 }
+} // namespace
 
 auto main() -> int {
   constexpr auto image_width = 512;

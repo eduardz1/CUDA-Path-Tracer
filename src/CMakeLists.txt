@@ -4,6 +4,7 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rotation.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/sphere.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/color.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.cuh"
