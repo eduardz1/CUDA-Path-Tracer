@@ -1,4 +1,5 @@
 #pragma once
+
 #include "cuda_path_tracer/vec3.cuh"
 #include <cstdint>
 

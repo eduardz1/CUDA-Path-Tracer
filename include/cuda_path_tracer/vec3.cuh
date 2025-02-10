@@ -1,14 +1,3 @@
-/**
- * @file vec3.cuh
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Header file for vec3.cu, which contains the vec3 class
- * @version 0.1
- * @date 2024-10-28
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #pragma once
 
 #include <curand_kernel.h>

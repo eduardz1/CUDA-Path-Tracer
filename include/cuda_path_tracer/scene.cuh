@@ -1,3 +1,5 @@
+#pragma once
+
 #include "cuda_path_tracer/shape.cuh"
 #include <cstdint>
 #include <driver_types.h>

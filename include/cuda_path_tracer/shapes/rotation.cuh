@@ -1,6 +1,6 @@
-#include "cuda_path_tracer/vec3.cuh"
-
 #pragma once
+
+#include "cuda_path_tracer/vec3.cuh"
 
 class Rotation {
 protected:
