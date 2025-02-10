@@ -4,7 +4,8 @@
 #include <thrust/mr/allocator.h>
 #include <thrust/mr/device_memory_resource.h>
 
-#define DEGREE_TO_RADIAN(deg) (deg * M_PIf32 / 180.0f)
+#define DEGREE_TO_RADIAN(deg)                                                  \
+  (deg * 3.141592653589793238462643383279502884F / 180.0F)
 
 #define WARP_SIZE 32
 

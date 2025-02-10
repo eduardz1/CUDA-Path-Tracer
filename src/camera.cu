@@ -1,4 +1,5 @@
 #include "cuda_path_tracer/camera.cuh"
+#include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/ray.cuh"
@@ -324,12 +325,16 @@ Camera::render(const std::shared_ptr<Scene> &scene,
 
   std::array<StreamGuard, NUM_IMAGES> streams{};
 
+  // Calling cudaGetLastError() here to clear any previous errors
+  CUDA_ERROR_CHECK(cudaGetLastError());
   for (auto i = 0; i < NUM_IMAGES; i++) {
     renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
         padded_width, padded_height,
         image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
         deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i);
   }
+  CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+  CUDA_ERROR_CHECK(cudaGetLastError());
 
   averageRenderedImages(image, image_3d_span, width, height, padded_width);
 }
@@ -363,6 +368,8 @@ __host__ void Camera::averageRenderedImages(
 
   averagePixels<<<grid, BLOCK_SIZE>>>(width, height, padded_width, RENDER_SCALE,
                                       images, output_span);
+  CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+  CUDA_ERROR_CHECK(cudaGetLastError());
 #endif
 }
 
@@ -379,18 +386,18 @@ __host__ auto CameraBuilder::up(const Vec3 &up) -> CameraBuilder & {
   this->camera.up = up;
   return *this;
 }
-__host__ auto CameraBuilder::verticalFov(const float verticalFov)
-    -> CameraBuilder & {
+__host__ auto
+CameraBuilder::verticalFov(const float verticalFov) -> CameraBuilder & {
   this->camera.verticalFov = verticalFov;
   return *this;
 }
-__host__ auto CameraBuilder::defocusAngle(const float defocusAngle)
-    -> CameraBuilder & {
+__host__ auto
+CameraBuilder::defocusAngle(const float defocusAngle) -> CameraBuilder & {
   this->camera.defocusAngle = defocusAngle;
   return *this;
 }
-__host__ auto CameraBuilder::focusDistance(const float focusDistance)
-    -> CameraBuilder & {
+__host__ auto
+CameraBuilder::focusDistance(const float focusDistance) -> CameraBuilder & {
   this->camera.focusDistance = focusDistance;
   return *this;
 }

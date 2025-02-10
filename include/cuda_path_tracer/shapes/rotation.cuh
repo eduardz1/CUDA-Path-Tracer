@@ -2,6 +2,15 @@
 
 #include "cuda_path_tracer/vec3.cuh"
 
+struct TrigValues {
+  float sin;
+  float cos;
+
+  __host__ __device__ constexpr TrigValues() : sin(0.0F), cos(1.0F) {}
+  __host__ __device__ constexpr TrigValues(float sin, float cos)
+      : sin(sin), cos(cos) {}
+};
+
 class Rotation {
 protected:
   /**
@@ -23,8 +32,7 @@ protected:
 private:
   Vec3 angles;
 
-  struct {
-    float sin{}, cos = 1;
-  } x, y, z;
+  struct TrigValues x, y, z;
+
   __host__ auto cacheTrigValues() -> void;
 };
