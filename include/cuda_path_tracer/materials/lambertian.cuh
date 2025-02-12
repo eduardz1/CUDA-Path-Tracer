@@ -7,15 +7,9 @@ class Lambertian {
 public:
   __host__ __device__ Lambertian(const Vec3 albedo) : albedo(albedo) {}
 
-  __device__ auto scatter(const Ray &ray, Vec3 &normal, Vec3 &point, bool front,
-                          Vec3 &attenuation, Ray &scattered,
-                          curandStatePhilox4_32_10_t &state) -> bool {
-    auto scatter_direction = normal + vectorOnHemisphere(normal, state);
-    scatter_direction = roundScatterDirection(scatter_direction, normal);
-    scattered = Ray(point, scatter_direction);
-    attenuation = albedo;
-    return true;
-  }
+  template <typename State>
+  __device__ auto scatter(const Vec3 &normal,const  Vec3 &point, Vec3 &attenuation,
+                          Ray &scattered, State &state) const -> bool;
 
 private:
   Vec3 albedo;
