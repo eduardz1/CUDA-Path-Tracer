@@ -28,16 +28,18 @@ RectangularCuboid::rotate(const Vec3 &angles) -> RectangularCuboid & {
 };
 __host__ auto
 RectangularCuboid::translate(const Vec3 &translation) -> RectangularCuboid & {
-  this->translation += {-translation.x, translation.y, translation.z};
+  this->translation += translation;
   return *this;
 };
 
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                                        const float hit_t_max,
                                        HitInfo &hi) const -> bool {
-  const auto origin = rotation.rotate(r.getOrigin(), true);
+  // First translate, then rotate (inverse transformations are applied in
+  // reverse)
+  const auto origin = rotation.rotate(r.getOrigin() - translation, true);
   const auto direction = rotation.rotate(r.getDirection(), true);
-  const Ray rotated_ray = {origin - this->translation, direction};
+  const Ray transformed_ray{origin, direction};
 
   HitInfo temp_hi;
   bool hit_any = false;
@@ -47,7 +49,7 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                              &faces.right, &faces.back,   &faces.top};
 
   for (const auto &i : faces_arr) {
-    if (i->hit(rotated_ray, hit_t_min, closest_t, temp_hi)) {
+    if (i->hit(transformed_ray, hit_t_min, closest_t, temp_hi)) {
       hit_any = true;
       closest_t = temp_hi.time;
       hi = temp_hi;
@@ -58,8 +60,10 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
     return false;
   }
 
-  hi.point = rotation.rotate(hi.point, false) + this->translation;
-  hi.normal = rotation.rotate(hi.normal, false);
+  // Apply transformations in forward order: first rotation, then translation
+  hi.point = rotation.rotate(hi.point, false) + translation;
+  hi.normal = makeUnitVector(rotation.rotate(hi.normal, false));
+  hi.time = closest_t;
 
   return true;
 }
