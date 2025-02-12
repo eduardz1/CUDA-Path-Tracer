@@ -99,7 +99,6 @@ TEST_CASE("Rotation Construction and Caching", "[rotation]") {
   }
 }
 
-// FIXME: Inverse rotation is broken, maybe it's a problem with the code
 TEST_CASE("Inverse Rotation Tests", "[rotation]") {
   Vec3 *d_point = nullptr;
   Vec3 *d_result = nullptr;
