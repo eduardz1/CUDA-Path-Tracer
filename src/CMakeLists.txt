@@ -25,6 +25,9 @@ add_library(cuda_path_tracer_lib
     shapes/rectangular_cuboid.cu
     shapes/rotation.cu
     shapes/sphere.cu
+    materials/dielectric.cu
+    materials/lambertian.cu
+    materials/metal.cu
     camera.cu
     error.cu
     hit_info.cu
@@ -45,7 +48,7 @@ target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
 target_link_libraries(cuda_path_tracer_lib PRIVATE CCCL::CCCL)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
-    target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
+    target_compile_options(cuda_path_tracer_lib PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
 endif()
 
 if(CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")

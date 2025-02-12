@@ -1,7 +1,11 @@
 # TODO: Separate them into different test executables
 add_executable(tests
     test_image.cu
+    test_parallelogram.cu
+    test_random_in_unit_disk.cu
     test_ray.cu
+    test_rectangular_cuboid.cu
+    test_render_bench.cu
     test_rotation.cu
     test_sphere.cu
     test_vec3.cu
