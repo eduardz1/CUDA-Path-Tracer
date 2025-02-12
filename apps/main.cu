@@ -41,10 +41,10 @@ void cornellBox(const uint16_t image_width, const uint16_t image_height,
       Parallelogram{{343, 554, 332}, {-130, 0, 0}, {0, 0, -105}}, // light
       RectangularCuboid{{130, 0, 65}, {295, 165, 230}}
           .rotate({0, -15, 0})
-          .translate({-40, 0, -20}),
+          .translate({40, 0, -20}),
       RectangularCuboid{{265, 0, 295}, {430, 330, 460}}
           .rotate({0, 18, 0})
-          .translate({120, 0, 60}),
+          .translate({-120, 0, 60}),
   };
   const auto scene = std::make_shared<Scene>(image_width, image_height, shapes);
 
