@@ -1,4 +1,3 @@
-# TODO: Separate them into different test executables
 add_executable(tests
     test_image.cu
     test_parallelogram.cu

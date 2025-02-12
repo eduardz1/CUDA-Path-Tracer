@@ -24,9 +24,9 @@ struct CameraHyperParams {
  * @tparam BlockSize the dim3 block size for the kernel.
  * @tparam NumSamples the number of samples for each pixel.
  * @tparam NumImages  number of images to render and then average together,
- * provides a similar effect to antialiasing (controlled by NUM_SAMPLES) but
- * it's more parallelizable ideally try to balance the two hyper parameters.
- * They are pretty much the same thing, so 16x32 is the same as 32x16.
+ * provides a similar effect to the NumSamples parameter but it's more
+ * parallelizable; ideally try to balance the two hyper parameters. They are
+ * pretty much the same thing, so 16x32 is the same as 32x16.
  * @tparam AverageWithThrust if true, the images will be averaged using thrust,
  * otherwise they will be averaged using a custom kernel.
  * @tparam State the curandState_t type to use for the random number generator

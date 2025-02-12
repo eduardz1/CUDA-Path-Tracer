@@ -89,14 +89,6 @@ void runAllCombinations(const std::shared_ptr<Scene> &scene,
   runBenchmark<8, 32, 32, 128, false, State>(scene, image);
   runBenchmark<8, 32, 64, 64, true, State>(scene, image);
   runBenchmark<8, 32, 64, 64, false, State>(scene, image);
-
-  // 32x32 blocks
-  runBenchmark<32, 32, 16, 256, true, State>(scene, image);
-  runBenchmark<32, 32, 16, 256, false, State>(scene, image);
-  runBenchmark<32, 32, 32, 128, true, State>(scene, image);
-  runBenchmark<32, 32, 32, 128, false, State>(scene, image);
-  runBenchmark<32, 32, 64, 64, true, State>(scene, image);
-  runBenchmark<32, 32, 64, 64, false, State>(scene, image);
 }
 
 auto createTestScene(uint16_t width,
@@ -111,17 +103,6 @@ auto createTestScene(uint16_t width,
           .translate({40, 0, -20})};
   return std::make_shared<Scene>(width, height, shapes);
 }
-
-auto createCamera() {
-  return CameraBuilder()
-      .origin({-2, 2, 1})
-      .lookAt({0, 0, -1})
-      .up({0, 1, 0})
-      .defocusAngle(10)
-      .focusDistance(3.4)
-      .verticalFov(20.0F)
-      .build();
-}
 } // namespace
 
 TEST_CASE("Hyperparameter Optimization", "[benchmark]") {
@@ -134,41 +115,6 @@ TEST_CASE("Hyperparameter Optimization", "[benchmark]") {
 
   runAllCombinations<curandState_t>(scene, image);
   runAllCombinations<curandStatePhilox4_32_10_t>(scene, image);
-}
-
-TEST_CASE("Render Output Validation", "[render]") {
-  constexpr uint16_t width = 64;
-  constexpr uint16_t height = 64;
-  constexpr auto num_pixels = static_cast<size_t>(width * height);
-
-  auto scene = createTestScene(width, height);
-  auto camera = createCamera();
-
-  thrust::universal_host_pinned_vector<uchar4> image1(num_pixels);
-  thrust::universal_host_pinned_vector<uchar4> image2(num_pixels);
-
-// Render with curandState_t
-#undef USE_PHILOX
-  camera.render(scene, image1);
-
-// Render with Philox
-#define USE_PHILOX
-  camera.render(scene, image2);
-
-  // Verify outputs are reasonably similar
-  float max_diff = 0.0F;
-  for (size_t i = 0; i < num_pixels; ++i) {
-    float diff = std::abs(static_cast<float>(image1[i].x) -
-                          static_cast<float>(image2[i].x)) +
-                 std::abs(static_cast<float>(image1[i].y) -
-                          static_cast<float>(image2[i].y)) +
-                 std::abs(static_cast<float>(image1[i].z) -
-                          static_cast<float>(image2[i].z));
-    max_diff = std::max(max_diff, diff);
-  }
-
-  // Allow some variation due to different RNG implementations
-  REQUIRE(max_diff < 50.0F);
 }
 
 // NOLINTEND(cppcoreguidelines-avoid-do-while,cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

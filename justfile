@@ -16,12 +16,12 @@ target    := build_dir / "apps/cuda_path_tracer"
     cmake --build {{build_dir}}
 
 # Builds the application with testing enabled
-@test *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" "-DCMAKE_BUILD_TYPE=Debug" CMAKE_ARGS)
-    # It would be better to have the target be
-    # 'test $CMAKE_BUILD_TYPE="Debug" *CMAKE_ARGS: ...' to overload the
-    # CMAKE_BUILD_TYPE environment variable, but
-    # https://github.com/casey/just/issues/1804 needs to be resolved first.
+@test *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" CMAKE_ARGS)
     ./{{build_dir}}/tests/tests
+
+# Runs only the tests, without the benchmarks
+@test-only *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" CMAKE_ARGS)
+    ./{{build_dir}}/tests/tests --skip-benchmarks
 
 # Runs the application
 @run *CMAKE_ARGS: (build CMAKE_ARGS)
