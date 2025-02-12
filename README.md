@@ -8,8 +8,48 @@ If you have the [just](https://github.com/casey/just) command runner installed y
 just run
 ```
 
+or equivalently:
+
+```bash
+cmake -S . -B build
+cmake --build build
+./build/apps/cuda_path_tracer
+```
+
 Each argument passed to each `just` command is forwarded to `cmake`, for example, to build the project for all major CUDA architectures use:
 
 ```bash
 just build -DCMAKE_CUDA_ARCHITECTURES=all-major
 ```
+
+### Testing and Benchmarking
+
+Benchmarks are integrated in the testing suite. The `just bench` command will run NVIDIA's Nsight Systems profiler on the main application. To run the tests with the integrated benchmarks use:
+
+```bash
+just test
+```
+
+or equivalently:
+
+```bash
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build
+./build/tests/tests
+```
+
+> [!TIP]
+> Certain benchmarks in the test suite will take a while to complete, to run only the unit tests you can use the `just test-only` command.
+
+## Repository Structure
+
+### Code
+
+- [`apps/`](apps/): Application code that uses the `cuda_path_tracer` library. Here you can find a demo application that renders a scene using the library.
+- [`include/`](include/): Public headers of the `cuda_path_tracer` library.
+- [`src/`](src/): Implementation of the `cuda_path_tracer` library.
+- [`tests/`](tests/): Unit tests for the `cuda_path_tracer` library and benchmarks.
+
+### Report
+
+- [`report/`](report/): Typst source code of the report.
