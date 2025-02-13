@@ -25,6 +25,8 @@ public:
     return true;
   }
 
+  __device__ Vec3 emitted(Vec3 &point) { return Vec3{0,0,0}; }
+
 private:
   double refraction;
 

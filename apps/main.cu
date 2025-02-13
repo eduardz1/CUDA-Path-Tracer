@@ -26,6 +26,7 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
                     .defocusAngle(10)   // NOLINT
                     .focusDistance(3.4) // NOLINT
                     .verticalFov(20.0f) // NOLINT
+                    .background(Colors::Black)
                     .build();
   camera.render(scene, image);
 }
@@ -55,6 +56,7 @@ void cornellBox(const uint16_t image_width, const uint16_t image_height,
                     .defocusAngle(0)     // NOLINT
                     .focusDistance(10.0) // NOLINT
                     .verticalFov(40.0f)  // NOLINT
+                    .background(Colors::Black)
                     .build();
   camera.render(scene, image);
 }

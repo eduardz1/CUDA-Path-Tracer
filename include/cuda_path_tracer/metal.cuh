@@ -17,6 +17,8 @@ public:
     return (dot(scattered.getDirection(), normal) > 0);
   }
 
+  __device__ Vec3 emitted(Vec3 &point) { return Vec3{0,0,0}; }
+
 private:
   Vec3 albedo;
   double fuzz;
