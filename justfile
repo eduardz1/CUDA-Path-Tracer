@@ -16,16 +16,12 @@ target    := build_dir / "apps/cuda_path_tracer"
     cmake --build {{build_dir}}
 
 # Builds the application with testing enabled
-@test *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" CMAKE_ARGS)
-    ./{{build_dir}}/tests/tests
-
-# Runs only the tests, without the benchmarks
-@test-only *CMAKE_ARGS: (build "-DBUILD_TESTING=ON" CMAKE_ARGS)
-    ./{{build_dir}}/tests/tests --skip-benchmarks
+@test *TEST_ARGS: (build "-DBUILD_TESTING=ON")
+    ./{{build_dir}}/tests/tests $@
 
 # Runs the application
-@run *CMAKE_ARGS: (build CMAKE_ARGS)
-    ./{{target}}
+@run *RUN_ARGS: (build)
+    ./{{target}} $@
 
 # Benchmarks the application using NVIDIA Nsight Systems, run with `sudo` for better results
 @bench *CMAKE_ARGS: (build CMAKE_ARGS)

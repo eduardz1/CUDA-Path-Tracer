@@ -20,7 +20,6 @@ target_compile_features(tests PRIVATE cxx_std_20)
 target_link_libraries(tests
     PRIVATE
     Catch2::Catch2WithMain
-    CCCL::CCCL
     cuda_path_tracer_lib
 )
 

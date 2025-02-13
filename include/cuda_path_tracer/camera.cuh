@@ -4,6 +4,7 @@
 #include "cuda_path_tracer/vec3.cuh"
 #include <driver_types.h>
 #include <memory>
+#include <cuda/std/span>
 #include <thrust/host_vector.h>
 #include <thrust/universal_vector.h>
 

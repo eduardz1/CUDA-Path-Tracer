@@ -1,3 +1,5 @@
+CPMAddPackage("gh:nlohmann/json@3.11.3")
+
 set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/parallelogram.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rectangular_cuboid.cuh"
@@ -12,6 +14,7 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/project.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
@@ -32,6 +35,7 @@ add_library(cuda_path_tracer_lib
     error.cu
     hit_info.cu
     image.cu
+    project.cu
     ray.cu
     scene.cu
     utilities.cu
@@ -45,7 +49,7 @@ target_include_directories(cuda_path_tracer_lib
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
-target_link_libraries(cuda_path_tracer_lib PRIVATE CCCL::CCCL)
+target_link_libraries(cuda_path_tracer_lib PUBLIC CCCL::CCCL PRIVATE nlohmann_json::nlohmann_json)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
     target_compile_options(cuda_path_tracer_lib PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
