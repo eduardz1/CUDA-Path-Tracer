@@ -39,10 +39,10 @@ __device__ auto linToGamma(const float component) -> float {
 __device__ auto convertColorTo8Bit(const Vec3 color) -> uchar4 {
   return make_uchar4(
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
-                                 std::clamp(color.x, 0.0F, 1.0F)),
+                                 std::clamp(linToGamma(color.x), 0.0F, 1.0F)),
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
-                                 std::clamp(color.y, 0.0F, 1.0F)),
+                                 std::clamp(linToGamma(color.y), 0.0F, 1.0F)),
       static_cast<unsigned char>(static_cast<float>(UCHAR_MAX) *
-                                 std::clamp(color.z, 0.0F, 1.0F)),
+                                 std::clamp(linToGamma(color.z), 0.0F, 1.0F)),
       UCHAR_MAX);
 }

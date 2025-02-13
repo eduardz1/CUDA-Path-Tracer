@@ -169,7 +169,7 @@ __device__ auto getColor(const Ray &ray,
       auto unit_direction = makeUnitVector(current.getDirection());
       auto t = 0.5f * (unit_direction.y + 1.0f);
       return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
-             t * Vec3{0.5f, 0.7f, 1.0f};
+             t * Vec3{0.8f, 0.85f, 1.0f};
     }
   }
   return Vec3{0, 0, 0};
