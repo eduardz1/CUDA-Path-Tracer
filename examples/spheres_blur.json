@@ -19,7 +19,7 @@
         "radius": 0.5,
         "material": {
           "type": "lambertian",
-          "color": [0.96, 0.71, 0.76]
+          "color": "pink"
         }
       },
       {
@@ -46,7 +46,7 @@
         "radius": 100,
         "material": {
           "type": "lambertian",
-          "color": [0.8, 0.8, 0.0]
+          "color": "latte-green"
         }
       }
     ]
