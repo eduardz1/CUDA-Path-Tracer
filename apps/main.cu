@@ -16,7 +16,7 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
       Sphere{{0, 0, -1.2}, 0.5, Lambertian(Catpuccin::Latte::Flamingo)},
       Sphere{{-1, 0, -1}, 0.5, Dielectric(1.50)},
       Sphere{{1, 0, -1}, 0.5, Dielectric(1.00 / 1.50)},
-      Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0.8, 0.8, 0.0})}};
+      Sphere{{0, -100.5, -1}, 100, Lambertian(Checker(0.32, Vec3{0,0,0}, Vec3{1,1,1}))}};
   const auto scene = std::make_shared<Scene>(image_width, image_height, shapes);
 
   auto camera = CameraBuilder()
