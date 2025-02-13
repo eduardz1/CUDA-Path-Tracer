@@ -15,6 +15,9 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/lambertian.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/texture.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/solid.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/checker.cuh"
 )
 
 add_library(cuda_path_tracer_lib
