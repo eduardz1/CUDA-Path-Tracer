@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.27...3.31)
+cmake_minimum_required(VERSION 3.24...3.31)
 
 if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
     set(CMAKE_CUDA_ARCHITECTURES native)
@@ -52,8 +52,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     include(CTest)
 endif()
-
-include(FetchContent)
 
 add_subdirectory(src)
 add_subdirectory(apps)
