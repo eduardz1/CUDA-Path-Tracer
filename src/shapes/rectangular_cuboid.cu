@@ -1,9 +1,9 @@
 #include "cuda_path_tracer/shapes/rectangular_cuboid.cuh"
+#include "cuda_path_tracer/shapes/rotation.cuh"
 #include "cuda_path_tracer/vec3.cuh"
 #include <cuda/std/array>
 
-__host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b)
-    : a(a), b(b) {
+__host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b) {
   const auto min =
       Vec3(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
   const auto max =
@@ -19,28 +19,52 @@ __host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b)
   faces.right = Parallelogram({max.x, min.y, max.z}, -dz, dy);
   faces.back = Parallelogram({max.x, min.y, min.z}, -dx, dy);
   faces.top = Parallelogram({min.x, max.y, max.z}, dx, -dz);
-};
+}
+
+__host__ RectangularCuboid::RectangularCuboid(const Faces &transformed_faces)
+    : faces(transformed_faces) {}
 
 __host__ auto
-RectangularCuboid::rotate(const Vec3 &angles) -> RectangularCuboid & {
-  this->rotation += Rotation(angles);
-  return *this;
-};
+RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
+  // Create a rotation instance.
+  const auto rot = Rotation(angles);
+
+  // Compute center of cuboid using the bottom and top faces.
+  const Vec3 bottom_center =
+      faces.bottom.origin + 0.5F * (faces.bottom.u + faces.bottom.v);
+  const Vec3 top_center = faces.top.origin + 0.5F * (faces.top.u + faces.top.v);
+  const Vec3 center = 0.5F * (bottom_center + top_center);
+
+  // For each face, rotate its origin about the cuboid center and rotate its
+  // edge vectors.
+  auto rotate_face = [rot, center](const Parallelogram &face) -> Parallelogram {
+    const Vec3 new_origin = center + rot.rotate(face.origin - center, false);
+    const Vec3 new_u = rot.rotate(face.u, false);
+    const Vec3 new_v = rot.rotate(face.v, false);
+    return {new_origin, new_u, new_v};
+  };
+
+  return RectangularCuboid({rotate_face(faces.left), rotate_face(faces.bottom),
+                            rotate_face(faces.front), rotate_face(faces.right),
+                            rotate_face(faces.back), rotate_face(faces.top)});
+}
+
 __host__ auto
-RectangularCuboid::translate(const Vec3 &translation) -> RectangularCuboid & {
-  this->translation += translation;
-  return *this;
-};
+RectangularCuboid::translate(const Vec3 &offset) const -> RectangularCuboid {
+  return RectangularCuboid({
+      Parallelogram(faces.left.origin + offset, faces.left.u, faces.left.v),
+      Parallelogram(faces.bottom.origin + offset, faces.bottom.u,
+                    faces.bottom.v),
+      Parallelogram(faces.front.origin + offset, faces.front.u, faces.front.v),
+      Parallelogram(faces.right.origin + offset, faces.right.u, faces.right.v),
+      Parallelogram(faces.back.origin + offset, faces.back.u, faces.back.v),
+      Parallelogram(faces.top.origin + offset, faces.top.u, faces.top.v),
+  });
+}
 
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                                        const float hit_t_max,
                                        HitInfo &hi) const -> bool {
-  // First translate, then rotate (inverse transformations are applied in
-  // reverse)
-  const auto origin = rotation.rotate(r.getOrigin() - translation, true);
-  const auto direction = rotation.rotate(r.getDirection(), true);
-  const Ray transformed_ray{origin, direction};
-
   HitInfo temp_hi;
   bool hit_any = false;
   float closest_t = hit_t_max;
@@ -49,21 +73,12 @@ __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
                              &faces.right, &faces.back,   &faces.top};
 
   for (const auto &i : faces_arr) {
-    if (i->hit(transformed_ray, hit_t_min, closest_t, temp_hi)) {
+    if (i->hit(r, hit_t_min, closest_t, temp_hi)) {
       hit_any = true;
       closest_t = temp_hi.time;
       hi = temp_hi;
     }
   }
 
-  if (!hit_any) {
-    return false;
-  }
-
-  // Apply transformations in forward order: first rotation, then translation
-  hi.point = rotation.rotate(hi.point, false) + translation;
-  hi.normal = makeUnitVector(rotation.rotate(hi.normal, false));
-  hi.time = closest_t;
-
-  return true;
+  return hit_any;
 }

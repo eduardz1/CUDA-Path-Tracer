@@ -20,7 +20,8 @@ protected:
    * @param inverse If true, the point is rotated in the opposite direction
    * @return Vec3 Rotated point
    */
-  __device__ auto rotate(const Vec3 &point, const bool inverse) const -> Vec3;
+  __host__ __device__ auto rotate(const Vec3 &point,
+                                  const bool inverse) const -> Vec3;
 
   __host__ auto operator+=(const Rotation &r) -> Rotation &;
 

@@ -68,7 +68,6 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   SECTION("Rotation test") {
     *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
     d_cuboid->rotate(Vec3(0.0F, 90.0F, 0.0F));
-    // After 90-degree Y rotation, the front face is now where +X was
     *d_ray = Ray(Vec3(2.0F, 0.5F, 0.5F), Vec3(-1.0F, 0.0F, 0.0F));
 
     testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
@@ -76,18 +75,33 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
 
     REQUIRE(*d_hit_result == true);
-    // The intersection should be at x=1 after rotation
     REQUIRE_THAT(d_hit_info->point.x,
                  Catch::Matchers::WithinAbs(1.0F, epsilon));
-    // Normal should point in +X direction after rotation
     REQUIRE_THAT(d_hit_info->normal.x,
                  Catch::Matchers::WithinAbs(1.0F, epsilon));
   }
 
   SECTION("Translation test") {
     *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
-    d_cuboid->translate(Vec3(1.0F, 1.0F, 1.0F));
-    *d_ray = Ray(Vec3(1.5F, 1.5F, 3.0F), Vec3(0.0F, 0.0F, -1.0F));
+    *d_cuboid = d_cuboid->translate(Vec3(2.0F, 0.0F, 0.0F));
+    *d_ray = Ray(Vec3(3.5F, 0.5F, 0.5F), Vec3(-1.0F, 0.0F, 0.0F));
+
+    testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
+                            d_hit_info);
+    CUDA_ERROR_CHECK(cudaDeviceSynchronize());
+
+    REQUIRE(*d_hit_result == true);
+    REQUIRE_THAT(d_hit_info->point.x,
+                 Catch::Matchers::WithinAbs(3.0F, epsilon));
+    REQUIRE_THAT(d_hit_info->normal.x,
+                 Catch::Matchers::WithinAbs(1.0F, epsilon));
+  }
+
+  SECTION("Combined rotation and translation test") {
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = d_cuboid->rotate(Vec3(0.0F, 90.0F, 0.0F))
+                    .translate(Vec3(0.0F, 0.0F, 2.0F));
+    *d_ray = Ray(Vec3(0.5F, 0.5F, 3.5F), Vec3(0.0F, 0.0F, -1.0F));
 
     testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
                             d_hit_info);
@@ -95,21 +109,9 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
 
     REQUIRE(*d_hit_result == true);
     REQUIRE_THAT(d_hit_info->point.z,
-                 Catch::Matchers::WithinAbs(2.0F, epsilon));
-  }
-
-  SECTION("Combined rotation and translation") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
-    d_cuboid->rotate(Vec3(0.0F, 90.0F, 0.0F)).translate(Vec3(1.0F, 1.0F, 1.0F));
-    *d_ray = Ray(Vec3(3.0F, 1.5F, 1.5F), Vec3(-1.0F, 0.0F, 0.0F));
-
-    testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
-                            d_hit_info);
-    CUDA_ERROR_CHECK(cudaDeviceSynchronize());
-
-    REQUIRE(*d_hit_result == true);
-    REQUIRE_THAT(d_hit_info->point.x,
-                 Catch::Matchers::WithinAbs(2.0F, epsilon));
+                 Catch::Matchers::WithinAbs(3.0F, epsilon));
+    REQUIRE_THAT(d_hit_info->normal.z,
+                 Catch::Matchers::WithinAbs(1.0F, epsilon));
   }
 
   CUDA_ERROR_CHECK(cudaFree(d_hit_result));
