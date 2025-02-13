@@ -76,13 +76,24 @@
 
   // talk about getRay (pseudocode), show image with the querying in the circle inscribed in each pixel
 
-  === Defocus Blur
+  === Defocus Blur <defocus-blur>
 
-  To simulate the depth of field effect (bokeh) in a camera, we implemented a defocus blur algorithm. // TODO: Explain how it works, make a figure
+  Defocus blur is a photographic effect that simulates the out-of-focus areas of an image produced by a camera lens with an arbitrarily large aperture (and thus, arbitrarly small depth of field). It is also known as bokeh.
+
+  #figure(
+    image("imgs/defocus_blur.drawio.svg"),
+    caption: [When we want to simulate the defocus blur effect, each sample from the lens comes from a disk instead of a single point, shapes not aligned with the focus plane will appear blurred],
+  )
+
+  // TODO: add image with defocus blur effect applied
 
   == Tracing Rays
 
   // talk about getColor (pseudocode)
+
+  === Materials
+
+  // TODO: talk about materials
 
   == CUDA Features
 
@@ -101,6 +112,16 @@
   === Polymorphism
 
   CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
+
+  === Random <random>
+
+  Random number generation is not an easy problem, to tackle it, we decided to use the cuRAND library @curand. A lot of considerations were made in how to write a performant kernel, given that we have to use random states in various parts of our program.
+
+  For starters, random states are used for sub-pixel sampling, an antialiasing technique which allows us to eliminate jagged edges from the objects. We also use random states to simulate the defocus blur effect @defocus-blur. Random states are also used for some materials, for example to scatter light in a diffuse material.
+
+  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to inizialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to inizialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
+
+  The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
   = Results
 
@@ -125,15 +146,6 @@
 
   For this reason, all the benchmarks presented in this report were done with code compiled using `nvcc` with LTO enabled.
 
-  == Random <random>
-
-  Random number generation is not an easy problem, to tackle it, we decided to use the cuRAND library @curand. A lot of considerations were made in how to write a performant kernel, given that we have to use random states in various parts of our program.
-
-  For starters, random states are used for sub-pixel sampling, an antialiasing technique which allows us to eliminate jagged edges from the objects. We also use random states to simulate the defocus blur effect, also known as bokeh, which is a photographic effect that simulates the out-of-focus areas of an image produced by a camera lens with an arbitrarily large aperture (and thus, arbitrarly small depth of field). Random states are also used for some materials, for example to scatter light in a diffuse material.
-
-  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to inizialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to inizialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
-
-  The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
   == Benchmarks
 
