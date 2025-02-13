@@ -7,7 +7,6 @@ auto main(int argc, char **argv) -> int {
   CLI::App app{"CUDA Path Tracer"};
 
   std::string scene_file;
-  std::string output_file = "output.ppm";
 
   app.add_option("-s,--scene", scene_file, "Scene file")->required();
 
@@ -18,8 +17,7 @@ auto main(int argc, char **argv) -> int {
     return EXIT_FAILURE;
   }
 
-  const auto project = Project::load(scene_file);
-  project->render();
+  Project::load(scene_file)->render();
 
   return EXIT_SUCCESS;
 }
