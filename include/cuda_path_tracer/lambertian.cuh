@@ -4,6 +4,7 @@
 class Lambertian {
 
 public:
+  __host__ __device__ Lambertian() : texture(Solid(Vec3{0,0,0})) {}
   __host__ __device__ Lambertian(const Vec3 albedo) : texture(Solid(albedo)) {}
   __host__ __device__ Lambertian(const Texture texture) : texture(texture) {}
 
