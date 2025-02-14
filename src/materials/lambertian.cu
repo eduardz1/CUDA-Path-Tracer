@@ -7,7 +7,8 @@ __device__ auto Lambertian::scatter(const Vec3 &normal, const Vec3 &point,
   auto scatter_direction = normal + vectorOnHemisphere<State>(normal, state);
   scatter_direction = roundScatterDirection(scatter_direction, normal);
   scattered = Ray(point, scatter_direction);
-  attenuation = albedo;
+  attenuation = cuda::std::visit(
+      [&point](auto &texture) { return texture.texure_value(point); }, texture);
   return true;
 }
 
@@ -17,3 +18,7 @@ Lambertian::scatter<curandState_t>(const Vec3 &, const Vec3 &, Vec3 &, Ray &,
 template __device__ auto Lambertian::scatter<curandStatePhilox4_32_10_t>(
     const Vec3 &, const Vec3 &, Vec3 &, Ray &,
     curandStatePhilox4_32_10_t &) const -> bool;
+
+__device__ auto Lambertian::emitted(Vec3 &point) -> Vec3 {
+  return Vec3{0, 0, 0};
+}

@@ -3,7 +3,9 @@
 #include "cuda_path_tracer/vec3.cuh"
 #include <cuda/std/array>
 
-__host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b) {
+__host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b,
+                                              const Material &material)
+    : material(material) {
   const auto min =
       Vec3(std::fmin(a.x, b.x), std::fmin(a.y, b.y), std::fmin(a.z, b.z));
   const auto max =
@@ -13,19 +15,19 @@ __host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b) {
   const auto dy = Vec3(0, max.y - min.y, 0);
   const auto dz = Vec3(0, 0, max.z - min.z);
 
-  faces.left = Parallelogram(min, dz, dy);
-  faces.bottom = Parallelogram(min, dx, dz);
-  faces.front = Parallelogram({min.x, min.y, max.z}, dx, dy);
-  faces.right = Parallelogram({max.x, min.y, max.z}, -dz, dy);
-  faces.back = Parallelogram({max.x, min.y, min.z}, -dx, dy);
-  faces.top = Parallelogram({min.x, max.y, max.z}, dx, -dz);
+  faces.left = Parallelogram(min, dz, dy, material);
+  faces.bottom = Parallelogram(min, dx, dz, material);
+  faces.front = Parallelogram({min.x, min.y, max.z}, dx, dy, material);
+  faces.right = Parallelogram({max.x, min.y, max.z}, -dz, dy, material);
+  faces.back = Parallelogram({max.x, min.y, min.z}, -dx, dy, material);
+  faces.top = Parallelogram({min.x, max.y, max.z}, dx, -dz, material);
 }
 
 __host__ RectangularCuboid::RectangularCuboid(const Faces &transformed_faces)
     : faces(transformed_faces) {}
 
-__host__ auto
-RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
+__host__ auto RectangularCuboid::rotate(const Vec3 &angles) const
+    -> RectangularCuboid {
   // Create a rotation instance.
   const auto rot = Rotation(angles);
 
@@ -49,8 +51,8 @@ RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
                             rotate_face(faces.back), rotate_face(faces.top)});
 }
 
-__host__ auto
-RectangularCuboid::translate(const Vec3 &offset) const -> RectangularCuboid {
+__host__ auto RectangularCuboid::translate(const Vec3 &offset) const
+    -> RectangularCuboid {
   return RectangularCuboid({
       Parallelogram(faces.left.origin + offset, faces.left.u, faces.left.v),
       Parallelogram(faces.bottom.origin + offset, faces.bottom.u,
@@ -63,8 +65,8 @@ RectangularCuboid::translate(const Vec3 &offset) const -> RectangularCuboid {
 }
 
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
-                                       const float hit_t_max,
-                                       HitInfo &hi) const -> bool {
+                                       const float hit_t_max, HitInfo &hi) const
+    -> bool {
   HitInfo temp_hi;
   bool hit_any = false;
   float closest_t = hit_t_max;

@@ -1,95 +1,99 @@
 {
-    "name": "cornell_box",
-    "image": {
-      "width": 512,
-      "height": 512
+  "name": "cornell_box",
+  "image": {
+    "width": 512,
+    "height": 512
+  },
+  "camera": {
+    "origin": [278, 278, -800],
+    "lookAt": [278, 278, 0],
+    "up": [0, 1, 0],
+    "verticalFov": 40.0,
+    "defocusAngle": 0.0,
+    "focusDistance": 10.0,
+    "background": "black"
+  },
+  "shapes": [
+    {
+      "type": "parallelogram",
+      "origin": [555, 0, 0],
+      "u": [0, 555, 0],
+      "v": [0, 0, 555],
+      "material": {
+        "type": "lambertian",
+        "color": "sapphire"
+      }
     },
-    "camera": {
-      "origin": [278, 278, -800],
-      "lookAt": [278, 278, 0],
-      "up": [0, 1, 0],
-      "verticalFov": 40.0,
-      "defocusAngle": 0.0,
-      "focusDistance": 10.0
+    {
+      "type": "parallelogram",
+      "origin": [0, 0, 0],
+      "u": [0, 555, 0],
+      "v": [0, 0, 555],
+      "material": {
+        "type": "lambertian",
+        "color": "sapphire"
+      }
     },
-    "shapes": [
-      {
-        "type": "parallelogram",
-        "origin": [555, 0, 0],
-        "u": [0, 555, 0],
-        "v": [0, 0, 555],
-        "material": {
-          "type": "lambertian",
-          "color": [0.65, 0.05, 0.05]
-        }
-      },
-      {
-        "type": "parallelogram",
-        "origin": [0, 0, 0],
-        "u": [0, 555, 0],
-        "v": [0, 0, 555],
-        "material": {
-          "type": "lambertian",
-          "color": [0.12, 0.45, 0.15]
-        }
-      },
-      {
-        "type": "parallelogram",
-        "origin": [0, 0, 0], 
-        "u": [555, 0, 0],
-        "v": [0, 0, 555],
-        "material": {
-          "type": "lambertian",
-          "color": [0.73, 0.73, 0.73]
-        }
-      },
-      {
-        "type": "parallelogram",
-        "origin": [0, 555, 0],
-        "u": [555, 0, 0],
-        "v": [0, 0, 555],
-        "material": {
-          "type": "lambertian",
-          "color": [0.73, 0.73, 0.73]
-        }
-      },
-      {
-        "type": "parallelogram",
-        "origin": [343, 554, 332],
-        "u": [-130, 0, 0],
-        "v": [0, 0, -105],
-        "material": {
-          "type": "lambertian",
-          "color": [15, 15, 15]
-        }
-      },
-      {
-        "type": "rectangular_cuboid",
-        "vertices": [
-          [130, 0, 65],
-          [295, 165, 230]
-        ],
-        "rotation": [45, -15, 0],
-        "translation": [10, 35, -20],
-        "material": {
-          "type": "metal",
-          "color": [0.73, 0.73, 0.73],
-          "fuzz": 0.0
-        }
-      },
-      {
-        "type": "rectangular_cuboid", 
-        "vertices": [
-          [265, 0, 295],
-          [430, 330, 460]
-        ],
-        "rotation": [0, 18, 0],
-        "translation": [20, 0, 60],
-        "material": {
-          "type": "metal",
-          "color": [0.73, 0.73, 0.73],
-          "fuzz": 0.0
+    {
+      "type": "parallelogram",
+      "origin": [0, 0, 0],
+      "u": [555, 0, 0],
+      "v": [0, 0, 555],
+      "material": {
+        "type": "lambertian",
+        "color": "sapphire"
+      }
+    },
+    {
+      "type": "parallelogram",
+      "origin": [0, 555, 0],
+      "u": [555, 0, 0],
+      "v": [0, 0, 555],
+      "material": {
+        "type": "lambertian",
+        "color": "sapphire"
+      }
+    },
+    {
+      "type": "parallelogram",
+      "origin": [343, 554, 332],
+      "u": [-130, 0, 0],
+      "v": [0, 0, -105],
+      "material": {
+        "type": "light",
+        "color": "white"
+      }
+    },
+    {
+      "type": "rectangular_cuboid",
+      "vertices": [
+        [130, 0, 65],
+        [295, 165, 230]
+      ],
+      "rotation": [45, -15, 0],
+      "translation": [10, 35, -20],
+      "material": {
+        "type": "lambertian",
+        "checker": {
+          "size": 0.5,
+          "color1": "peach",
+          "color2": "black"
         }
       }
-    ]
-  }
+    },
+    {
+      "type": "rectangular_cuboid",
+      "vertices": [
+        [265, 0, 295],
+        [430, 330, 460]
+      ],
+      "rotation": [0, 18, 0],
+      "translation": [20, 0, 60],
+      "material": {
+        "type": "metal",
+        "color": "lavander",
+        "fuzz": 0.7
+      }
+    }
+  ]
+}

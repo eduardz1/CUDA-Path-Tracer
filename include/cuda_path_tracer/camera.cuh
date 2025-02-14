@@ -2,9 +2,9 @@
 
 #include "cuda_path_tracer/scene.cuh"
 #include "cuda_path_tracer/vec3.cuh"
+#include <cuda/std/span>
 #include <driver_types.h>
 #include <memory>
-#include <cuda/std/span>
 #include <thrust/host_vector.h>
 #include <thrust/universal_vector.h>
 
@@ -100,6 +100,8 @@ private:
    */
   float defocusAngle, focusDistance;
   float verticalFov;
+
+  Vec3 background;
 };
 
 template <dim3 BlockSize = CameraHyperParams::default_block_size,
@@ -117,8 +119,9 @@ public:
   __host__ auto verticalFov(float verticalFov) -> CameraBuilder &;
   __host__ auto focusDistance(float focusDistance) -> CameraBuilder &;
   __host__ auto defocusAngle(float defocusAngle) -> CameraBuilder &;
-  __host__ auto
-  build() -> Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>;
+  __host__ auto background(const Vec3 &background) -> CameraBuilder &;
+  __host__ auto build()
+      -> Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>;
 
 private:
   Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State> camera;
@@ -129,9 +132,9 @@ __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
                                   const Vec3 &v) -> Vec3;
 __device__ auto defocusDiskSample(curandState_t &state, const Vec3 &center,
                                   const Vec3 &u, const Vec3 &v) -> Vec3;
-__device__ auto
-defocusDisk4Samples(curandStatePhilox4_32_10_t &state, const Vec3 &center,
-                    const Vec3 &u,
-                    const Vec3 &v) -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
+__device__ auto defocusDisk4Samples(curandStatePhilox4_32_10_t &state,
+                                    const Vec3 &center, const Vec3 &u,
+                                    const Vec3 &v)
+    -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
 
 #include "camera.inl"

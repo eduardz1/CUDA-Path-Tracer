@@ -4,8 +4,8 @@
 
 __host__ Parallelogram::Parallelogram() = default;
 __host__ Parallelogram::Parallelogram(const Vec3 &origin, const Vec3 &u,
-                                      const Vec3 &v)
-    : origin(origin), u(u), v(v) {
+                                      const Vec3 &v, const Material &material)
+    : origin(origin), u(u), v(v), material(material) {
   const auto n = cross(u, v);
   normal = makeUnitVector(n);
   area = dot(normal, origin); // NOLINT
@@ -13,8 +13,8 @@ __host__ Parallelogram::Parallelogram(const Vec3 &origin, const Vec3 &u,
 };
 
 __device__ auto Parallelogram::hit(const Ray &r, const float hit_t_min,
-                                   const float hit_t_max,
-                                   HitInfo &hi) const -> bool {
+                                   const float hit_t_max, HitInfo &hi) const
+    -> bool {
   const auto denominator = dot(normal, r.getDirection());
 
   if (fabs(denominator) < 1e-6) { // NOLINT ray is parallel to the plane
@@ -39,6 +39,7 @@ __device__ auto Parallelogram::hit(const Ray &r, const float hit_t_min,
   hi.time = t;
   hi.point = point;
   hi.setNormal(r, normal);
+  hi.material = material;
 
   return true;
 }

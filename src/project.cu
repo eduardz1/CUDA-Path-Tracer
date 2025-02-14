@@ -108,8 +108,8 @@ __host__ auto parseShape(const nlohmann::json &j) -> Shape {
 }
 } // namespace
 
-__host__ auto
-Project::load(const std::string &filename) -> std::shared_ptr<Project> {
+__host__ auto Project::load(const std::string &filename)
+    -> std::shared_ptr<Project> {
   std::ifstream file(filename);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file: " + filename);
@@ -155,6 +155,9 @@ Project::load(const std::string &filename) -> std::shared_ptr<Project> {
   }
   if (cam.contains("focusDistance")) {
     camera_builder.focusDistance(cam["focusDistance"].get<float>());
+  }
+  if (cam.contains("background")) {
+    camera_builder.background(parseColor(cam["background"]));
   }
   project->camera = std::make_shared<Camera<>>(camera_builder.build());
 

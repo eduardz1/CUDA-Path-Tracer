@@ -43,10 +43,11 @@ __device__ auto hitShapes(const Ray &ray,
   return hit_anything;
 }
 
+// TODO(eduard): remove depth and make it an hyperparameter
 template <typename State>
 __device__ auto getColor(const Ray &ray,
                          const cuda::std::span<const Shape> shapes,
-                         State &state, int depth) -> Vec3 {
+                         State &state, int depth, Vec3 background) -> Vec3 {
   // TODO(eduard): make use of shared memory
 
   Vec3 color = Vec3{1.0F, 1.0F, 1.0F};
@@ -55,6 +56,10 @@ __device__ auto getColor(const Ray &ray,
   for (int i = 0; i < depth; i++) {
     auto hi = HitInfo();
     bool hit = hitShapes(current, shapes, hi);
+
+    if (i == 0 && !hit) {
+      return background;
+    }
 
     // could possibly remove the shadow acne problem but this is a little change
     if (hit) {
@@ -65,6 +70,10 @@ __device__ auto getColor(const Ray &ray,
       Vec3 point = hi.point;
       Material material = hi.material;
       bool front = hi.front;
+
+      Vec3 emitted = cuda::std::visit(
+          [&point](auto &material) { return material.emitted(point); },
+          material);
 
       const bool scatter = cuda::std::visit(
           overload{[&normal, &point, &attenuation, &scattered,
@@ -85,17 +94,17 @@ __device__ auto getColor(const Ray &ray,
           material);
 
       if (scatter) {
-        color = color * attenuation;
+        color = color * attenuation + emitted;
         current = scattered;
       } else {
-        return Vec3{0.0F, 0.0F, 0.0F};
+        return emitted;
       }
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
       auto t = 0.5F * (unit_direction.y + 1.0F);
       return color * (1.0F - t) * Vec3{1.0F, 1.0F, 1.0F} +
-             t * Vec3{0.5F, 0.7F, 1.0F};
+             t * Vec3{0.8F, 0.85F, 1.0F};
     }
   }
   return Vec3{0, 0, 0};
@@ -127,7 +136,7 @@ renderImage(const uint16_t width, const uint16_t height,
             const Vec3 pixel00, const Vec3 deltaU, const Vec3 deltaV,
             const Vec3 defocusDiskU, const Vec3 defocusDiskV,
             const float defocusAngle, const cuda::std::span<const Shape> shapes,
-            const size_t stream_index) {
+            const size_t stream_index, const Vec3 background) {
   State states; // NOLINT
 
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -152,17 +161,21 @@ renderImage(const uint16_t width, const uint16_t height,
       const auto ray = get4Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                                 defocusDiskV, defocusAngle, x, y, states);
 
-      color += getColor(cuda::std::get<0>(ray), shapes, states, DEPTH);
-      color += getColor(cuda::std::get<1>(ray), shapes, states, DEPTH);
-      color += getColor(cuda::std::get<2>(ray), shapes, states, DEPTH);
-      color += getColor(cuda::std::get<3>(ray), shapes, states, DEPTH);
+      color +=
+          getColor(cuda::std::get<0>(ray), shapes, states, DEPTH, background);
+      color +=
+          getColor(cuda::std::get<1>(ray), shapes, states, DEPTH, background);
+      color +=
+          getColor(cuda::std::get<2>(ray), shapes, states, DEPTH, background);
+      color +=
+          getColor(cuda::std::get<3>(ray), shapes, states, DEPTH, background);
     }
   } else {
     for (auto s = 0; s < NumSamples; s++) {
       const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-      color += getColor<State>(ray, shapes, states, DEPTH);
+      color += getColor<State>(ray, shapes, states, DEPTH, background);
     }
   }
 
@@ -194,8 +207,8 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
 
 // Align to prevent control divergence
 // TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size,
-                                   size_t alignment = WARP_SIZE) -> size_t {
+__host__ inline auto getPaddedSize(size_t size, size_t alignment = WARP_SIZE)
+    -> size_t {
   return (size + alignment - 1) & ~(alignment - 1);
 }
 } // namespace
@@ -283,7 +296,8 @@ Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::render(
     renderImage<State, NumSamples><<<grid, BlockSize, 0, streams.at(i)>>>(
         padded_width, padded_height,
         image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
-        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i);
+        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i,
+        background);
   }
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
@@ -360,8 +374,9 @@ template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
           bool AverageWithThrust, typename State>
 __host__ auto
 CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::up(
-    const Vec3 &up) -> CameraBuilder<BlockSize, NumSamples, NumImages,
-                                     AverageWithThrust, State> & {
+    const Vec3 &up)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
+        & {
   this->camera.up = up;
   return *this;
 }
@@ -383,7 +398,6 @@ __host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
   this->camera.defocusAngle = defocusAngle;
   return *this;
 }
-
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
           bool AverageWithThrust, typename State>
 __host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
@@ -391,6 +405,15 @@ __host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
     -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
         & {
   this->camera.focusDistance = focusDistance;
+  return *this;
+}
+template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
+          bool AverageWithThrust, typename State>
+__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
+                            State>::background(const Vec3 &background)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
+        & {
+  this->camera.background = background;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,

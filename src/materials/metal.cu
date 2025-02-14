@@ -18,3 +18,5 @@ Metal::scatter<curandState_t>(const Ray &, const Vec3 &, const Vec3 &, Vec3 &,
 template __device__ auto Metal::scatter<curandStatePhilox4_32_10_t>(
     const Ray &, const Vec3 &, const Vec3 &, Vec3 &, Ray &,
     curandStatePhilox4_32_10_t &) const -> bool;
+
+__device__ auto Metal::emitted(Vec3 &point) -> Vec3 { return Vec3{0, 0, 0}; }

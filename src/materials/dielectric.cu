@@ -2,8 +2,8 @@
 
 __device__ auto Dielectric::scatter(const Ray &ray, const Vec3 &normal,
                                     const Vec3 &point, const bool front,
-                                    Vec3 &attenuation,
-                                    Ray &scattered) const -> bool {
+                                    Vec3 &attenuation, Ray &scattered) const
+    -> bool {
   const auto ri = front ? (1.0F / refraction) : refraction;
   const auto scatter_direction = makeUnitVector(ray.getDirection());
 
@@ -16,3 +16,5 @@ __device__ auto Dielectric::scatter(const Ray &ray, const Vec3 &normal,
   attenuation = Vec3{1.0F, 1.0F, 1.0F};
   return true;
 }
+
+__device__ auto Dielectric::emitted(Vec3 &point) -> Vec3 { return {0}; }

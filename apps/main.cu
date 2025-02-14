@@ -13,7 +13,7 @@ auto main(int argc, char **argv) -> int {
   CLI11_PARSE(app, argc, argv);
 
   if (scene_file.empty()) {
-    std::cerr << "Scene file is required" << std::endl;
+    std::cerr << "Scene file is required" << '\n';
     return EXIT_FAILURE;
   }
 

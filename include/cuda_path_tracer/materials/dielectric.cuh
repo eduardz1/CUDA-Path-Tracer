@@ -11,6 +11,8 @@ public:
                           const bool front, Vec3 &attenuation,
                           Ray &scattered) const -> bool;
 
+  __device__ auto emitted(Vec3 &point) -> Vec3;
+
 private:
   float refraction;
 

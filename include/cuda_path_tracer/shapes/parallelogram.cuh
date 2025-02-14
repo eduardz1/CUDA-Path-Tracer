@@ -6,7 +6,8 @@ class Parallelogram {
 public:
   friend class RectangularCuboid;
   __host__ Parallelogram();
-  __host__ Parallelogram(const Vec3 &origin, const Vec3 &u, const Vec3 &v);
+  __host__ Parallelogram(const Vec3 &origin, const Vec3 &u, const Vec3 &v,
+                         const Material &material);
 
   /**
    * @brief Saves the normal vector of the parallelogram at the point of
@@ -27,5 +28,6 @@ public:
 
 private:
   Vec3 origin, u, v, w, normal;
+  Material material;
   float area;
 };

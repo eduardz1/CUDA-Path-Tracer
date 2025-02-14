@@ -1,4 +1,5 @@
 #include "cuda_path_tracer/vec3.cuh"
+#include <cmath>
 
 __host__ __device__ auto Vec3::operator-() const -> Vec3 {
   return {-x, -y, -z};
@@ -99,6 +100,6 @@ __device__ auto refract(const Vec3 &v, const Vec3 &n,
   const auto cos_theta = static_cast<float>(std::fmin(dot(-v, n), 1.0));
   const Vec3 r_perp = eta_component * (v + cos_theta * n);
   const Vec3 r_par =
-      -std::sqrtf(std::fabs(1.0F - r_perp.getLengthSquared())) * n;
+      -sqrtf(std::fabs(1.0F - r_perp.getLengthSquared())) * n;
   return r_perp + r_par;
 }

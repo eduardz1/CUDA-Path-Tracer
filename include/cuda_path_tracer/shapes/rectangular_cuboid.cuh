@@ -5,7 +5,8 @@
 
 class RectangularCuboid {
 public:
-  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b);
+  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b,
+                             const Material &material);
 
   /**
    * @brief Saves the normal vector of the rectangular cuboid at the point of
@@ -29,6 +30,8 @@ public:
   __host__ auto translate(const Vec3 &translation) const -> RectangularCuboid;
 
 private:
+  Material material;
+
   struct Faces {
     Parallelogram front, back, left, right, top, bottom;
   } faces;
