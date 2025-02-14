@@ -4,7 +4,7 @@
 #show: template.with(
   title: [CUDA Path Tracer],
   subtitle: [Report for the course of GP-GPU Programming],
-  authors: ("Eduard Occhipinti", "Dominika Bochenczyk"),
+  authors: ("Eduard Occhipinti", "Dominika Bocheńczyk"),
 )
 
 // Proofread your reports. Up to 10% of your report grade can be deducted for poor grammar and related errors. Label and properly introduce all figures that appear in your report
@@ -23,13 +23,15 @@
 #v(4em)
 
 #eqcolumns(2)[
-  = Design Methodology
+  = Introduction
 
   // Give a brief overview of the overall algorithm (what is the algorithm you are parallelizing?). Identify where parallelism can be introduced to the algorithm. Discuss the code executed by the master and the slaves. Discuss how the master and slaves communicate and why they communicate. Provide figures and equations to support your explanations. There should be no results in this section. After reading this section, we should have a complete understanding of how you solved the problem without having to read your code for further details. At the same time, there should be little to no code in your report.
 
   The code we are parallelizing is that of a path tracer. This algorithm has the advantage of being embarrassingly parallel due to its nature. Each pixel is sampled $N$ times and each sample is independent of the other.
 
   The algorithm can be visualized as a map-reduce operation, where each ray is mapped to a color and then the group of rays corresponding to each pixel is reduced to a single color.
+
+  = Design Methodology
 
   == Rendering
 
@@ -75,10 +77,59 @@
   == Querying for Rays
 
   // talk about getRay (pseudocode), show image with the querying in the circle inscribed in each pixel
+ For the ray querying we used the Get2Rays function. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
+
+    #figure(
+    kind: "algorithm",
+    supplement: [Algorithm],
+
+    pseudocode-list(
+      booktabs: true,
+      numbered-title: [Get2Rays funtion],
+    )[
+      + *function* #smallcaps[Get2Rays]\(camera)
+        + sampleA = center + offsetA
+        + sampleB = center + offsetB
+      + *if defocusAngle > 0*:
+        + originA = defocusDiskSample
+        + originB = defocusDiskSample
+      + directionA = sampleA - originA
+      + directionB = sampleB - originB
+      + *end if*
+      + *end function*
+    ],
+  )
+ The function uses two half-pixel offsets A and B. Based on that, we calculate sampleA and sampleB. If defocusAngle of the camera is more than 0 then we have a new origin if not, the origin remains as default. We calculate the directionA and directionB and in the result we get two rays from origins to directions for A and B, respectively.
+
 
   == Tracing Rays
 
   // talk about getColor (pseudocode)
+  To get the appropriate color for the pixel we use the function GetColor, which can be described in pseudocode below:
+    #figure(
+    kind: "algorithm",
+    supplement: [Algorithm],
+
+    pseudocode-list(
+      booktabs: true,
+      numbered-title: [GetColor function],
+    )[
+      + *function* #smallcaps[GetColor]\(camera)
+        + *for each* i < depth:
+          + *if no object hit* return background color
+          + *if any object hit*:
+            + scatter = #smallcaps[scatter]\(object material, attenuation)
+            + emitted = #smallcaps[emitted]\(object material, attenuation)
+          + *if scatter*:
+            pixel.color = pixel.color \* attenuation + emitted
+          + *else*:
+            return emitted 
+          + *end if*
+        + *end for*
+      + *end function*
+    ],
+  )
+ For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls. We decided to set our depth value on [...] resulting in the best quality / processing time ratio.
 
   == CUDA Features
 
@@ -96,7 +147,24 @@
 
   === Polymorphism
 
-  CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
+  CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material`, `Texture` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material`, `Texture` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
+
+  = Experiments
+  // the experiments set up
+  The experiments were conducted ... // hardware requirements
+  We used two computationally demanding scenes to render: [3 spheres] and [cornellBox]. Both of them included various shapes of different materials and textures as well as rotations and movement. The scenes are presented in figures 2. and 3.
+  #figure(
+    image("imgs/spheres.png"),
+    caption: [Spheres scene],
+  ) <spheres>
+
+  #figure(
+    image("imgs/boxes.png"),
+    caption: [Boxes scene],
+  ) <boxes>
+
+  For each scene we measured... // types of tests
+
 
   = Results
 
@@ -130,7 +198,9 @@
   - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
   - talk about cudaOccupacyAPI.
 
-  = Conclusion
+  == Limitations and future research
 
+  = Conclusions
+  To sum up,
   // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)
 ]
