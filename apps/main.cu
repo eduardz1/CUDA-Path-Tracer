@@ -16,7 +16,9 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
       Sphere{{0, 0, -1.2}, 0.5, Lambertian(Catpuccin::Latte::Flamingo)},
       Sphere{{-1, 0, -1}, 0.5, Dielectric(1.50)},
       Sphere{{1, 0, -1}, 0.5, Dielectric(1.00 / 1.50)},
-      Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0.8, 0.8, 0.0})}};
+      Sphere{{0, 0.75, -1}, 0.1, Light(Colors::White)},
+
+      Sphere{{0, -100.5, -1}, 100, Lambertian(Checker(0.32, Colors::Black, Colors::White))}};
   const auto scene = std::make_shared<Scene>(image_width, image_height, shapes);
 
   auto camera = CameraBuilder()
@@ -26,6 +28,7 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
                     .defocusAngle(10)   // NOLINT
                     .focusDistance(3.4) // NOLINT
                     .verticalFov(20.0f) // NOLINT
+                    .background(Colors::Black)
                     .build();
   camera.render(scene, image);
 }
@@ -33,16 +36,16 @@ void demo3Spheres(const uint16_t image_width, const uint16_t image_height,
 void cornellBox(const uint16_t image_width, const uint16_t image_height,
                 thrust::universal_host_pinned_vector<uchar4> &image) {
   const auto shapes = thrust::device_vector<Shape>{
-      Parallelogram{{555, 0, 0}, {0, 555, 0}, {0, 0, 555}},       // left wall
-      Parallelogram{{0, 0, 0}, {0, 555, 0}, {0, 0, 555}},         // right wall
-      Parallelogram{{0, 0, 0}, {555, 0, 0}, {0, 0, 555}},         // floor
-      Parallelogram{{0, 555, 0}, {555, 0, 0}, {0, 0, 555}},       // ceiling
-      Parallelogram{{0, 0, 555}, {555, 0, 0}, {0, 555, 0}},       // back wall
-      Parallelogram{{343, 554, 332}, {-130, 0, 0}, {0, 0, -105}}, // light
-      RectangularCuboid{{130, 0, 65}, {295, 165, 230}}
+      Parallelogram{{555, 0, 0}, {0, 555, 0}, {0, 0, 555}, Lambertian(Catpuccin::Latte::Sapphire)},       // left wall
+      Parallelogram{{0, 0, 0}, {0, 555, 0}, {0, 0, 555}, Lambertian(Catpuccin::Latte::Sapphire)},         // right wall
+      Parallelogram{{0, 0, 0}, {555, 0, 0}, {0, 0, 555}, Lambertian(Catpuccin::Latte::Sapphire)},         // floor
+      Parallelogram{{0, 555, 0}, {555, 0, 0}, {0, 0, 555}, Lambertian(Catpuccin::Latte::Sapphire)},       // ceiling
+      Parallelogram{{0, 0, 555}, {555, 0, 0}, {0, 555, 0}, Lambertian(Catpuccin::Latte::Sapphire)},       // back wall
+      Parallelogram{{343, 554, 332}, {-130, 0, 0}, {0, 0, -105}, Light(Colors::White)}, // light
+      RectangularCuboid{{130, 0, 65}, {295, 165, 230}, Lambertian(Checker(0.5, Catpuccin::Latte::Peach, Colors::Black))}
           .rotate({0, -15, 0})
           .translate({-40, 0, -20}),
-      RectangularCuboid{{265, 0, 295}, {430, 330, 460}}
+      RectangularCuboid{{265, 0, 295}, {430, 330, 460}, Metal(Catpuccin::Latte::Lavander, 0.7)}
           .rotate({0, 18, 0})
           .translate({120, 0, 60}),
   };
@@ -55,6 +58,7 @@ void cornellBox(const uint16_t image_width, const uint16_t image_height,
                     .defocusAngle(0)     // NOLINT
                     .focusDistance(10.0) // NOLINT
                     .verticalFov(40.0f)  // NOLINT
+                    .background(Colors::Black)
                     .build();
   camera.render(scene, image);
 }
@@ -67,7 +71,8 @@ auto main() -> int {
 
   thrust::universal_host_pinned_vector<uchar4> image(num_pixels);
 
-  demo3Spheres(image_width, image_height, image);
+  // demo3Spheres(image_width, image_height, image);
+  cornellBox(image_width, image_height, image);
 
   saveImageAsPPM("test_image.ppm", image_width, image_height, image);
 

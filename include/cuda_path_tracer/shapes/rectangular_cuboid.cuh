@@ -6,7 +6,7 @@
 
 class RectangularCuboid {
 public:
-  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b);
+  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b, const Material &material);
 
   /**
    * @brief Saves the normal vector of the rectangular cuboid at the point of
@@ -35,6 +35,7 @@ private:
   // Always performs the rotation first, then the translation
 
   Rotation rotation;
+  Material material;
 
   struct {
     Parallelogram front, back, left, right, top, bottom;

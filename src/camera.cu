@@ -122,8 +122,9 @@ __device__ auto hitShapes(const Ray &ray,
 }
 
 __device__ auto getColor(const Ray &ray,
-                         const cuda::std::span<const Shape> shapes, curandStatePhilox4_32_10_t &state,
-                         int depth) -> Vec3 {
+                         const cuda::std::span<const Shape> shapes,
+                         curandStatePhilox4_32_10_t &state, int depth,
+                         Vec3 background) -> Vec3 {
 
   Vec3 color = Vec3{1.0f, 1.0f, 1.0f};
   Ray current = ray;
@@ -132,8 +133,12 @@ __device__ auto getColor(const Ray &ray,
     auto hi = HitInfo();
     bool hit = hitShapes(current, shapes, hi);
 
-    // could possibly remove the shadow acne problem but this is a little change
-    if (hit) {
+    if (i == 0 && !hit) {
+      return background;
+    }
+
+    if (hit) { // could possibly remove the shadow acne problem but this is a
+               // little change
       Ray scattered;
       Vec3 attenuation;
 
@@ -141,6 +146,9 @@ __device__ auto getColor(const Ray &ray,
       Vec3 point = hi.point;
       Material material = hi.material;
       bool front = hi.front;
+
+      Vec3 emitted = cuda::std::visit(
+          [&point](auto &material) { return material.emitted(point); }, material);
 
       bool scatter = cuda::std::visit(
           [&current, &normal, &point, front, &attenuation, &scattered,
@@ -151,17 +159,17 @@ __device__ auto getColor(const Ray &ray,
           material);
 
       if (scatter) {
-        color = color * attenuation;
+        color = color * attenuation + emitted;
         current = scattered;
       } else {
-        return Vec3{0.0f, 0.0f, 0.0f};
+        return emitted;
       }
 
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
-      auto t = 0.5f * (unit_direction.y+ 1.0f);
+      auto t = 0.5f * (unit_direction.y + 1.0f);
       return color * (1.0f - t) * Vec3{1.0f, 1.0f, 1.0f} +
-             t * Vec3{0.5f, 0.7f, 1.0f};
+             t * Vec3{0.8f, 0.85f, 1.0f};
     }
   }
   return Vec3{0, 0, 0};
@@ -191,7 +199,7 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
                             const Vec3 origin, const Vec3 pixel00,
                             const Vec3 deltaU, const Vec3 deltaV,
                             const Vec3 defocusDiskU, const Vec3 defocusDiskV,
-                            const float defocusAngle,
+                            const float defocusAngle, const Vec3 background,
                             const cuda::std::span<const Shape> shapes,
                             const size_t stream_index) {
   // TODO(eduard): make use of shared memory
@@ -223,8 +231,10 @@ __global__ void renderImage(const uint16_t width, const uint16_t height,
     const auto ray = get2Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-    color += getColor(cuda::std::get<0>(ray), shapes, states, DEPTH);
-    color += getColor(cuda::std::get<1>(ray), shapes, states, DEPTH);
+    color +=
+        getColor(cuda::std::get<0>(ray), shapes, states, DEPTH, background);
+    color +=
+        getColor(cuda::std::get<1>(ray), shapes, states, DEPTH, background);
   }
 
   image[index] = color;
@@ -330,7 +340,8 @@ Camera::render(const std::shared_ptr<Scene> &scene,
     renderImage<<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
         padded_width, padded_height,
         image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
-        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i);
+        deltaV, defocusDiskU, defocusDiskV, defocusAngle, background,
+        shapes_span, i);
   }
 
   averageRenderedImages(image, image_3d_span, width, height, padded_width);
@@ -389,6 +400,11 @@ __host__ auto CameraBuilder::verticalFov(const float verticalFov)
 __host__ auto CameraBuilder::defocusAngle(const float defocusAngle)
     -> CameraBuilder & {
   this->camera.defocusAngle = defocusAngle;
+  return *this;
+}
+__host__ auto CameraBuilder::background(const Vec3 &background)
+    -> CameraBuilder & {
+  this->camera.background = background;
   return *this;
 }
 __host__ auto CameraBuilder::focusDistance(const float focusDistance)

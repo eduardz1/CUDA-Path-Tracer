@@ -73,6 +73,8 @@ private:
   Vec3 defocusDiskU, defocusDiskV;
 
   float defocusAngle, focusDistance, verticalFov;
+
+  Vec3 background;
 };
 
 class CameraBuilder {
@@ -84,6 +86,7 @@ public:
   __host__ auto verticalFov(float verticalFov) -> CameraBuilder &;
   __host__ auto focusDistance(float focusDistance) -> CameraBuilder &;
   __host__ auto defocusAngle(float defocusAngle) -> CameraBuilder &;
+  __host__ auto background(const Vec3 &background) -> CameraBuilder &;
   __host__ auto build() -> Camera;
 
 private:
