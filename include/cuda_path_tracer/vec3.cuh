@@ -100,3 +100,25 @@ randomInUnitDiskRejectionSampling(curandStatePhilox4_32_10_t &state) -> Vec3;
  */
 __device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state)
     -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
+
+/**
+ * @brief Generate a random point in a unit sphere through rejection sampling,
+ * meaning that we will keep generating random points until we find one that is
+ * within the unit sphere.
+ *
+ * @param state The curand state
+ * @return Vec3 The random point in the unit sphere
+ */
+__device__ auto
+randomInUnitSphereRejectionSampling(curandStatePhilox4_32_10_t &state) -> Vec3;
+
+/**
+ * @brief Generate a random point in a unit sphere through rejection sampling,
+ * meaning that we will keep generating random points until we find one that is
+ * within the unit sphere.
+ *
+ * @param state The curand state
+ * @return Vec3 The random point in the unit sphere
+ */
+__device__ auto
+randomInUnitSphereRejectionSampling(curandState_t &state) -> Vec3;

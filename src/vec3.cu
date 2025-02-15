@@ -171,3 +171,30 @@ __device__ auto randomInUnitDisk(curandStatePhilox4_32_10_t &state)
       Vec3{sqrtf(radius.w) * cosf(angle.w), sqrtf(radius.w) * sinf(angle.w), 0},
   };
 }
+
+__device__ auto
+randomInUnitSphereRejectionSampling(curandStatePhilox4_32_10_t &state) -> Vec3 {
+  while (true) {
+    const auto values = curand_uniform4(&state);
+
+    const auto p = Vec3{2.0F * values.w - 1.0F, 2.0F * values.x - 1.0F,
+                        2.0F * values.y - 1.0F};
+
+    if (p.getLengthSquared() <= 1.0F) {
+      return p;
+    }
+  }
+}
+
+__device__ auto
+randomInUnitSphereRejectionSampling(curandState_t &state) -> Vec3 {
+  while (true) {
+    const auto p = Vec3{2.0F * curand_uniform(&state) - 1.0F,
+                        2.0F * curand_uniform(&state) - 1.0F,
+                        2.0F * curand_uniform(&state) - 1.0F};
+
+    if (p.getLengthSquared() <= 1.0F) {
+      return p;
+    }
+  }
+}

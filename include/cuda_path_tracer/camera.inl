@@ -82,7 +82,8 @@ __device__ auto getColor(const Ray &ray,
                          const cuda::std::span<const Shape> shapes,
                          State &state, const Color background) -> Color {
   // TODO(eduard): make use of shared memory
-
+  // TODO(eduard): talk in the report that the bounces of the rays create
+  // inherent control divergence
   Vec3 throughput{1.0F};
   Vec3 color{0.0F};
   Ray current = ray;

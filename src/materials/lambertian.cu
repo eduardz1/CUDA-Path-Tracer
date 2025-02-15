@@ -6,9 +6,7 @@ template <typename State>
 __device__ auto Lambertian::scatter(const Vec3 &normal, const Vec3 &point,
                                     Color &attenuation, Ray &scattered,
                                     State &state) const -> bool {
-  // auto scatter_direction = normal + vectorOnHemisphere<State>(normal, state);
-  // scatter_direction = roundScatterDirection(scatter_direction, normal);
-  auto scatter_direction = normal + randomInUnitDiskRejectionSampling(state);
+  auto scatter_direction = normal + randomInUnitSphereRejectionSampling(state);
 
   if (scatter_direction.nearZero()) {
     scatter_direction = normal;
