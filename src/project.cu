@@ -91,7 +91,7 @@ __host__ auto parseMaterial(const nlohmann::json &j) -> Material {
   case "dielectric"_hash: return Dielectric(j["refraction_index"].get<float>());
   case "metal"_hash:
     return Metal(parseColor(j["albedo"]), j["fuzz"].get<float>());
-  case "light"_hash: return Light(parseColor(j["color"]));
+  case "light"_hash: return Light(Color::Normalized(parseVec3(j["color"])));
 
   default: throw std::runtime_error("Unknown material type: " + type);
   }

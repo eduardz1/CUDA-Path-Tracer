@@ -1,5 +1,5 @@
 #include "cuda_path_tracer/error.cuh"
-#include "cuda_path_tracer/utilities.cuh"
+#include "cuda_path_tracer/vec3.cuh"
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>

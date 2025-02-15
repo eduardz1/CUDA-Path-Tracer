@@ -15,6 +15,7 @@ struct CameraHyperParams {
   static constexpr dim3 default_block_size = dim3(8, 8);
   static constexpr uint16_t default_num_samples = 128;
   static constexpr uint16_t default_num_images = 32;
+  static constexpr uint16_t default_depth = 50;
   static constexpr bool default_average_with_thrust = true;
   using default_state = curandState_t;
 };
@@ -36,12 +37,13 @@ struct CameraHyperParams {
 template <dim3 BlockSize = CameraHyperParams::default_block_size,
           uint16_t NumSamples = CameraHyperParams::default_num_samples,
           uint16_t NumImages = CameraHyperParams::default_num_images,
+          uint16_t Depth = CameraHyperParams::default_depth,
           bool AverageWithThrust =
               CameraHyperParams::default_average_with_thrust,
           typename State = CameraHyperParams::default_state>
 class Camera {
 public:
-  template <dim3 B, uint16_t NS, uint16_t NI, bool AWT, typename S>
+  template <dim3 B, uint16_t NS, uint16_t NI, uint16_t D, bool AWT, typename S>
   friend class CameraBuilder;
 
   __host__ Camera();
@@ -101,12 +103,13 @@ private:
   float defocusAngle, focusDistance;
   float verticalFov;
 
-  Vec3 background;
+  Color background;
 };
 
 template <dim3 BlockSize = CameraHyperParams::default_block_size,
           uint16_t NumSamples = CameraHyperParams::default_num_samples,
           uint16_t NumImages = CameraHyperParams::default_num_images,
+          uint16_t Depth = CameraHyperParams::default_depth,
           bool AverageWithThrust =
               CameraHyperParams::default_average_with_thrust,
           typename State = CameraHyperParams::default_state>
@@ -119,12 +122,13 @@ public:
   __host__ auto verticalFov(float verticalFov) -> CameraBuilder &;
   __host__ auto focusDistance(float focusDistance) -> CameraBuilder &;
   __host__ auto defocusAngle(float defocusAngle) -> CameraBuilder &;
-  __host__ auto background(const Vec3 &background) -> CameraBuilder &;
-  __host__ auto build()
-      -> Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>;
+  __host__ auto background(const Color &background) -> CameraBuilder &;
+  __host__ auto build() -> Camera<BlockSize, NumSamples, NumImages, Depth,
+                                  AverageWithThrust, State>;
 
 private:
-  Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State> camera;
+  Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust, State>
+      camera;
 };
 
 __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
@@ -132,9 +136,9 @@ __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
                                   const Vec3 &v) -> Vec3;
 __device__ auto defocusDiskSample(curandState_t &state, const Vec3 &center,
                                   const Vec3 &u, const Vec3 &v) -> Vec3;
-__device__ auto defocusDisk4Samples(curandStatePhilox4_32_10_t &state,
-                                    const Vec3 &center, const Vec3 &u,
-                                    const Vec3 &v)
-    -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
+__device__ auto
+defocusDisk4Samples(curandStatePhilox4_32_10_t &state, const Vec3 &center,
+                    const Vec3 &u,
+                    const Vec3 &v) -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
 
 #include "camera.inl"

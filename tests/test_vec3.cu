@@ -148,6 +148,16 @@ TEST_CASE("vec3 += operator", "[vec3]") {
   REQUIRE(v1.z == 9.0F);
 }
 
+// Test case for vec3 *= operator
+TEST_CASE("vec3 *= operator", "[vec3]") {
+  Vec3 v1(1.0F, 2.0F, 3.0F);
+  Vec3 v2(4.0F, 5.0F, 6.0F);
+  v1 *= v2;
+  REQUIRE(v1.x == 4.0F);
+  REQUIRE(v1.y == 10.0F);
+  REQUIRE(v1.z == 18.0F);
+}
+
 // Test case for vec3 float4 conversion
 TEST_CASE("vec3 float4 conversion", "[vec3]") {
   Vec3 v1(1.0F, 2.0F, 3.0F);

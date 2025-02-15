@@ -10,7 +10,7 @@ public:
 
   template <typename State>
   __device__ auto scatter(const Vec3 &normal, const Vec3 &point,
-                          Vec3 &attenuation, Ray &scattered,
+                          Color &attenuation, Ray &scattered,
                           State &state) const -> bool;
 
 private:

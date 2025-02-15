@@ -1,13 +1,16 @@
 #pragma once
 
 #include "cuda_path_tracer/camera.cuh"
+#include "cuda_path_tracer/color.cuh"
 #include "cuda_path_tracer/error.cuh"
 #include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/utilities.cuh"
+#include <cstdint>
+#include <sys/types.h>
 
 namespace {
-constexpr uint64_t SEED = 0xba0bab;
-constexpr uint64_t DEPTH = 20;
+constexpr uint64_t SEED = 0xba0bab; // Seed for the random number generator
+constexpr uint64_t MIN_DEPTH = 3;   // Minimum depth for Russian Roulette
 
 /**
  * @brief Saves the closest hit information in the HitInfo struct from the
@@ -43,76 +46,85 @@ __device__ auto hitShapes(const Ray &ray,
   return hit_anything;
 }
 
-// TODO(eduard): remove depth and make it an hyperparameter
+template <typename State, uint16_t Depth>
+__device__ auto getEmittedColor(const HitInfo &hi) -> Color {
+  return cuda::std::visit(
+      overload{[](const Light &light) { return light.emitted(); },
+               [](const auto &) { return Colors::Black; }},
+      hi.material);
+}
+
 template <typename State>
+__device__ auto tryScatter(const Ray &ray, const HitInfo &hi,
+                           Color &attenuation, Ray &scattered,
+                           State &state) -> bool {
+  return cuda::std::visit(
+      overload{
+          [&hi, &attenuation, &scattered, &state](const Lambertian &material) {
+            return material.scatter<State>(hi.normal, hi.point, attenuation,
+                                           scattered, state);
+          },
+          [&ray, &hi, &attenuation, &scattered, &state](const Metal &material) {
+            return material.scatter<State>(ray, hi.normal, hi.point,
+                                           attenuation, scattered, state);
+          },
+          [&ray, &hi, &attenuation, &scattered,
+           &state](const Dielectric &material) {
+            return material.scatter(ray, hi.normal, hi.point, hi.front,
+                                    attenuation, scattered, state);
+          },
+          [](const auto &) { return false; }},
+      hi.material);
+}
+
+template <typename State, uint16_t Depth>
 __device__ auto getColor(const Ray &ray,
                          const cuda::std::span<const Shape> shapes,
-                         State &state, int depth, Vec3 background) -> Vec3 {
+                         State &state, const Color background) -> Color {
   // TODO(eduard): make use of shared memory
-
-  Vec3 color = Vec3{1.0F, 1.0F, 1.0F};
+  // TODO(eduard): talk in the report that the bounces of the rays create
+  // inherent control divergence
+  Vec3 throughput{1.0F};
+  Vec3 color{0.0F};
   Ray current = ray;
 
-  for (int i = 0; i < depth; i++) {
-    auto hi = HitInfo();
-    bool hit = hitShapes(current, shapes, hi);
+  for (int i = 0; i < Depth; i++) {
+    HitInfo hi{};
+    const bool hit = hitShapes(current, shapes, hi);
 
-    if (i == 0 && !hit) {
-      return background;
+    if (!hit) {
+      color += throughput * background;
+      break;
     }
 
-    // could possibly remove the shadow acne problem but this is a little change
-    if (hit) {
-      Ray scattered;
-      Vec3 attenuation;
+    const auto emitted = getEmittedColor<State, Depth>(hi);
+    color += throughput * emitted;
 
-      Vec3 normal = hi.normal;
-      Vec3 point = hi.point;
-      Material material = hi.material;
-      bool front = hi.front;
+    Ray scattered;
+    Color attenuation;
+    const bool scatter =
+        tryScatter<State>(current, hi, attenuation, scattered, state);
 
-      const auto emitted =
-          cuda::std::visit(overload{[&point](const Light &light) {
-                                      return light.emitted(point);
-                                    },
-                                    [](const auto) { return Vec3{0}; }},
-                           material);
+    if (!scatter) {
+      break;
+    }
 
-      const bool scatter = cuda::std::visit(
-          overload{[&normal, &point, &attenuation, &scattered,
-                    &state](const Lambertian &material) {
-                     return material.scatter<State>(normal, point, attenuation,
-                                                    scattered, state);
-                   },
-                   [&current, &normal, &point, &attenuation, &scattered,
-                    &state](const Metal &material) {
-                     return material.scatter<State>(
-                         current, normal, point, attenuation, scattered, state);
-                   },
-                   [&current, &normal, &point, front, &attenuation,
-                    &scattered](const Dielectric &material) {
-                     return material.scatter(current, normal, point, front,
-                                             attenuation, scattered);
-                   },
-                   [](const auto) { return false; }
+    throughput *= attenuation;
+    current = scattered;
 
-          },
-          material);
-
-      if (scatter) {
-        color = color * attenuation + emitted;
-        current = scattered;
-      } else {
-        return emitted;
+    // Russian roulette to terminate early if the throughput is too low (carries
+    // very little information)
+    if (i > MIN_DEPTH) {
+      const float p =
+          std::max(throughput.x, std::max(throughput.y, throughput.z));
+      if (curand_uniform(&state) > p) {
+        break;
       }
-    } else {
-      auto unit_direction = makeUnitVector(current.getDirection());
-      auto t = 0.5F * (unit_direction.y + 1.0F);
-      return color * (1.0F - t) * Vec3{1.0F, 1.0F, 1.0F} +
-             t * Vec3{0.8F, 0.85F, 1.0F};
+      throughput /= p;
     }
   }
-  return Vec3{0};
+
+  return Color::Normalized(color);
 }
 
 /**
@@ -134,14 +146,14 @@ __device__ auto getColor(const Ray &ray,
  * @param shapes span of shapes to check for hits
  * @param stream_index Index of the stream to use
  */
-template <typename State, uint16_t NumSamples>
+template <typename State, uint16_t NumSamples, uint16_t Depth>
 __global__ void
 renderImage(const uint16_t width, const uint16_t height,
             const cuda::std::span<Vec3> image, const Vec3 origin,
             const Vec3 pixel00, const Vec3 deltaU, const Vec3 deltaV,
             const Vec3 defocusDiskU, const Vec3 defocusDiskV,
             const float defocusAngle, const cuda::std::span<const Shape> shapes,
-            const size_t stream_index, const Vec3 background) {
+            const size_t stream_index, const Color background) {
   State states; // NOLINT
 
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -166,21 +178,21 @@ renderImage(const uint16_t width, const uint16_t height,
       const auto ray = get4Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                                 defocusDiskV, defocusAngle, x, y, states);
 
-      color +=
-          getColor(cuda::std::get<0>(ray), shapes, states, DEPTH, background);
-      color +=
-          getColor(cuda::std::get<1>(ray), shapes, states, DEPTH, background);
-      color +=
-          getColor(cuda::std::get<2>(ray), shapes, states, DEPTH, background);
-      color +=
-          getColor(cuda::std::get<3>(ray), shapes, states, DEPTH, background);
+      color += getColor<State, Depth>(cuda::std::get<0>(ray), shapes, states,
+                                      background);
+      color += getColor<State, Depth>(cuda::std::get<1>(ray), shapes, states,
+                                      background);
+      color += getColor<State, Depth>(cuda::std::get<2>(ray), shapes, states,
+                                      background);
+      color += getColor<State, Depth>(cuda::std::get<3>(ray), shapes, states,
+                                      background);
     }
   } else {
     for (auto s = 0; s < NumSamples; s++) {
       const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-      color += getColor<State>(ray, shapes, states, DEPTH, background);
+      color += getColor<State, Depth>(ray, shapes, states, background);
     }
   }
 
@@ -219,15 +231,14 @@ __host__ inline auto getPaddedSize(size_t size,
 } // namespace
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__
-Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::Camera() =
-    default;
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                State>::Camera() = default;
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
+          uint16_t Depth, bool AverageWithThrust, typename State>
 __host__ void
-Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::init(
+Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust, State>::init(
     const std::shared_ptr<Scene> &scene) {
   const auto width = scene->getWidth();
   const auto height = scene->getHeight();
@@ -261,11 +272,11 @@ Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::init(
 }
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
+          uint16_t Depth, bool AverageWithThrust, typename State>
 __host__ void
-Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::render(
-    const std::shared_ptr<Scene> &scene,
-    thrust::universal_host_pinned_vector<uchar4> &image) {
+Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+       State>::render(const std::shared_ptr<Scene> &scene,
+                      thrust::universal_host_pinned_vector<uchar4> &image) {
   this->init(scene);
 
   const auto width = scene->getWidth();
@@ -298,11 +309,12 @@ Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::render(
   // Calling cudaGetLastError() here to clear any previous errors
   CUDA_ERROR_CHECK(cudaGetLastError());
   for (auto i = 0; i < NumImages; i++) {
-    renderImage<State, NumSamples><<<grid, BlockSize, 0, streams.at(i)>>>(
-        padded_width, padded_height,
-        image_3d_span.subspan(i * num_padded_pixels), origin, pixel00, deltaU,
-        deltaV, defocusDiskU, defocusDiskV, defocusAngle, shapes_span, i,
-        background);
+    renderImage<State, NumSamples, Depth>
+        <<<grid, BlockSize, 0, streams.at(i)>>>(
+            padded_width, padded_height,
+            image_3d_span.subspan(i * num_padded_pixels), origin, pixel00,
+            deltaU, deltaV, defocusDiskU, defocusDiskV, defocusAngle,
+            shapes_span, i, background);
   }
   CUDA_ERROR_CHECK(cudaDeviceSynchronize());
   CUDA_ERROR_CHECK(cudaGetLastError());
@@ -311,9 +323,9 @@ Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::render(
 }
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
+          uint16_t Depth, bool AverageWithThrust, typename State>
 __host__ void
-Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::
+Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust, State>::
     averageRenderedImages(thrust::universal_host_pinned_vector<uchar4> &output,
                           const cuda::std::span<Vec3> &images,
                           const uint16_t width, const uint16_t height,
@@ -353,77 +365,84 @@ Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::
 // Camera Builder
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                       State>::CameraBuilder() = default;
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ CameraBuilder<BlockSize, NumSamples, NumImages, Depth,
+                       AverageWithThrust, State>::CameraBuilder() = default;
 
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::origin(const Vec3 &origin)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::origin(const Vec3 &origin)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.origin = origin;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::lookAt(const Vec3 &lookAt)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::lookAt(const Vec3 &lookAt)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.lookAt = lookAt;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto
-CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::up(
-    const Vec3 &up) -> CameraBuilder<BlockSize, NumSamples, NumImages,
-                                     AverageWithThrust, State> & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, Depth,
+                            AverageWithThrust, State>::up(const Vec3 &up)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.up = up;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::verticalFov(const float verticalFov)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::verticalFov(const float verticalFov)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.verticalFov = verticalFov;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::defocusAngle(const float defocusAngle)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::defocusAngle(const float defocusAngle)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.defocusAngle = defocusAngle;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::focusDistance(const float focusDistance)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::focusDistance(const float focusDistance)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.focusDistance = focusDistance;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::background(const Vec3 &background)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::background(const Color &background)
+    -> CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+                     State> & {
   this->camera.background = background;
   return *this;
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
-__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                            State>::build()
-    -> Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State> {
+          uint16_t Depth, bool AverageWithThrust, typename State>
+__host__ auto
+CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State>::build() -> Camera<BlockSize, NumSamples, NumImages, Depth,
+                                        AverageWithThrust, State> {
   return this->camera;
 }

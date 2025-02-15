@@ -29,5 +29,5 @@ public:
 private:
   Vec3 origin, u, v, w, normal;
   Material material;
-  float area;
+  float d;
 };

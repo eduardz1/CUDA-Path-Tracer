@@ -11,10 +11,10 @@
 
 namespace {
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
-          bool AverageWithThrust, typename State>
+          uint16_t Depth, bool AverageWithThrust, typename State>
 auto createCamera() {
-  return CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust,
-                       State>()
+  return CameraBuilder<BlockSize, NumSamples, NumImages, Depth,
+                       AverageWithThrust, State>()
       .origin({-2, 2, 1})
       .lookAt({0, 0, -1})
       .up({0, 1, 0})
@@ -30,6 +30,7 @@ void runBenchmark(const std::shared_ptr<Scene> &scene,
                   thrust::universal_host_pinned_vector<uchar4> &image) {
   constexpr dim3 BlockSize{BlockSizeX, BlockSizeY};
   auto camera = createCamera<BlockSize, NumSamples, NumImages,
+                             CameraHyperParams::default_depth,
                              AverageWithThrust, State>();
 
   std::string config_name =

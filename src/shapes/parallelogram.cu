@@ -7,22 +7,22 @@ __host__ Parallelogram::Parallelogram(const Vec3 &origin, const Vec3 &u,
     : origin(origin), u(u), v(v), material(material) {
   const auto n = cross(u, v);
   normal = makeUnitVector(n);
-  area = dot(normal, origin); // NOLINT
+  d = dot(normal, origin); // NOLINT
   w = n / dot(n, n);
 };
 
 __host__ Parallelogram::Parallelogram() : material(Colors::Black) {}
 
 __device__ auto Parallelogram::hit(const Ray &r, const float hit_t_min,
-                                   const float hit_t_max, HitInfo &hi) const
-    -> bool {
+                                   const float hit_t_max,
+                                   HitInfo &hi) const -> bool {
   const auto denominator = dot(normal, r.getDirection());
 
   if (fabs(denominator) < 1e-6) { // NOLINT ray is parallel to the plane
     return false;
   }
 
-  const auto t = (area - dot(normal, r.getOrigin())) / denominator;
+  const auto t = (d - dot(normal, r.getOrigin())) / denominator;
   if (t < hit_t_min || t > hit_t_max) {
     return false;
   }
