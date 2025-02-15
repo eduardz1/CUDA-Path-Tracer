@@ -1,8 +1,8 @@
 #pragma once
 
+#include "cuda_path_tracer/material.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-#include "cuda_path_tracer/material.cuh"
 // #include "cuda_path_tracer/cudasharedptr.h"
 
 // minimum distance before considering a hit, to avoid self-intersection

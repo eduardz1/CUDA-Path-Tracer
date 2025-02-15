@@ -77,9 +77,9 @@
   == Querying for Rays
 
   // talk about getRay (pseudocode), show image with the querying in the circle inscribed in each pixel
- For the ray querying we used the Get2Rays function. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
+  For the ray querying we used the Get2Rays function. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
 
-    #figure(
+  #figure(
     kind: "algorithm",
     supplement: [Algorithm],
 
@@ -99,7 +99,7 @@
       + *end function*
     ],
   )
- The function uses two half-pixel offsets A and B. Based on that, we calculate sampleA and sampleB. If defocusAngle of the camera is more than 0 then we have a new origin if not, the origin remains as default. We calculate the directionA and directionB and in the result we get two rays from origins to directions for A and B, respectively.
+  The function uses two half-pixel offsets A and B. Based on that, we calculate sampleA and sampleB. If defocusAngle of the camera is more than 0 then we have a new origin if not, the origin remains as default. We calculate the directionA and directionB and in the result we get two rays from origins to directions for A and B, respectively.
 
 
   === Defocus Blur <defocus-blur>
@@ -117,7 +117,7 @@
 
   // talk about getColor (pseudocode)
   To get the appropriate color for the pixel we use the function GetColor, which can be described in pseudocode below:
-    #figure(
+  #figure(
     kind: "algorithm",
     supplement: [Algorithm],
 
@@ -134,13 +134,13 @@
           + *if scatter*:
             pixel.color = pixel.color \* attenuation + emitted
           + *else*:
-            return emitted 
+            return emitted
           + *end if*
         + *end for*
       + *end function*
     ],
   )
- For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls. We decided to set our depth value on [...] resulting in the best quality / processing time ratio.
+  For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls. We decided to set our depth value on [...] resulting in the best quality / processing time ratio.
 
   === Materials
 
@@ -225,6 +225,7 @@
   / BlockSize: The `dim3` size of the block for launching the kernel
   / NumSamples: The number of samples for each pixel, to obtain a clean image, each pixel needs to be sampled randomly a high number of times to eliminate the noise
   / NumImages: The number of images to average to obtain the final image, this provides the same effect as increasing the number of samples, but can be used to avoid kernels with too high of a block size
+  / Depth: The maximum depth of the ray tracing algorithm, this is the number of times a ray can bounce before it is considered lost. We fix this at 50, which we consider a good tradeoff between quality and performance
   / AverageWithThrust: A boolean flag that allows us to choose between averaging the images with a custom kernel or with the `thrust::transform` function, this was done mainly to explore NVIDIA's `thrust` library and see if our naive implementation is competitive with it
   / State: The random state generator, we explored the default generator and the Philox generator
 

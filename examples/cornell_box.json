@@ -24,7 +24,7 @@
     "verticalFov": 40.0,
     "defocusAngle": 0.0,
     "focusDistance": 10.0,
-    "background": "black"
+    "background": "crust"
   },
   "shapes": [
     {
@@ -46,7 +46,7 @@
       ],
       "material": {
         "type": "lambertian",
-        "texture": "sapphire"
+        "texture": "latte-green"
       }
     },
     {
@@ -68,51 +68,7 @@
       ],
       "material": {
         "type": "lambertian",
-        "texture": "sapphire"
-      }
-    },
-    {
-      "type": "parallelogram",
-      "origin": [
-        0,
-        0,
-        0
-      ],
-      "u": [
-        555,
-        0,
-        0
-      ],
-      "v": [
-        0,
-        0,
-        555
-      ],
-      "material": {
-        "type": "lambertian",
-        "texture": "sapphire"
-      }
-    },
-    {
-      "type": "parallelogram",
-      "origin": [
-        0,
-        555,
-        0
-      ],
-      "u": [
-        555,
-        0,
-        0
-      ],
-      "v": [
-        0,
-        0,
-        555
-      ],
-      "material": {
-        "type": "lambertian",
-        "texture": "sapphire"
+        "texture": "latte-red"
       }
     },
     {
@@ -134,7 +90,77 @@
       ],
       "material": {
         "type": "light",
-        "color": "white"
+        "color": [
+          15,
+          15,
+          15
+        ]
+      }
+    },
+    {
+      "type": "parallelogram",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "u": [
+        555,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        0,
+        555
+      ],
+      "material": {
+        "type": "lambertian",
+        "texture": "white"
+      }
+    },
+    {
+      "type": "parallelogram",
+      "origin": [
+        555,
+        555,
+        555
+      ],
+      "u": [
+        -555,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        0,
+        -555
+      ],
+      "material": {
+        "type": "lambertian",
+        "texture": "white"
+      }
+    },
+    {
+      "type": "parallelogram",
+      "origin": [
+        0,
+        0,
+        555
+      ],
+      "u": [
+        555,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        555,
+        0
+      ],
+      "material": {
+        "type": "lambertian",
+        "texture": "white"
       }
     },
     {
@@ -163,13 +189,7 @@
       ],
       "material": {
         "type": "lambertian",
-        "texture": {
-          "checker": {
-            "scale": 0.5,
-            "even": "peach",
-            "odd": "black"
-          }
-        }
+        "texture": "white"
       }
     },
     {
@@ -197,9 +217,8 @@
         60
       ],
       "material": {
-        "type": "metal",
-        "albedo": "lavander",
-        "fuzz": 0.7
+        "type": "lambertian",
+        "texture": "white"
       }
     }
   ]

@@ -24,7 +24,7 @@
     "verticalFov": 20.0,
     "defocusAngle": 10.0,
     "focusDistance": 3.4,
-    "background": "black"
+    "background": "crust"
   },
   "shapes": [
     {
@@ -76,7 +76,11 @@
       "radius": 0.1,
       "material": {
         "type": "light",
-        "color": "white"
+        "color": [
+          15,
+          15,
+          15
+        ]
       }
     },
     {
@@ -92,8 +96,8 @@
         "texture": {
           "checker": {
             "scale": 0.32,
-            "even": "black",
-            "odd": "white"
+            "even": "peach",
+            "odd": "maroon"
           }
         }
       }
