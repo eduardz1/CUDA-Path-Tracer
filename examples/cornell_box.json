@@ -188,8 +188,8 @@
         -20
       ],
       "material": {
-        "type": "lambertian",
-        "texture": "white"
+        "type": "dielectric",
+        "refraction_index": 1.5
       }
     },
     {
@@ -217,8 +217,9 @@
         60
       ],
       "material": {
-        "type": "lambertian",
-        "texture": "white"
+        "type": "metal",
+        "albedo": "lavander",
+        "fuzz": 0.1
       }
     }
   ]
