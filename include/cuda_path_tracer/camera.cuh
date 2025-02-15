@@ -2,26 +2,46 @@
 
 #include "cuda_path_tracer/scene.cuh"
 #include "cuda_path_tracer/vec3.cuh"
+#include <cuda/std/span>
 #include <driver_types.h>
 #include <memory>
 #include <thrust/host_vector.h>
 #include <thrust/universal_vector.h>
 
-// number of samples for each pixels, used for eantialiasing
-#define NUM_SAMPLES 64
+/**
+ * @brief Default hyper parameters for the camera.
+ */
+struct CameraHyperParams {
+  static constexpr dim3 default_block_size = dim3(8, 8);
+  static constexpr uint16_t default_num_samples = 128;
+  static constexpr uint16_t default_num_images = 32;
+  static constexpr bool default_average_with_thrust = true;
+  using default_state = curandState_t;
+};
 
-// number of images to render and then average together, provides a similar
-// effect to antialiasing (controlled by NUM_SAMPLES) but it's more
-// parallelizable ideally try to balance the two hyper parameters. They are
-// pretty much the same thing, so 16x32 is the same as 32x16.
-#define NUM_IMAGES 16
-
-// If true, the images will be averaged using thrust, otherwise they will be
-// averaged using a custom kernel.
-#define AVERAGE_WITH_THRUST true
-
+/**
+ * @brief The camera class is responsible for rendering the scene.
+ *
+ * @tparam BlockSize the dim3 block size for the kernel.
+ * @tparam NumSamples the number of samples for each pixel.
+ * @tparam NumImages  number of images to render and then average together,
+ * provides a similar effect to the NumSamples parameter but it's more
+ * parallelizable; ideally try to balance the two hyper parameters. They are
+ * pretty much the same thing, so 16x32 is the same as 32x16.
+ * @tparam AverageWithThrust if true, the images will be averaged using thrust,
+ * otherwise they will be averaged using a custom kernel.
+ * @tparam State the curandState_t type to use for the random number generator
+ * in the kernel.
+ */
+template <dim3 BlockSize = CameraHyperParams::default_block_size,
+          uint16_t NumSamples = CameraHyperParams::default_num_samples,
+          uint16_t NumImages = CameraHyperParams::default_num_images,
+          bool AverageWithThrust =
+              CameraHyperParams::default_average_with_thrust,
+          typename State = CameraHyperParams::default_state>
 class Camera {
 public:
+  template <dim3 B, uint16_t NS, uint16_t NI, bool AWT, typename S>
   friend class CameraBuilder;
 
   __host__ Camera();
@@ -72,11 +92,24 @@ private:
 
   Vec3 defocusDiskU, defocusDiskV;
 
-  float defocusAngle, focusDistance, verticalFov;
+  /**
+   * @brief The defocus angle is the angle of the cone of the defocus disk from
+   * the camera center to the focus plane. It's similar to the aperture of a
+   * camera, but, contrary to aperture, an higher value offers more bokeh
+   * effect. The focus distance indicates the distance to the focus plane.
+   */
+  float defocusAngle, focusDistance;
+  float verticalFov;
 
   Vec3 background;
 };
 
+template <dim3 BlockSize = CameraHyperParams::default_block_size,
+          uint16_t NumSamples = CameraHyperParams::default_num_samples,
+          uint16_t NumImages = CameraHyperParams::default_num_images,
+          bool AverageWithThrust =
+              CameraHyperParams::default_average_with_thrust,
+          typename State = CameraHyperParams::default_state>
 class CameraBuilder {
 public:
   __host__ CameraBuilder();
@@ -87,8 +120,21 @@ public:
   __host__ auto focusDistance(float focusDistance) -> CameraBuilder &;
   __host__ auto defocusAngle(float defocusAngle) -> CameraBuilder &;
   __host__ auto background(const Vec3 &background) -> CameraBuilder &;
-  __host__ auto build() -> Camera;
+  __host__ auto build()
+      -> Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State>;
 
 private:
-  Camera camera;
+  Camera<BlockSize, NumSamples, NumImages, AverageWithThrust, State> camera;
 };
+
+__device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
+                                  const Vec3 &center, const Vec3 &u,
+                                  const Vec3 &v) -> Vec3;
+__device__ auto defocusDiskSample(curandState_t &state, const Vec3 &center,
+                                  const Vec3 &u, const Vec3 &v) -> Vec3;
+__device__ auto defocusDisk4Samples(curandStatePhilox4_32_10_t &state,
+                                    const Vec3 &center, const Vec3 &u,
+                                    const Vec3 &v)
+    -> cuda::std::tuple<Vec3, Vec3, Vec3, Vec3>;
+
+#include "camera.inl"

@@ -1,0 +1,25 @@
+<svg host="65bd71144e" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="461px" height="232px" viewBox="-0.5 -0.5 461 232" content="&lt;mxfile&gt;&lt;diagram id=&quot;px43_dNjgJ223Z0FIJbx&quot; name=&quot;Page-1&quot;&gt;7VdNk9owDP01XJl8wALHBZb2sO0w5dD26MUieOpEGcdA6K+vncgJSWCHLXBbOGA/S7Kl9+SQXjiL8y+KpdtvyEH2Ao/nvXDeCwLfHwTmxyLHEhkHgxKIlOBkVAMr8RcI9AjdCQ5Zw1AjSi3SJrjGJIG1bmBMKTw0zTYom7umLIIOsFoz2UV/Cq63lMXQq/GvIKKt29n3aCVmzpiAbMs4Hk6g8KUXzhSiLkdxPgNpi+fqUvotLqxWB1OQ6GschqXDnskd5bbA9S6zMSRLgA6pjy7zPSgtTCFe2RvIJWZCC0zM0htqjXEvnDqDZykiu6AxNahJM7UR4jyyiui/sUys+ynTGlSyEFL+KGiabsxwRbuVWphmGkyEucnDLSv8U5Xd648b+AwlquKoIS8+RYTTFQ4btpNuszMoJpoUV+5p5gsWC2m1+h0Oph4zjNOdObkZWm0rk+eU6miyh/wiF37FsGkNwBi0OhoTcgidSqgrQif3Q62xYEDY9kRfgXNkpOuoil1TbwbE/nklPHW4Bm5ET9MEjRjCKeRC/7Jlp/HvgoIhzeb5ydL86CaJOUnh1A9HQweUnoNqXvsWs4bzEpQw+YAi8EpK2kxCwp9t85+kk3ArPgqbtRU0Lb4VubYe71Nryoc7tSYruuQ0UxHok3brCkCBZFrsm9FvIXP0ETL9D5B5uUYPIuWG0t9QZ3JdojCb1A06aTbooN13JdXk1WKrOsZVBAade/kVkqzLqpTmmWerplAzuosnN/TIHa6xp9YtNureYn5w5hYb3+ESG1+j+4vPg8comLNsC5z67Fo531+74//TbieQ7/stfoNmoLIP79EEk082H83mZNyMM/AeRab7M/PJ5t2eK93eDFt0epM70Wmm9UtJaV6/2oUv/wA=&lt;/diagram&gt;&lt;/mxfile&gt;">
+    <defs/>
+    <g>
+        <rect x="220" y="0" width="240" height="200" fill="rgb(255, 255, 255)" stroke="none" pointer-events="all"/>
+        <path d="M 220 0 L 220 200 M 240 0 L 240 200 M 260 0 L 260 200 M 280 0 L 280 200 M 300 0 L 300 200 M 320 0 L 320 200 M 340 0 L 340 200 M 360 0 L 360 200 M 380 0 L 380 200 M 400 0 L 400 200 M 420 0 L 420 200 M 440 0 L 440 200 M 460 0 L 460 200" fill="none" stroke="#dddddd" stroke-width="0.8" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 220 0 L 460 0 M 220 20 L 460 20 M 220 40 L 460 40 M 220 60 L 460 60 M 220 80 L 460 80 M 220 100 L 460 100 M 220 120 L 460 120 M 220 140 L 460 140 M 220 160 L 460 160 M 220 180 L 460 180 M 220 200 L 460 200" fill="none" stroke="#dddddd" stroke-width="0.8" stroke-miterlimit="10" pointer-events="all"/>
+        <path d="M 220 0 L 460 0 L 460 200 L 220 200 L 220 0" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="New Computer Modern" text-anchor="middle" font-size="20px">
+            <text x="339.5" y="225.5">
+                Focus plane
+            </text>
+        </g>
+        <path d="M 40 40 L 310 90" fill="none" stroke="#b3b3b3" stroke-miterlimit="10" pointer-events="stroke"/>
+        <path d="M 40 160 L 310 90" fill="none" stroke="#b3b3b3" stroke-miterlimit="10" pointer-events="stroke"/>
+        <ellipse cx="40" cy="100" rx="60" ry="40" fill="rgb(255, 255, 255)" stroke="rgb(0, 0, 0)" transform="rotate(90,40,100)" pointer-events="all"/>
+        <g fill="rgb(0, 0, 0)" font-family="New Computer Modern" text-anchor="middle" font-size="20px" transform="rotate(90,40,100)">
+            <text x="39.5" y="108.5">
+                Lens
+            </text>
+        </g>
+        <path d="M 31 62 L 300 90" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 18 130 L 300 90" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+        <path d="M 58 99 L 310 90" fill="none" stroke="rgb(0, 0, 0)" stroke-miterlimit="10" stroke-dasharray="3 3" pointer-events="stroke"/>
+    </g>
+</svg>

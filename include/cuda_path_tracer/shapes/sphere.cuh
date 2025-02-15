@@ -1,14 +1,3 @@
-/**
- * @file sphere.cuh
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Class that represents a sphere in the scene
- * @version 0.1
- * @date 2024-10-30
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #pragma once
 
 #include "cuda_path_tracer/hit_info.cuh"
@@ -16,7 +5,6 @@
 class Sphere {
 public:
 
-  __host__ Sphere();
   __host__ Sphere(const Vec3 &center, float radius, const Material &material);
 
   /**

@@ -44,9 +44,13 @@ __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3 {
   return {v.x / t, v.y / t, v.z / t};
 }
 
-__device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3 {
+__device__ auto randomVector(curandState_t &state) -> Vec3 {
   return Vec3{curand_uniform(&state), curand_uniform(&state),
               curand_uniform(&state)};
+}
+__device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3 {
+  const auto values = curand_uniform4(&state);
+  return Vec3{values.x, values.y, values.z};
 }
 
 __host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3 {
@@ -62,8 +66,8 @@ __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
           v1.x * v2.y - v1.y * v2.x};
 }
 
-__device__ auto vectorOnHemisphere(const Vec3 &v,
-                                   curandStatePhilox4_32_10_t &state) -> Vec3 {
+template <typename State>
+__device__ auto vectorOnHemisphere(const Vec3 &v, State &state) -> Vec3 {
   Vec3 randomUnit = makeUnitVector(randomVector(state));
 
   if (dot(randomUnit, v) > 0.0) {
@@ -71,6 +75,11 @@ __device__ auto vectorOnHemisphere(const Vec3 &v,
   }
   return -randomUnit;
 }
+
+template __device__ auto
+vectorOnHemisphere<curandState_t>(const Vec3 &, curandState_t &) -> Vec3;
+template __device__ auto vectorOnHemisphere<curandStatePhilox4_32_10_t>(
+    const Vec3 &, curandStatePhilox4_32_10_t &) -> Vec3;
 
 __device__ auto roundScatterDirection(const Vec3 &direction,
                                       const Vec3 &normal) -> Vec3 {

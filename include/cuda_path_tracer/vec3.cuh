@@ -1,14 +1,3 @@
-/**
- * @file vec3.cuh
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Header file for vec3.cu, which contains the vec3 class
- * @version 0.1
- * @date 2024-10-28
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #pragma once
 
 #include <curand_kernel.h>
@@ -59,9 +48,13 @@ __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float;
 
 __host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
-__device__ auto vectorOnHemisphere(const Vec3 &v,
-                                   curandStatePhilox4_32_10_t &state) -> Vec3;
+
+template <typename State>
+__device__ auto vectorOnHemisphere(const Vec3 &v, State &state) -> Vec3;
+
 __device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3;
+__device__ auto randomVector(curandState_t &state) -> Vec3;
+
 __device__ auto roundScatterDirection(const Vec3 &direction,
                                       const Vec3 &normal) -> Vec3;
 __device__ auto reflect(const Vec3 &v, const Vec3 &n) -> Vec3;

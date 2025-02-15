@@ -1,8 +1,9 @@
 #include "cuda_path_tracer/hit_info.cuh"
-#include "cuda_path_tracer/lambertian.cuh"
+#include "cuda_path_tracer/materials/lambertian.cuh"
 
 __host__ __device__ HitInfo::HitInfo()
-    : point(0), normal(0), time(0), material(Material(Lambertian(Vec3{0, 0, 0}))) {}
+    : point(0), normal(0), time(0),
+      material(Material(Lambertian(Colors::Black))) {}
 __host__ __device__ HitInfo::HitInfo(const Vec3 &point, const Vec3 &normal,
                                      const float time, const Material &material)
     : point(point), normal(normal), time(time), material(material) {}

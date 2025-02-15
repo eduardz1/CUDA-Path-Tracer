@@ -1,20 +1,15 @@
-/**
- * @file image.cpp
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Implementation file for image.hh, which contains the functions to save
- * an image as a PPM file
- * @version 0.1
- * @date 2024-10-26
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #include "cuda_path_tracer/image.cuh"
 #include <algorithm>
 #include <climits>
 #include <fstream>
 #include <vector_functions.h>
+
+namespace {
+__device__ auto constexpr linToGamma(const float component) -> float {
+  // return component > 0 ? sqrtf(component) : 0.0F;
+  return component;
+}
+} // namespace
 
 __host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
                              const uint16_t height,
@@ -30,10 +25,6 @@ __host__ void saveImageAsPPM(const std::string &filename, const uint16_t width,
   }
 
   file.close();
-}
-
-__device__ auto linToGamma(const float component) -> float {
-  return component > 0 ? sqrtf(component) : 0.0f;
 }
 
 __device__ auto convertColorTo8Bit(const Vec3 color) -> uchar4 {

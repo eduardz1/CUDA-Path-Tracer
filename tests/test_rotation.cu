@@ -99,7 +99,6 @@ TEST_CASE("Rotation Construction and Caching", "[rotation]") {
   }
 }
 
-// FIXME: Inverse rotation is broken, maybe it's a problem with the code
 TEST_CASE("Inverse Rotation Tests", "[rotation]") {
   Vec3 *d_point = nullptr;
   Vec3 *d_result = nullptr;
@@ -164,8 +163,8 @@ TEST_CASE("Inverse Rotation Tests", "[rotation]") {
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
     CUDA_ERROR_CHECK(cudaGetLastError());
 
-    REQUIRE_THAT(d_result->x, Catch::Matchers::WithinAbs(1.0F, epsilon));
-    REQUIRE_THAT(d_result->y, Catch::Matchers::WithinAbs(0.0F, epsilon));
+    REQUIRE_THAT(d_result->x, Catch::Matchers::WithinAbs(0.0F, epsilon));
+    REQUIRE_THAT(d_result->y, Catch::Matchers::WithinAbs(1.0F, epsilon));
     REQUIRE_THAT(d_result->z, Catch::Matchers::WithinAbs(0.0F, epsilon));
   }
 

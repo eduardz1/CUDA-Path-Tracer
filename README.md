@@ -5,11 +5,54 @@
 If you have the [just](https://github.com/casey/just) command runner installed you can run the command `just` to see the list of available commands. In particular, to run the application use:
 
 ```bash
-just run
+just run -s examples/cornell_box.json
 ```
 
-Each argument passed to each `just` command is forwarded to `cmake`, for example, to build the project for all major CUDA architectures use:
+or equivalently:
+
+```bash
+cmake -S . -B build
+cmake --build build
+./build/apps/cuda_path_tracer -s examples/cornell_box.json
+```
+
+Where the `-s` flag (or `--scene`) specifies the scene file to render. You can find example scene files in the `examples/` directory.
+
+Each argument passed to the `just build` command is forwarded to `cmake`, for example, to build the project for all major CUDA architectures use:
 
 ```bash
 just build -DCMAKE_CUDA_ARCHITECTURES=all-major
 ```
+
+### Testing and Benchmarking
+
+Benchmarks are integrated in the testing suite. The `just bench` command will run NVIDIA's Nsight Systems profiler on the main application. To run the tests with the integrated benchmarks use:
+
+```bash
+just test
+```
+
+or equivalently:
+
+```bash
+cmake -S . -B build -DBUILD_TESTING=ON
+cmake --build build
+./build/tests/tests
+```
+
+> [!TIP]
+> Certain benchmarks in the test suite will take a while to complete, to run only the unit tests you can use the `just test --skip-benchmarks` command.
+
+## Repository Structure
+
+### Code
+
+- [`apps/`](apps/): Application code that uses the `cuda_path_tracer` library. Here you can find a demo application that renders a scene using the library.
+- [`examples/`](examples/): Example scene files that can be rendered using the demo application.
+- [`include/`](include/): Public headers of the `cuda_path_tracer` library.
+- [`src/`](src/): Implementation of the `cuda_path_tracer` library.
+- [`tests/`](tests/): Unit tests for the `cuda_path_tracer` library and benchmarks. In particular, in [`tests/test_render_bench.cu](tests/test_render_bench.cu) you can find benchmarks for hyperparameters tuning of the `Camera` class and an example of direct usage of the `cuda_path_tracer` library.
+
+### Report
+
+- [`report/`](report/): Typst source code of the report.

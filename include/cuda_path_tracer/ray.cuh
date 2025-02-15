@@ -1,18 +1,7 @@
-/**
- * @file ray.cuh
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Header file for ray.cu, which contains the ray class as described in
- * the book "Ray Tracing Gems", published by NVIDIA
- * @version 0.1
- * @date 2024-10-28
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #pragma once
 
 #include "cuda_path_tracer/vec3.cuh"
+#include <cuda/std/tuple>
 
 class Ray {
 public:
@@ -33,3 +22,25 @@ public:
 private:
   Vec3 origin, direction;
 };
+
+// Functions to generate rays
+
+__device__ auto getRay(const Vec3 &origin, const Vec3 &pixel00,
+                       const Vec3 &deltaU, const Vec3 &deltaV,
+                       const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+                       const float defocusAngle, const uint16_t x,
+                       const uint16_t y, curandState_t &state) -> Ray;
+
+__device__ auto get2Rays(const Vec3 &origin, const Vec3 &pixel00,
+                         const Vec3 &deltaU, const Vec3 &deltaV,
+                         const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+                         const float defocusAngle, const uint16_t x,
+                         const uint16_t y, curandStatePhilox4_32_10_t &state)
+    -> cuda::std::tuple<Ray, Ray>;
+
+__device__ auto get4Rays(const Vec3 &origin, const Vec3 &pixel00,
+                         const Vec3 &deltaU, const Vec3 &deltaV,
+                         const Vec3 &defocusDiskU, const Vec3 &defocusDiskV,
+                         const float defocusAngle, const uint16_t x,
+                         const uint16_t y, curandStatePhilox4_32_10_t &state)
+    -> cuda::std::tuple<Ray, Ray, Ray, Ray>;

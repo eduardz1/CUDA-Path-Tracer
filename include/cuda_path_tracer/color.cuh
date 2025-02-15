@@ -1,19 +1,20 @@
 #pragma once
+
 #include "cuda_path_tracer/vec3.cuh"
 #include <cstdint>
 
 class Color {
 public:
-  __host__ __device__ constexpr Color() : vec(0, 0, 0) {}
+  __host__ __device__ constexpr Color() : vec(0) {}
 
   /**
    * @brief Create a new Color object from RGB values in the [0-255] range
    */
   __host__ __device__ constexpr static auto RGB(uint8_t r, uint8_t g,
                                                 uint8_t b) -> Color {
-    return {static_cast<float>(r) / UINT8_MAX,
-            static_cast<float>(g) / UINT8_MAX,
-            static_cast<float>(b) / UINT8_MAX};
+    return Vec3{static_cast<float>(r) / UINT8_MAX,
+                static_cast<float>(g) / UINT8_MAX,
+                static_cast<float>(b) / UINT8_MAX};
   }
 
   /**
@@ -21,7 +22,11 @@ public:
    */
   __host__ __device__ constexpr static auto Normalized(float r, float g,
                                                        float b) -> Color {
-    return {r, g, b};
+    return Vec3{r, g, b};
+  }
+  __host__ __device__ constexpr static auto
+  Normalized(const Vec3 color) -> Color {
+    return {color};
   }
 
   __host__ __device__ constexpr auto r() const -> uint8_t {
@@ -47,8 +52,7 @@ public:
   __host__ __device__ constexpr operator Vec3() const { return vec; }
 
 private:
-  __host__ __device__ constexpr Color(float r, float g, float b)
-      : vec(r, g, b) {}
+  __host__ __device__ constexpr Color(Vec3 vec) : vec(vec) {}
   Vec3 vec;
 };
 

@@ -1,15 +1,3 @@
-/**
- * @file image.hpp
- * @author Eduard Occhipinti (occhipinti.eduard@icloud.com)
- * @brief Header file for image.cu, which contains the functions to save an
- * image as a PPM file
- * @version 0.1
- * @date 2024-10-26
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 #pragma once
 
 #include "cuda_path_tracer/vec3.cuh"

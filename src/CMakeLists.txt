@@ -1,23 +1,29 @@
+CPMAddPackage("gh:nlohmann/json@3.11.3")
+
 set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/parallelogram.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rectangular_cuboid.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/rotation.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/sphere.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/dielectric.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/lambertian.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/metal.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/materials/light.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/camera.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/checker.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/color.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/error.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/hit_info.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/image.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/project.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
+    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/texture.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/utilities.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/material.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/lambertian.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/texture.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/solid.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/checker.cuh"
 )
 
 add_library(cuda_path_tracer_lib
@@ -25,10 +31,15 @@ add_library(cuda_path_tracer_lib
     shapes/rectangular_cuboid.cu
     shapes/rotation.cu
     shapes/sphere.cu
+    materials/dielectric.cu
+    materials/lambertian.cu
+    materials/metal.cu
+    materials/light.cu
     camera.cu
     error.cu
     hit_info.cu
     image.cu
+    project.cu
     ray.cu
     scene.cu
     utilities.cu
@@ -42,10 +53,10 @@ target_include_directories(cuda_path_tracer_lib
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
-target_link_libraries(cuda_path_tracer_lib PRIVATE CCCL::CCCL)
+target_link_libraries(cuda_path_tracer_lib PUBLIC CCCL::CCCL PRIVATE nlohmann_json::nlohmann_json)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
-    target_compile_options(cuda_path_tracer_lib PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
+    target_compile_options(cuda_path_tracer_lib PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
 endif()
 
 if(CMAKE_CUDA_COMPILER_ID STREQUAL "Clang")

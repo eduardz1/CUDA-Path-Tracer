@@ -2,11 +2,11 @@
 
 #include "cuda_path_tracer/hit_info.cuh"
 #include "cuda_path_tracer/shapes/parallelogram.cuh"
-#include "cuda_path_tracer/shapes/rotation.cuh"
 
 class RectangularCuboid {
 public:
-  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b, const Material &material);
+  __host__ RectangularCuboid(const Vec3 &a, const Vec3 &b,
+                             const Material &material);
 
   /**
    * @brief Saves the normal vector of the rectangular cuboid at the point of
@@ -26,18 +26,16 @@ public:
   __device__ auto hit(const Ray &r, const float hit_t_min,
                       const float hit_t_max, HitInfo &hi) const -> bool;
 
-  __host__ auto rotate(const Vec3 &angles) -> RectangularCuboid &;
-  __host__ auto translate(const Vec3 &translation) -> RectangularCuboid &;
+  __host__ auto rotate(const Vec3 &angles) const -> RectangularCuboid;
+  __host__ auto translate(const Vec3 &translation) const -> RectangularCuboid;
 
 private:
-  Vec3 a, b, translation;
-
-  // Always performs the rotation first, then the translation
-
-  Rotation rotation;
   Material material;
 
-  struct {
+  struct Faces {
     Parallelogram front, back, left, right, top, bottom;
   } faces;
+
+  __host__ RectangularCuboid(const Faces &transformed_faces,
+                             const Material &material);
 };
