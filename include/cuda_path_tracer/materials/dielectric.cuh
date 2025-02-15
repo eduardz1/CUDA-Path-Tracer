@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cuda_path_tracer/ray.cuh"
-class Dielectric {
 
+class Dielectric {
 public:
   __host__ __device__ Dielectric(const float refraction)
       : refraction(refraction) {}
@@ -10,8 +10,6 @@ public:
   __device__ auto scatter(const Ray &ray, const Vec3 &normal, const Vec3 &point,
                           const bool front, Vec3 &attenuation,
                           Ray &scattered) const -> bool;
-
-  __device__ auto emitted(Vec3 &point) -> Vec3;
 
 private:
   float refraction;

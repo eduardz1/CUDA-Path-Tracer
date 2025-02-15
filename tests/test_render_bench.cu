@@ -95,11 +95,13 @@ void runAllCombinations(const std::shared_ptr<Scene> &scene,
 auto createTestScene(uint16_t width,
                      uint16_t height) -> std::shared_ptr<Scene> {
   const auto shapes = thrust::device_vector<Shape>{
-      Sphere{{0, 0, -1.2}, 0.5, Lambertian(Vec3{0.7, 0.3, 0.3})},
+      Sphere{{0, 0, -1.2}, 0.5, Lambertian(Color::Normalized(0.7, 0.3, 0.3))},
       Sphere{{-1, 0, -1}, 0.5, Dielectric(1.50)},
       Sphere{{1, 0, -1}, 0.5, Dielectric(1.00 / 1.50)},
-      Sphere{{0, -100.5, -1}, 100, Lambertian(Vec3{0.8, 0.8, 0.0})},
-      RectangularCuboid{{130, 0, 65}, {295, 165, 230}}
+      Sphere{
+          {0, -100.5, -1}, 100, Lambertian(Color::Normalized({0.8, 0.8, 0.0}))},
+      RectangularCuboid{
+          {130, 0, 65}, {295, 165, 230}, Lambertian(Colors::White)}
           .rotate({0, -15, 0})
           .translate({40, 0, -20})};
   return std::make_shared<Scene>(width, height, shapes);

@@ -25,7 +25,6 @@ protected:
 
   __host__ auto operator+=(const Rotation &r) -> Rotation &;
 
-  Rotation() = default;
   __host__ Rotation(const Vec3 &angles);
 
   friend class RectangularCuboid;

@@ -36,5 +36,6 @@ private:
     Parallelogram front, back, left, right, top, bottom;
   } faces;
 
-  __host__ RectangularCuboid(const Faces &transformed_faces);
+  __host__ RectangularCuboid(const Faces &transformed_faces,
+                             const Material &material);
 };

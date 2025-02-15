@@ -5,7 +5,6 @@
 class Sphere {
 public:
 
-  __host__ Sphere();
   __host__ Sphere(const Vec3 &center, float radius, const Material &material);
 
   /**

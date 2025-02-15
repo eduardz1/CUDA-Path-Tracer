@@ -20,7 +20,6 @@ set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/ray.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/scene.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shape.cuh"
-    "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/solid.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/texture.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/utilities.cuh"
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/vec3.cuh"
@@ -35,6 +34,7 @@ add_library(cuda_path_tracer_lib
     materials/dielectric.cu
     materials/lambertian.cu
     materials/metal.cu
+    materials/light.cu
     camera.cu
     error.cu
     hit_info.cu

@@ -71,9 +71,12 @@ __device__ auto getColor(const Ray &ray,
       Material material = hi.material;
       bool front = hi.front;
 
-      Vec3 emitted = cuda::std::visit(
-          [&point](auto &material) { return material.emitted(point); },
-          material);
+      const auto emitted =
+          cuda::std::visit(overload{[&point](const Light &light) {
+                                      return light.emitted(point);
+                                    },
+                                    [](const auto) { return Vec3{0}; }},
+                           material);
 
       const bool scatter = cuda::std::visit(
           overload{[&normal, &point, &attenuation, &scattered,
@@ -90,7 +93,10 @@ __device__ auto getColor(const Ray &ray,
                     &scattered](const Dielectric &material) {
                      return material.scatter(current, normal, point, front,
                                              attenuation, scattered);
-                   }},
+                   },
+                   [](const auto) { return false; }
+
+          },
           material);
 
       if (scatter) {
@@ -99,7 +105,6 @@ __device__ auto getColor(const Ray &ray,
       } else {
         return emitted;
       }
-
     } else {
       auto unit_direction = makeUnitVector(current.getDirection());
       auto t = 0.5F * (unit_direction.y + 1.0F);
@@ -107,7 +112,7 @@ __device__ auto getColor(const Ray &ray,
              t * Vec3{0.8F, 0.85F, 1.0F};
     }
   }
-  return Vec3{0, 0, 0};
+  return Vec3{0};
 }
 
 /**
@@ -207,8 +212,8 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
 
 // Align to prevent control divergence
 // TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size, size_t alignment = WARP_SIZE)
-    -> size_t {
+__host__ inline auto getPaddedSize(size_t size,
+                                   size_t alignment = WARP_SIZE) -> size_t {
   return (size + alignment - 1) & ~(alignment - 1);
 }
 } // namespace
@@ -374,9 +379,8 @@ template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
           bool AverageWithThrust, typename State>
 __host__ auto
 CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>::up(
-    const Vec3 &up)
-    -> CameraBuilder<BlockSize, NumSamples, NumImages, AverageWithThrust, State>
-        & {
+    const Vec3 &up) -> CameraBuilder<BlockSize, NumSamples, NumImages,
+                                     AverageWithThrust, State> & {
   this->camera.up = up;
   return *this;
 }

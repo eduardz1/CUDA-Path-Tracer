@@ -30,7 +30,7 @@ TEST_CASE("Parallelogram Construction and Basic Properties",
     Vec3 u(1.0F, 0.0F, 0.0F);
     Vec3 v(0.0F, 1.0F, 0.0F);
 
-    Parallelogram p(origin, u, v);
+    Parallelogram p(origin, u, v, Colors::Black);
     // Construction with parameters should not crash
     REQUIRE_NOTHROW(p);
   }
@@ -51,7 +51,7 @@ TEST_CASE("Parallelogram Ray Intersection Tests", "[parallelogram]") {
     Vec3 origin(0.0F, 0.0F, 0.0F);
     Vec3 u(1.0F, 0.0F, 0.0F);
     Vec3 v(0.0F, 1.0F, 0.0F);
-    *d_parallelogram = Parallelogram(origin, u, v);
+    *d_parallelogram = Parallelogram(origin, u, v, Colors::Black);
     *d_ray = Ray(Vec3(0.5F, 0.5F, 1.0F), Vec3(0.0F, 0.0F, -1.0F));
 
     testParallelogramHit<<<1, 1>>>(d_parallelogram, d_ray, 0.0F, 100.0F,
@@ -72,7 +72,7 @@ TEST_CASE("Parallelogram Ray Intersection Tests", "[parallelogram]") {
     Vec3 origin(0.0F, 0.0F, 0.0F);
     Vec3 u(1.0F, 0.0F, 0.0F);
     Vec3 v(0.0F, 1.0F, 0.0F);
-    *d_parallelogram = Parallelogram(origin, u, v);
+    *d_parallelogram = Parallelogram(origin, u, v, Colors::Black);
     *d_ray = Ray(Vec3(2.0F, 2.0F, 1.0F), Vec3(0.0F, 0.0F, -1.0F));
 
     testParallelogramHit<<<1, 1>>>(d_parallelogram, d_ray, 0.0F, 100.0F,
@@ -86,7 +86,7 @@ TEST_CASE("Parallelogram Ray Intersection Tests", "[parallelogram]") {
     Vec3 origin(0.0F, 0.0F, 0.0F);
     Vec3 u(1.0F, 0.0F, 0.0F);
     Vec3 v(0.0F, 1.0F, 0.0F);
-    *d_parallelogram = Parallelogram(origin, u, v);
+    *d_parallelogram = Parallelogram(origin, u, v, Colors::Black);
     *d_ray = Ray(Vec3(0.5F, 0.5F, 1.0F), Vec3(1.0F, 0.0F, 0.0F));
 
     testParallelogramHit<<<1, 1>>>(d_parallelogram, d_ray, 0.0F, 100.0F,
@@ -100,7 +100,7 @@ TEST_CASE("Parallelogram Ray Intersection Tests", "[parallelogram]") {
     Vec3 origin(0.0F, 0.0F, 0.0F);
     Vec3 u(1.0F, 0.0F, 0.0F);
     Vec3 v(0.0F, 1.0F, 0.0F);
-    *d_parallelogram = Parallelogram(origin, u, v);
+    *d_parallelogram = Parallelogram(origin, u, v, Colors::Black);
     *d_ray = Ray(Vec3(0.5F, 0.5F, 2.0F), Vec3(0.0F, 0.0F, -1.0F));
 
     testParallelogramHit<<<1, 1>>>(d_parallelogram, d_ray, 0.0F, 1.0F,

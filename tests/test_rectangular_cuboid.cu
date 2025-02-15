@@ -19,13 +19,13 @@ TEST_CASE("RectangularCuboid Construction", "[rectangular_cuboid]") {
   SECTION("Basic construction") {
     Vec3 a(0.0F, 0.0F, 0.0F);
     Vec3 b(1.0F, 1.0F, 1.0F);
-    REQUIRE_NOTHROW(RectangularCuboid(a, b));
+    REQUIRE_NOTHROW(RectangularCuboid(a, b, Colors::Black));
   }
 
   SECTION("Swapped coordinates") {
     Vec3 a(1.0F, 1.0F, 1.0F);
     Vec3 b(0.0F, 0.0F, 0.0F);
-    REQUIRE_NOTHROW(RectangularCuboid(a, b));
+    REQUIRE_NOTHROW(RectangularCuboid(a, b, Colors::Black));
   }
 }
 
@@ -41,7 +41,7 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   CUDA_ERROR_CHECK(cudaMallocManaged(&d_ray, sizeof(Ray)));
 
   SECTION("Front face hit") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F), Colors::Black);
     *d_ray = Ray(Vec3(0.5F, 0.5F, 2.0F), Vec3(0.0F, 0.0F, -1.0F));
 
     testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
@@ -55,7 +55,7 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   }
 
   SECTION("Miss test") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F), Colors::Black);
     *d_ray = Ray(Vec3(2.0F, 2.0F, 2.0F), Vec3(1.0F, 0.0F, 0.0F));
 
     testCuboidHit<<<1, 1>>>(d_cuboid, d_ray, 0.0F, 100.0F, d_hit_result,
@@ -66,7 +66,7 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   }
 
   SECTION("Rotation test") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F), Colors::Black);
     d_cuboid->rotate(Vec3(0.0F, 90.0F, 0.0F));
     *d_ray = Ray(Vec3(2.0F, 0.5F, 0.5F), Vec3(-1.0F, 0.0F, 0.0F));
 
@@ -82,7 +82,7 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   }
 
   SECTION("Translation test") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F), Colors::Black);
     *d_cuboid = d_cuboid->translate(Vec3(2.0F, 0.0F, 0.0F));
     *d_ray = Ray(Vec3(3.5F, 0.5F, 0.5F), Vec3(-1.0F, 0.0F, 0.0F));
 
@@ -98,7 +98,7 @@ TEST_CASE("RectangularCuboid Ray Intersection", "[rectangular_cuboid]") {
   }
 
   SECTION("Combined rotation and translation test") {
-    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F));
+    *d_cuboid = RectangularCuboid(Vec3(0.0F), Vec3(1.0F), Colors::Black);
     *d_cuboid = d_cuboid->rotate(Vec3(0.0F, 90.0F, 0.0F))
                     .translate(Vec3(0.0F, 0.0F, 2.0F));
     *d_ray = Ray(Vec3(0.5F, 0.5F, 3.5F), Vec3(0.0F, 0.0F, -1.0F));

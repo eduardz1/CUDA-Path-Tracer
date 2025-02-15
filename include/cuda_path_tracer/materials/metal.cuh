@@ -9,10 +9,8 @@ public:
 
   template <typename State>
   __device__ auto scatter(const Ray &ray, const Vec3 &normal, const Vec3 &point,
-                          Vec3 &attenuation, Ray &scattered, State &state) const
-      -> bool;
-
-  __device__ auto emitted(Vec3 &point) -> Vec3;
+                          Vec3 &attenuation, Ray &scattered,
+                          State &state) const -> bool;
 
 private:
   Vec3 albedo;

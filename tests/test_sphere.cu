@@ -28,7 +28,7 @@ TEST_CASE("Sphere construction and basic properties", "[sphere]") {
 
   Vec3 center(1.0F, 2.0F, 3.0F);
   float radius = 2.0F;
-  const auto material = Lambertian(Vec3(0.5F, 0.5F, 0.5F));
+  const auto material = Lambertian(Color::Normalized(0.5F, 0.5F, 0.5F));
 
   *d_sphere = Sphere(center, radius, material);
   testGetCenter<<<1, 1>>>(d_sphere, d_center);
@@ -54,7 +54,7 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   CUDA_ERROR_CHECK(cudaMallocManaged(&d_ray, sizeof(Ray)));
 
   SECTION("Direct hit") {
-    const auto material = Lambertian(Vec3(0.5F, 0.5F, 0.5F));
+    const auto material = Lambertian(Color::Normalized(0.5F, 0.5F, 0.5F));
     *d_sphere = Sphere(Vec3(0, 0, 0), 1.0F, material);
     *d_ray = Ray(Vec3(0, 0, -5), Vec3(0, 0, 1));
 
@@ -67,7 +67,7 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   }
 
   SECTION("Ray miss") {
-    const auto material = Lambertian(Vec3(0.5F, 0.5F, 0.5F));
+    const auto material = Lambertian(Color::Normalized(0.5F, 0.5F, 0.5F));
     *d_sphere = Sphere(Vec3(0, 0, 0), 1.0F, material);
     *d_ray = Ray(Vec3(2, 2, -5), Vec3(0, 0, 1));
 
@@ -79,7 +79,7 @@ TEST_CASE("Sphere ray intersection tests", "[sphere]") {
   }
 
   SECTION("Ray from inside") {
-    const auto material = Lambertian(Vec3(0.5F, 0.5F, 0.5F));
+    const auto material = Lambertian(Color::Normalized(0.5F, 0.5F, 0.5F));
     *d_sphere = Sphere(Vec3(0, 0, 0), 2.0F, material);
     *d_ray = Ray(Vec3(0, 0, 0), Vec3(0, 0, 1));
 

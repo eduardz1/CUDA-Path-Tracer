@@ -23,11 +23,12 @@ __host__ RectangularCuboid::RectangularCuboid(const Vec3 &a, const Vec3 &b,
   faces.top = Parallelogram({min.x, max.y, max.z}, dx, -dz, material);
 }
 
-__host__ RectangularCuboid::RectangularCuboid(const Faces &transformed_faces)
-    : faces(transformed_faces) {}
+__host__ RectangularCuboid::RectangularCuboid(const Faces &transformed_faces,
+                                              const Material &material)
+    : faces(transformed_faces), material(material) {}
 
-__host__ auto RectangularCuboid::rotate(const Vec3 &angles) const
-    -> RectangularCuboid {
+__host__ auto
+RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
   // Create a rotation instance.
   const auto rot = Rotation(angles);
 
@@ -39,34 +40,38 @@ __host__ auto RectangularCuboid::rotate(const Vec3 &angles) const
 
   // For each face, rotate its origin about the cuboid center and rotate its
   // edge vectors.
-  auto rotate_face = [rot, center](const Parallelogram &face) -> Parallelogram {
+  auto rotate_face = [rot, center,
+                      this](const Parallelogram &face) -> Parallelogram {
     const Vec3 new_origin = center + rot.rotate(face.origin - center, false);
     const Vec3 new_u = rot.rotate(face.u, false);
     const Vec3 new_v = rot.rotate(face.v, false);
-    return {new_origin, new_u, new_v};
+    return {new_origin, new_u, new_v, material};
   };
 
-  return RectangularCuboid({rotate_face(faces.left), rotate_face(faces.bottom),
-                            rotate_face(faces.front), rotate_face(faces.right),
-                            rotate_face(faces.back), rotate_face(faces.top)});
+  return {{rotate_face(faces.left), rotate_face(faces.bottom),
+           rotate_face(faces.front), rotate_face(faces.right),
+           rotate_face(faces.back), rotate_face(faces.top)},
+          material};
 }
 
-__host__ auto RectangularCuboid::translate(const Vec3 &offset) const
-    -> RectangularCuboid {
-  return RectangularCuboid({
-      Parallelogram(faces.left.origin + offset, faces.left.u, faces.left.v),
-      Parallelogram(faces.bottom.origin + offset, faces.bottom.u,
-                    faces.bottom.v),
-      Parallelogram(faces.front.origin + offset, faces.front.u, faces.front.v),
-      Parallelogram(faces.right.origin + offset, faces.right.u, faces.right.v),
-      Parallelogram(faces.back.origin + offset, faces.back.u, faces.back.v),
-      Parallelogram(faces.top.origin + offset, faces.top.u, faces.top.v),
-  });
+__host__ auto
+RectangularCuboid::translate(const Vec3 &offset) const -> RectangularCuboid {
+  return {
+      {
+          {faces.left.origin + offset, faces.left.u, faces.left.v, material},
+          {faces.bottom.origin + offset, faces.bottom.u, faces.bottom.v,
+           material},
+          {faces.front.origin + offset, faces.front.u, faces.front.v, material},
+          {faces.right.origin + offset, faces.right.u, faces.right.v, material},
+          {faces.back.origin + offset, faces.back.u, faces.back.v, material},
+          {faces.top.origin + offset, faces.top.u, faces.top.v, material},
+      },
+      material};
 }
 
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
-                                       const float hit_t_max, HitInfo &hi) const
-    -> bool {
+                                       const float hit_t_max,
+                                       HitInfo &hi) const -> bool {
   HitInfo temp_hi;
   bool hit_any = false;
   float closest_t = hit_t_max;

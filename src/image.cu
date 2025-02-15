@@ -6,7 +6,8 @@
 
 namespace {
 __device__ auto constexpr linToGamma(const float component) -> float {
-  return component > 0 ? sqrtf(component) : 0.0F;
+  // return component > 0 ? sqrtf(component) : 0.0F;
+  return component;
 }
 } // namespace
 

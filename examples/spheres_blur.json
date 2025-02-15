@@ -1,13 +1,26 @@
 {
+  "$schema": "../schema.json",
   "name": "spheres_blur",
   "image": {
     "width": 512,
     "height": 512
   },
   "camera": {
-    "origin": [-2, 2, 1],
-    "lookAt": [0, 0, -1],
-    "up": [0, 1, 0],
+    "origin": [
+      -2,
+      2,
+      1
+    ],
+    "lookAt": [
+      0,
+      0,
+      -1
+    ],
+    "up": [
+      0,
+      1,
+      0
+    ],
     "verticalFov": 20.0,
     "defocusAngle": 10.0,
     "focusDistance": 3.4,
@@ -16,16 +29,24 @@
   "shapes": [
     {
       "type": "sphere",
-      "center": [0, 0, -1.2],
+      "center": [
+        0,
+        0,
+        -1.2
+      ],
       "radius": 0.5,
       "material": {
         "type": "lambertian",
-        "color": "flamingo"
+        "texture": "flamingo"
       }
     },
     {
       "type": "sphere",
-      "center": [-1, 0, -1],
+      "center": [
+        -1,
+        0,
+        -1
+      ],
       "radius": 0.5,
       "material": {
         "type": "dielectric",
@@ -34,7 +55,11 @@
     },
     {
       "type": "sphere",
-      "center": [1, 0, -1],
+      "center": [
+        1,
+        0,
+        -1
+      ],
       "radius": 0.5,
       "material": {
         "type": "dielectric",
@@ -43,7 +68,11 @@
     },
     {
       "type": "sphere",
-      "center": [0, 0.75, -1],
+      "center": [
+        0,
+        0.75,
+        -1
+      ],
       "radius": 0.1,
       "material": {
         "type": "light",
@@ -52,14 +81,20 @@
     },
     {
       "type": "sphere",
-      "center": [0, -100.5, -1],
+      "center": [
+        0,
+        -100.5,
+        -1
+      ],
       "radius": 100,
       "material": {
         "type": "lambertian",
-        "checker": {
-          "scale": 0.32,
-          "color1": "black",
-          "color2": "white"
+        "texture": {
+          "checker": {
+            "scale": 0.32,
+            "even": "black",
+            "odd": "white"
+          }
         }
       }
     }

@@ -16,5 +16,3 @@ __device__ auto Dielectric::scatter(const Ray &ray, const Vec3 &normal,
   attenuation = Vec3{1.0F, 1.0F, 1.0F};
   return true;
 }
-
-__device__ auto Dielectric::emitted(Vec3 &point) -> Vec3 { return {0}; }
