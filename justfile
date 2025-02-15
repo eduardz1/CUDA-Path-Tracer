@@ -24,10 +24,10 @@ target    := build_dir / "apps/cuda_path_tracer"
     ./{{target}} $@
 
 # Benchmarks the application using NVIDIA Nsight Systems, run with `sudo` for better results
-@bench *CMAKE_ARGS: (build CMAKE_ARGS)
+@bench *RUN_ARGS: (build)
     mkdir -p {{bench_dir}}
     rm -rf {{bench_dir}}/*
-    nsys profile --stats=true -o {{bench_dir}}/bench ./{{target}}
+    nsys profile --stats=true -o {{bench_dir}}/bench ./{{target}} $@
     nsys analyze {{bench_dir}}/bench.sqlite
 
 # Uses the NVIDIA Compute Sanitizer to check for memory leaks
