@@ -1,4 +1,5 @@
 #include "cuda_path_tracer/color.cuh"
+#include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/project.cuh"
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -91,7 +92,7 @@ __host__ auto parseMaterial(const nlohmann::json &j) -> Material {
   case "dielectric"_hash: return Dielectric(j["refraction_index"].get<float>());
   case "metal"_hash:
     return Metal(parseColor(j["albedo"]), j["fuzz"].get<float>());
-  case "light"_hash: return Light(Color::Normalized(parseVec3(j["color"])));
+  case "light"_hash: return Light(Color{parseVec3(j["color"])});
 
   default: throw std::runtime_error("Unknown material type: " + type);
   }
@@ -127,8 +128,8 @@ __host__ auto parseShape(const nlohmann::json &j) -> Shape {
 }
 } // namespace
 
-__host__ auto
-Project::load(const std::string &filename) -> std::shared_ptr<Project> {
+__host__ auto Project::load(const std::string &filename)
+    -> std::shared_ptr<Project> {
   try {
     std::ifstream file(filename);
     if (!file.is_open()) {

@@ -1,5 +1,4 @@
 #include "cuda_path_tracer/camera.cuh"
-#include "cuda_path_tracer/utilities.cuh"
 
 __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
                                   const Vec3 &center, const Vec3 &u,

@@ -27,8 +27,8 @@ __host__ RectangularCuboid::RectangularCuboid(const Faces &transformed_faces,
                                               const Material &material)
     : faces(transformed_faces), material(material) {}
 
-__host__ auto
-RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
+__host__ auto RectangularCuboid::rotate(const Vec3 &angles) const
+    -> RectangularCuboid {
   // Create a rotation instance.
   const auto rot = Rotation(angles);
 
@@ -48,30 +48,37 @@ RectangularCuboid::rotate(const Vec3 &angles) const -> RectangularCuboid {
     return {new_origin, new_u, new_v, material};
   };
 
-  return {{rotate_face(faces.left), rotate_face(faces.bottom),
-           rotate_face(faces.front), rotate_face(faces.right),
-           rotate_face(faces.back), rotate_face(faces.top)},
+  return {{.front = rotate_face(faces.left),
+           .back = rotate_face(faces.bottom),
+           .left = rotate_face(faces.front),
+           .right = rotate_face(faces.right),
+           .top = rotate_face(faces.back),
+           .bottom = rotate_face(faces.top)},
           material};
 }
 
-__host__ auto
-RectangularCuboid::translate(const Vec3 &offset) const -> RectangularCuboid {
-  return {
-      {
-          {faces.left.origin + offset, faces.left.u, faces.left.v, material},
-          {faces.bottom.origin + offset, faces.bottom.u, faces.bottom.v,
-           material},
-          {faces.front.origin + offset, faces.front.u, faces.front.v, material},
-          {faces.right.origin + offset, faces.right.u, faces.right.v, material},
-          {faces.back.origin + offset, faces.back.u, faces.back.v, material},
-          {faces.top.origin + offset, faces.top.u, faces.top.v, material},
-      },
-      material};
+__host__ auto RectangularCuboid::translate(const Vec3 &offset) const
+    -> RectangularCuboid {
+  return {{
+              .front = {faces.left.origin + offset, faces.left.u, faces.left.v,
+                        material},
+              .back = {faces.bottom.origin + offset, faces.bottom.u,
+                       faces.bottom.v, material},
+              .left = {faces.front.origin + offset, faces.front.u,
+                       faces.front.v, material},
+              .right = {faces.right.origin + offset, faces.right.u,
+                        faces.right.v, material},
+              .top = {faces.back.origin + offset, faces.back.u, faces.back.v,
+                      material},
+              .bottom = {faces.top.origin + offset, faces.top.u, faces.top.v,
+                         material},
+          },
+          material};
 }
 
 __device__ auto RectangularCuboid::hit(const Ray &r, const float hit_t_min,
-                                       const float hit_t_max,
-                                       HitInfo &hi) const -> bool {
+                                       const float hit_t_max, HitInfo &hi) const
+    -> bool {
   HitInfo temp_hi;
   bool hit_any = false;
   float closest_t = hit_t_max;

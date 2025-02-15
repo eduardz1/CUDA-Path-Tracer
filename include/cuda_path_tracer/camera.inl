@@ -3,8 +3,8 @@
 #include "cuda_path_tracer/camera.cuh"
 #include "cuda_path_tracer/color.cuh"
 #include "cuda_path_tracer/error.cuh"
-#include "cuda_path_tracer/image.cuh"
 #include "cuda_path_tracer/utilities.cuh"
+#include <algorithm>
 #include <cstdint>
 #include <sys/types.h>
 
@@ -56,8 +56,8 @@ __device__ auto getEmittedColor(const HitInfo &hi) -> Color {
 
 template <typename State>
 __device__ auto tryScatter(const Ray &ray, const HitInfo &hi,
-                           Color &attenuation, Ray &scattered,
-                           State &state) -> bool {
+                           Color &attenuation, Ray &scattered, State &state)
+    -> bool {
   return cuda::std::visit(
       overload{
           [&hi, &attenuation, &scattered, &state](const Lambertian &material) {
@@ -115,8 +115,7 @@ __device__ auto getColor(const Ray &ray,
     // Russian roulette to terminate early if the throughput is too low (carries
     // very little information)
     if (i > MIN_DEPTH) {
-      const float p =
-          std::max(throughput.x, std::max(throughput.y, throughput.z));
+      const float p = std::max({throughput.x, throughput.y, throughput.z});
       if (curand_uniform(&state) > p) {
         break;
       }
@@ -124,7 +123,7 @@ __device__ auto getColor(const Ray &ray,
     }
   }
 
-  return Color::Normalized(color);
+  return {color};
 }
 
 /**
@@ -219,13 +218,13 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
     sum += images[img * (padded_width * height) + padded_idx];
   }
 
-  image_out[output_idx] = convertColorTo8Bit(sum * scale);
+  image_out[output_idx] = Color(sum * scale).correctGamma().to8Bit();
 }
 
 // Align to prevent control divergence
 // TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size,
-                                   size_t alignment = WARP_SIZE) -> size_t {
+__host__ inline auto getPaddedSize(size_t size, size_t alignment = WARP_SIZE)
+    -> size_t {
   return (size + alignment - 1) & ~(alignment - 1);
 }
 } // namespace
@@ -346,7 +345,7 @@ Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust, State>::
           for (int img = 0; img < NumImages; img++) {
             sum += images[img * (padded_width * height) + padded_idx];
           }
-          return convertColorTo8Bit(sum * render_scale);
+          return Color(sum * render_scale).correctGamma().to8Bit();
         });
   } else {
     const dim3 grid(std::ceil(width / BlockSize.x),
@@ -440,9 +439,9 @@ CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
 }
 template <dim3 BlockSize, uint16_t NumSamples, uint16_t NumImages,
           uint16_t Depth, bool AverageWithThrust, typename State>
-__host__ auto
-CameraBuilder<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
-              State>::build() -> Camera<BlockSize, NumSamples, NumImages, Depth,
-                                        AverageWithThrust, State> {
+__host__ auto CameraBuilder<BlockSize, NumSamples, NumImages, Depth,
+                            AverageWithThrust, State>::build()
+    -> Camera<BlockSize, NumSamples, NumImages, Depth, AverageWithThrust,
+              State> {
   return this->camera;
 }

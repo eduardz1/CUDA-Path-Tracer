@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cuda_path_tracer/vec3.cuh"
+#include <algorithm>
 #include <cstdint>
 
 class Color {
@@ -8,51 +9,70 @@ public:
   __host__ __device__ constexpr Color() : vec(0) {}
 
   /**
+   * @brief Initialize a new Color object from a Vec3, pay attention that the
+   * resulting color will not necessarily be a valid normalized color
+   *
+   * @param vec Vec3 to initialize the color with
+   * @return __host__ constexpr Color
+   */
+  __host__ __device__ constexpr Color(Vec3 vec) : vec(vec) {}
+
+  /**
    * @brief Create a new Color object from RGB values in the [0-255] range
    */
-  __host__ __device__ constexpr static auto RGB(uint8_t r, uint8_t g,
-                                                uint8_t b) -> Color {
+  __host__ __device__ constexpr static auto RGB(uint8_t r, uint8_t g, uint8_t b)
+      -> Color {
     return Vec3{static_cast<float>(r) / UINT8_MAX,
                 static_cast<float>(g) / UINT8_MAX,
                 static_cast<float>(b) / UINT8_MAX};
   }
 
   /**
-   * @brief Create a new Color object from RGB values in the [0-1] range
+   * @brief Create a new Color object from RGB values in the [0-1] range by
+   * clamping the values
    */
   __host__ __device__ constexpr static auto Normalized(float r, float g,
                                                        float b) -> Color {
-    return Vec3{r, g, b};
-  }
-  __host__ __device__ constexpr static auto
-  Normalized(const Vec3 color) -> Color {
-    return {color};
+    return Vec3{std::clamp(r, 0.0F, 1.0F), std::clamp(g, 0.0F, 1.0F),
+                std::clamp(b, 0.0F, 1.0F)};
   }
 
-  __host__ __device__ constexpr auto r() const -> uint8_t {
-    return static_cast<uint8_t>(vec.x * UINT8_MAX);
-  }
-  __host__ __device__ constexpr auto g() const -> uint8_t {
-    return static_cast<uint8_t>(vec.y * UINT8_MAX);
-  }
-  __host__ __device__ constexpr auto b() const -> uint8_t {
-    return static_cast<uint8_t>(vec.z * UINT8_MAX);
+  /**
+   * @brief Create a new Color object from a Vec3 by clamping the values
+   */
+  __host__ __device__ constexpr static auto Normalized(Vec3 vec) -> Color {
+    return Vec3{std::clamp(vec.x, 0.0F, 1.0F), std::clamp(vec.y, 0.0F, 1.0F),
+                std::clamp(vec.z, 0.0F, 1.0F)};
   }
 
-  __host__ __device__ constexpr auto r_normalized() const -> float {
-    return vec.x;
+  /**
+   * @brief Convert the color to an 8 bit color (integer values in the [0-255]
+   * range)
+   *
+   * @return uchar4 8 bit color
+   */
+  __host__ __device__ auto to8Bit() const -> uchar4 {
+    return make_uchar4(static_cast<unsigned char>(vec.x * UINT8_MAX),
+                       static_cast<unsigned char>(vec.y * UINT8_MAX),
+                       static_cast<unsigned char>(vec.z * UINT8_MAX),
+                       UINT8_MAX);
   }
-  __host__ __device__ constexpr auto g_normalized() const -> float {
-    return vec.y;
-  }
-  __host__ __device__ constexpr auto b_normalized() const -> float {
-    return vec.z;
+
+  /**
+   * @brief Conert the color to a gamma corrected color, this is useful because
+   * most image viewers expect gamma corrected colors
+   *
+   * @return Color gamma corrected color
+   */
+  __host__ __device__ constexpr auto correctGamma() const -> Color {
+    return Color::Normalized(vec.x > 0 ? sqrtf(vec.x) : 0.0F,
+                             vec.y > 0 ? sqrtf(vec.y) : 0.0F,
+                             vec.z > 0 ? sqrtf(vec.z) : 0.0F);
   }
 
   __host__ __device__ constexpr operator Vec3() const { return vec; }
 
 private:
-  __host__ __device__ constexpr Color(Vec3 vec) : vec(vec) {}
   Vec3 vec;
 };
 
