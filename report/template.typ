@@ -46,7 +46,7 @@
 
     v(0.1fr)
 
-    image("imgs/logo.png", width: width)
+    image("imgs/reflection_showcase.png", width: width)
     line(length: width, stroke: 4pt)
     block(
       smallcaps(

@@ -76,7 +76,6 @@
 
   == Querying for Rays
 
-  // talk about getRay (pseudocode), show image with the querying in the circle inscribed in each pixel
   For the ray querying we used the Get2Rays function. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
 
   #figure(
@@ -144,7 +143,9 @@
 
   === Materials
 
-  // TODO: talk about materials
+  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by Shirley@Shirley2024RTW2. These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hiting points and their physical properties, such as reflection, refraction, fuzz or emission.
+
+  // 1 / 2 example pictures
 
   == CUDA Features
 
@@ -169,12 +170,12 @@
   The experiments were conducted ... // hardware requirements
   We used two computationally demanding scenes to render: [3 spheres] and [cornellBox]. Both of them included various shapes of different materials and textures as well as rotations and movement. The scenes are presented in figures 2. and 3.
   #figure(
-    image("imgs/spheres.png"),
+    image("imgs/defocus_blur.png"),
     caption: [Spheres scene],
   ) <spheres>
 
   #figure(
-    image("imgs/boxes.png"),
+    image("imgs/pretty_boxes.png"),
     caption: [Boxes scene],
   ) <boxes>
 
