@@ -128,56 +128,11 @@ __host__ auto parseShape(const nlohmann::json &j) -> Shape {
   default: throw std::runtime_error("Unknown shape type: " + type);
   }
 }
-} // namespace
 
+template <typename QualityType>
 __host__ auto
-Project::load(const std::string &filename) -> std::shared_ptr<Project> {
-  nlohmann::json_schema::json_validator validator;
-
-  try {
-    validator.set_root_schema(schema);
-  } catch (const std::exception &e) {
-    throw std::runtime_error("Error setting root schema: " +
-                             std::string(e.what()));
-  }
-
-  std::ifstream file(filename);
-  if (!file.is_open()) {
-    throw std::runtime_error("Could not open file: " + filename);
-  }
-
-  nlohmann::json j;
-  try {
-    j = nlohmann::json::parse(file);
-  } catch (const std::exception &e) {
-    throw std::runtime_error("Error parsing JSON: " + std::string(e.what()));
-  }
-
-  try {
-    validator.validate(j);
-  } catch (const std::exception &e) {
-    throw std::runtime_error("Error validating JSON: " + std::string(e.what()));
-  }
-
-  auto project = std::make_shared<Project>();
-  project->name = j["name"].get<std::string>() + ".ppm";
-
-  // Parse image dimensions
-  const auto width = j["image"]["width"].get<uint16_t>();
-  const auto height = j["image"]["height"].get<uint16_t>();
-
-  // Parse shapes
-  thrust::device_vector<Shape> shapes;
-  for (const auto &shape : j["shapes"]) {
-    shapes.push_back(parseShape(shape));
-  }
-
-  // Create scene
-  project->scene = std::make_shared<Scene>(width, height, shapes);
-
-  // Parse camera settings
-  const auto &cam = j["camera"];
-  auto camera_builder = CameraBuilder();
+buildCamera(const nlohmann::json &cam) -> std::shared_ptr<Camera<QualityType>> {
+  auto camera_builder = CameraBuilder<QualityType>();
 
   if (cam.contains("origin")) {
     camera_builder.origin(parseVec3(cam["origin"]));
@@ -200,7 +155,72 @@ Project::load(const std::string &filename) -> std::shared_ptr<Project> {
   if (cam.contains("background")) {
     camera_builder.background(parseColor(cam["background"]));
   }
-  project->camera = std::make_shared<Camera<>>(camera_builder.build());
+
+  return std::make_shared<Camera<QualityType>>(camera_builder.build());
+}
+
+__host__ auto validateJsonSchema(const nlohmann::json &j) {
+  nlohmann::json_schema::json_validator validator;
+
+  try {
+    validator.set_root_schema(schema);
+  } catch (const std::exception &e) {
+    throw std::runtime_error("Error setting root schema: " +
+                             std::string(e.what()));
+  }
+
+  try {
+    validator.validate(j);
+  } catch (const std::exception &e) {
+    throw std::runtime_error("Error validating JSON: " + std::string(e.what()));
+  }
+}
+
+__host__ auto loadJsonFromFile(const std::string &filename) -> nlohmann::json {
+  std::ifstream file(filename);
+  if (!file.is_open()) {
+    throw std::runtime_error("Could not open file: " + filename);
+  }
+
+  try {
+    return nlohmann::json::parse(file);
+  } catch (const std::exception &e) {
+    throw std::runtime_error("Error parsing JSON: " + std::string(e.what()));
+  }
+}
+} // namespace
+
+__host__ auto
+Project::load(const std::string &filename,
+              const std::string &quality) -> std::shared_ptr<Project> {
+  auto j = loadJsonFromFile(filename);
+  validateJsonSchema(j);
+
+  auto project = std::make_shared<Project>();
+  project->name = j["name"].get<std::string>() + ".ppm";
+
+  // Parse image dimensions
+  const auto width = j["image"]["width"].get<uint16_t>();
+  const auto height = j["image"]["height"].get<uint16_t>();
+
+  // Parse shapes
+  thrust::device_vector<Shape> shapes;
+  for (const auto &shape : j["shapes"]) {
+    shapes.push_back(parseShape(shape));
+  }
+
+  // Create scene
+  project->scene = std::make_shared<Scene>(width, height, shapes);
+
+  // Set camera based on quality
+  const auto &cam = j["camera"];
+  if (quality == "low") {
+    project->camera = buildCamera<LowQuality>(cam);
+  } else if (quality == "medium") {
+    project->camera = buildCamera<MediumQuality>(cam);
+  } else if (quality == "high") {
+    project->camera = buildCamera<HighQuality>(cam);
+  }
 
   return project;
 }

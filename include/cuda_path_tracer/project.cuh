@@ -283,11 +283,12 @@ const static nlohmann::json schema = R"(
 class Project {
 public:
   __host__ static auto
-  load(const std::string &filename) -> std::shared_ptr<Project>;
+  load(const std::string &filename,
+       const std::string &quality) -> std::shared_ptr<Project>;
   __host__ auto render() -> void;
 
 private:
   std::shared_ptr<Scene> scene;
-  std::shared_ptr<Camera<>> camera;
+  std::shared_ptr<CameraInterface> camera;
   std::string name;
 };

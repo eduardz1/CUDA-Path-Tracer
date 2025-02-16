@@ -1,0 +1,78 @@
+{
+  "name": "reflection_showcase",
+  "image": {
+    "width": 1200,
+    "height": 800
+  },
+  "camera": {
+    "origin": [0, 1.5, 4],
+    "lookAt": [0, 1, 0],
+    "up": [0, 1, 0],
+    "verticalFov": 50.0,
+    "defocusAngle": 1.5,
+    "focusDistance": 4.0,
+    "background": "sky"
+  },
+  "shapes": [
+    {
+      "type": "sphere",
+      "center": [0, -1000, 0],
+      "radius": 1000,
+      "material": {
+        "type": "lambertian",
+        "color": "base"
+      }
+    },
+    {
+      "type": "sphere",
+      "center": [-2.5, 1, 0],
+      "radius": 1.0,
+      "material": {
+        "type": "metal",
+        "color": "sapphire",
+        "fuzz": 0.05
+      }
+    },
+    {
+      "type": "sphere",
+      "center": [0, 1, 0],
+      "radius": 1.0,
+      "material": {
+        "type": "dielectric",
+        "refraction_index": 1.5
+      }
+    },
+    {
+      "type": "sphere",
+      "center": [2.5, 1, 0],
+      "radius": 1.0,
+      "material": {
+        "type": "metal",
+        "color": "peach",
+        "fuzz": 0.1
+      }
+    },
+    {
+      "type": "rectangular_cuboid",
+      "vertices": [
+        [-0.4, 0, -3],
+        [0.4, 2.5, -2.2]
+      ],
+      "rotation": [0, -15, 0],
+      "translation": [1.8, 0, 0],
+      "material": {
+        "type": "lambertian",
+        "color": "mauve"
+      }
+    },
+    {
+      "type": "sphere",
+      "center": [0, 10, -5],
+      "radius": 4,
+      "material": {
+        "type": "light",
+        "color": [15, 12, 8]
+      }
+    }
+  ]
+}
