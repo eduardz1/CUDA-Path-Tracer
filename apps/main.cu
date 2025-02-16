@@ -1,8 +1,6 @@
 #include "cuda_path_tracer/project.cuh"
 #include <CLI/CLI.hpp>
 
-// TODO(eduard): cornell_box.json is missing the back wall but it looks kinda
-// nice like this
 auto main(int argc, char **argv) -> int {
   CLI::App app{"CUDA Path Tracer"};
   argv = app.ensure_utf8(argv);

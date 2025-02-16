@@ -52,74 +52,55 @@ void runAllCombinationsHigh(
     const std::shared_ptr<Scene> &scene,
     thrust::universal_host_pinned_vector<uchar4> &image) {
   // 4x4 blocks
-  runBenchmark<4, 4, 16, 512, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 16, 512, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 32, 256, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 32, 256, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 64, 128, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 64, 128, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 128, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 128, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 256, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 256, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 512, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 512, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<4, 4, 256, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<4, 4, 256, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<4, 4, 512, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<4, 4, 512, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<4, 4, 1024, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<4, 4, 1024, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<4, 4, 2048, 8, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<4, 4, 2048, 8, HIGH_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x8 blocks
-  runBenchmark<8, 8, 16, 512, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 16, 512, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 32, 256, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 32, 256, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 64, 128, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 64, 128, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 128, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 128, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 256, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 256, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 512, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 512, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 8, 256, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 8, 256, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 8, 512, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 8, 512, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 8, 1024, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 8, 1024, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 8, 2048, 8, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 8, 2048, 8, HIGH_QUALITY_DEPTH, false, State>(scene, image);
 
   // 16x16 blocks
-  runBenchmark<16, 16, 16, 512, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 16, 512, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<16, 16, 32, 256, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 32, 256, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<16, 16, 64, 128, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 64, 128, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<16, 16, 128, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 128, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<16, 16, 256, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 256, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<16, 16, 512, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 512, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<16, 16, 256, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<16, 16, 256, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<16, 16, 512, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<16, 16, 512, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<16, 16, 1024, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<16, 16, 1024, 16, HIGH_QUALITY_DEPTH, false, State>(scene,
+                                                                   image);
+  runBenchmark<16, 16, 2048, 8, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<16, 16, 2048, 8, HIGH_QUALITY_DEPTH, false, State>(scene, image);
 
   // 32x8 blocks
-  runBenchmark<32, 8, 16, 512, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 16, 512, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 32, 256, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 32, 256, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 64, 128, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 64, 128, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 128, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 128, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 256, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 256, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 512, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 512, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<32, 8, 256, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<32, 8, 256, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<32, 8, 512, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<32, 8, 512, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<32, 8, 1024, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<32, 8, 1024, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<32, 8, 2048, 8, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<32, 8, 2048, 8, HIGH_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x32 blocks
-  runBenchmark<8, 32, 16, 512, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 16, 512, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 32, 256, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 32, 256, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 64, 128, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 64, 128, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 128, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 128, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 256, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 256, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 512, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 512, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 32, 256, 64, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 32, 256, 64, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 32, 512, 32, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 32, 512, 32, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 32, 1024, 16, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 32, 1024, 16, HIGH_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 32, 2048, 8, HIGH_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 32, 2048, 8, HIGH_QUALITY_DEPTH, false, State>(scene, image);
 }
 
 template <typename State>
@@ -127,10 +108,6 @@ void runAllCombinationsMedium(
     const std::shared_ptr<Scene> &scene,
     thrust::universal_host_pinned_vector<uchar4> &image) {
   // 4x4 blocks
-  runBenchmark<4, 4, 8, 256, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 8, 256, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<4, 4, 16, 128, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 16, 128, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<4, 4, 32, 64, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<4, 4, 32, 64, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<4, 4, 64, 32, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
@@ -141,10 +118,6 @@ void runAllCombinationsMedium(
   runBenchmark<4, 4, 256, 8, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x8 blocks
-  runBenchmark<8, 8, 8, 256, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 8, 256, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 8, 16, 128, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 16, 128, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 8, 32, 64, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 8, 32, 64, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 8, 64, 32, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
@@ -155,13 +128,6 @@ void runAllCombinationsMedium(
   runBenchmark<8, 8, 256, 8, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
 
   // 16x16 blocks
-  runBenchmark<16, 16, 8, 256, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 8, 256, MEDIUM_QUALITY_DEPTH, false, State>(scene,
-                                                                   image);
-  runBenchmark<16, 16, 16, 128, MEDIUM_QUALITY_DEPTH, true, State>(scene,
-                                                                   image);
-  runBenchmark<16, 16, 16, 128, MEDIUM_QUALITY_DEPTH, false, State>(scene,
-                                                                    image);
   runBenchmark<16, 16, 32, 64, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<16, 16, 32, 64, MEDIUM_QUALITY_DEPTH, false, State>(scene,
                                                                    image);
@@ -177,11 +143,6 @@ void runAllCombinationsMedium(
                                                                    image);
 
   // 32x8 blocks
-  runBenchmark<32, 8, 8, 256, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 8, 256, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<32, 8, 16, 128, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 16, 128, MEDIUM_QUALITY_DEPTH, false, State>(scene,
-                                                                   image);
   runBenchmark<32, 8, 32, 64, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<32, 8, 32, 64, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<32, 8, 64, 32, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
@@ -193,11 +154,6 @@ void runAllCombinationsMedium(
   runBenchmark<32, 8, 256, 8, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x32 blocks
-  runBenchmark<8, 32, 8, 256, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 8, 256, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
-  runBenchmark<8, 32, 16, 128, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 16, 128, MEDIUM_QUALITY_DEPTH, false, State>(scene,
-                                                                   image);
   runBenchmark<8, 32, 32, 64, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 32, 32, 64, MEDIUM_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 32, 64, 32, MEDIUM_QUALITY_DEPTH, true, State>(scene, image);
@@ -214,8 +170,6 @@ void runAllCombinationsLow(
     const std::shared_ptr<Scene> &scene,
     thrust::universal_host_pinned_vector<uchar4> &image) {
   // 4x4 blocks
-  runBenchmark<4, 4, 4, 64, LOW_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<4, 4, 4, 64, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<4, 4, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<4, 4, 8, 32, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<4, 4, 16, 16, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -226,8 +180,6 @@ void runAllCombinationsLow(
   runBenchmark<4, 4, 64, 4, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x8 blocks
-  runBenchmark<8, 8, 4, 64, LOW_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 8, 4, 64, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 8, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 8, 8, 32, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 8, 16, 16, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -237,8 +189,6 @@ void runAllCombinationsLow(
   runBenchmark<8, 8, 64, 4, LOW_QUALITY_DEPTH, true, State>(scene, image);
 
   // 16x16 blocks
-  runBenchmark<16, 16, 4, 64, LOW_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<16, 16, 4, 64, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<16, 16, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<16, 16, 8, 32, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<16, 16, 16, 16, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -247,8 +197,6 @@ void runAllCombinationsLow(
   runBenchmark<16, 16, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 32x8 blocks
-  runBenchmark<32, 8, 4, 64, LOW_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<32, 8, 4, 64, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<32, 8, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<32, 8, 8, 32, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<32, 8, 16, 16, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -257,8 +205,6 @@ void runAllCombinationsLow(
   runBenchmark<32, 8, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x32 blocks
-  runBenchmark<8, 32, 4, 64, LOW_QUALITY_DEPTH, true, State>(scene, image);
-  runBenchmark<8, 32, 4, 64, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 32, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 32, 8, 32, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 32, 16, 16, LOW_QUALITY_DEPTH, true, State>(scene, image);

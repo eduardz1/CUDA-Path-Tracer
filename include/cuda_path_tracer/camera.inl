@@ -81,7 +81,6 @@ template <typename State, uint16_t Depth>
 __device__ auto getColor(const Ray &ray,
                          const cuda::std::span<const Shape> shapes,
                          State &state, const Color background) -> Color {
-  // TODO(eduard): make use of shared memory
   // TODO(eduard): talk in the report that the bounces of the rays create
   // inherent control divergence
   Vec3 throughput{1.0F};
@@ -126,6 +125,74 @@ __device__ auto getColor(const Ray &ray,
   return {color};
 }
 
+template <typename State, uint16_t Depth>
+__device__ auto
+get4Colors(const std::tuple<Ray, Ray, Ray, Ray> &rays,
+           const cuda::std::span<const Shape> shapes, State &state,
+           const Color background) -> std::tuple<Color, Color, Color, Color> {
+
+  cuda::std::array<Vec3, 4> throughput = {Vec3{1.0F}, Vec3{1.0F}, Vec3{1.0F},
+                                          Vec3{1.0F}};
+  cuda::std::array<Vec3, 4> colors = {Vec3{0.0F}, Vec3{0.0F}, Vec3{0.0F},
+                                      Vec3{0.0F}};
+  cuda::std::array<Ray, 4> currents = {std::get<0>(rays), std::get<1>(rays),
+                                       std::get<2>(rays), std::get<3>(rays)};
+  cuda::std::array<bool, 4> active = {true, true, true, true};
+  int active_count = 4;
+
+  for (int d = 0; d < Depth && active_count > 0; d++) {
+    cuda::std::array<HitInfo, 4> hits;
+
+#pragma unroll
+    for (int r = 0; r < 4; r++) {
+      if (!active[r]) {
+        continue;
+      }
+
+      const bool hit = hitShapes(currents[r], shapes, hits[r]);
+
+      if (!hit) {
+        colors[r] += throughput[r] * background;
+        active[r] = false;
+        active_count--;
+        continue;
+      }
+
+      const auto emitted = getEmittedColor<State, Depth>(hits[r]);
+      colors[r] += throughput[r] * emitted;
+
+      Ray scattered;
+      Color attenuation;
+      const bool scatter = tryScatter<State>(currents[r], hits[r], attenuation,
+                                             scattered, state);
+
+      if (!scatter) {
+        active[r] = false;
+        active_count--;
+        continue;
+      }
+
+      throughput[r] *= attenuation;
+      currents[r] = scattered;
+
+      // Russian roulette
+      if (d > MIN_DEPTH) {
+        const float p =
+            std::max({throughput[r].x, throughput[r].y, throughput[r].z});
+        if (curand_uniform(&state) > p) {
+          active[r] = false;
+          active_count--;
+          continue;
+        }
+        throughput[r] /= p;
+      }
+    }
+  }
+
+  return {Color{colors[0]}, Color{colors[1]}, Color{colors[2]},
+          Color{colors[3]}};
+}
+
 /**
  * @brief Kernel for rendering the image, works by calculating the pixel index
  * in the image, computing the Ray that goes from the camera's origin to the
@@ -166,6 +233,7 @@ renderImage(const uint16_t width, const uint16_t height,
 
   curand_init(SEED, index + (stream_index * width * height), 0, &states);
 
+  constexpr auto SAMPLE_SCALE = 1.0F / static_cast<float>(NumSamples);
   auto color = Vec3{};
 
   // Evaluates at compile time the type of the state
@@ -177,21 +245,20 @@ renderImage(const uint16_t width, const uint16_t height,
       const auto ray = get4Rays(origin, pixel00, deltaU, deltaV, defocusDiskU,
                                 defocusDiskV, defocusAngle, x, y, states);
 
-      color += getColor<State, Depth>(cuda::std::get<0>(ray), shapes, states,
-                                      background);
-      color += getColor<State, Depth>(cuda::std::get<1>(ray), shapes, states,
-                                      background);
-      color += getColor<State, Depth>(cuda::std::get<2>(ray), shapes, states,
-                                      background);
-      color += getColor<State, Depth>(cuda::std::get<3>(ray), shapes, states,
-                                      background);
+      const auto colors =
+          get4Colors<State, Depth>(ray, shapes, states, background);
+
+      color += (cuda::std::get<0>(colors) + cuda::std::get<1>(colors) +
+                cuda::std::get<2>(colors) + cuda::std::get<3>(colors)) *
+               SAMPLE_SCALE;
     }
   } else {
     for (auto s = 0; s < NumSamples; s++) {
       const auto ray = getRay(origin, pixel00, deltaU, deltaV, defocusDiskU,
                               defocusDiskV, defocusAngle, x, y, states);
 
-      color += getColor<State, Depth>(ray, shapes, states, background);
+      color += getColor<State, Depth>(ray, shapes, states, background) *
+               SAMPLE_SCALE;
     }
   }
 
@@ -200,7 +267,7 @@ renderImage(const uint16_t width, const uint16_t height,
 
 template <uint16_t NumImages>
 __global__ void averagePixels(const uint16_t width, const uint16_t height,
-                              const uint16_t padded_width, const float scale,
+                              const uint16_t padded_width,
                               const cuda::std::span<Vec3> images,
                               cuda::std::span<uchar4> image_out) {
   const auto x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -213,12 +280,13 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
   const auto output_idx = y * width + x;
   const auto padded_idx = y * padded_width + x;
 
+  constexpr float IMAGE_SCALE = 1.0F / static_cast<float>(NumImages);
   auto sum = Vec3{};
   for (auto img = 0; img < NumImages; img++) {
     sum += images[img * (padded_width * height) + padded_idx];
   }
 
-  image_out[output_idx] = Color(sum * scale).correctGamma().to8Bit();
+  image_out[output_idx] = Color(sum * IMAGE_SCALE).correctGamma().to8Bit();
 }
 
 // Align to prevent control divergence
@@ -280,8 +348,6 @@ Camera<Params>::render(const std::shared_ptr<Scene> &scene,
   const auto padded_height = getPaddedSize(height);
   const auto num_padded_pixels = padded_width * padded_height;
 
-  constexpr float render_scale = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
-
   assert(image.size() == static_cast<size_t>(width * height) &&
          ("Image size does not match the scene's width and height. Actual: " +
           std::to_string(image.size()) +
@@ -304,7 +370,7 @@ Camera<Params>::render(const std::shared_ptr<Scene> &scene,
   // Calling cudaGetLastError() here to clear any previous errors
   CUDA_ERROR_CHECK(cudaGetLastError());
   for (auto i = 0; i < NUM_IMAGES; i++) {
-    renderImage<State, NUM_IMAGES, DEPTH>
+    renderImage<State, NUM_SAMPLES, DEPTH>
         <<<grid, BLOCK_SIZE, 0, streams.at(i)>>>(
             padded_width, padded_height,
             image_3d_span.subspan(i * num_padded_pixels), origin, pixel00,
@@ -322,7 +388,6 @@ __host__ void Camera<Params>::averageRenderedImages(
     thrust::universal_host_pinned_vector<uchar4> &output,
     const cuda::std::span<Vec3> &images, const uint16_t width,
     const uint16_t height, const uint16_t padded_width) {
-  constexpr float render_scale = 1.0F / (NUM_IMAGES * NUM_SAMPLES);
 
   if constexpr (AVG_WITH_THRUST) {
     const auto num_pixels = output.size();
@@ -335,10 +400,11 @@ __host__ void Camera<Params>::averageRenderedImages(
           const auto padded_idx = row * padded_width + col;
 
           Vec3 sum{};
+          constexpr float IMAGE_SCALE = 1.0F / static_cast<float>(NUM_IMAGES);
           for (int img = 0; img < NUM_IMAGES; img++) {
             sum += images[img * (padded_width * height) + padded_idx];
           }
-          return Color(sum * render_scale).correctGamma().to8Bit();
+          return Color(sum * IMAGE_SCALE).correctGamma().to8Bit();
         });
   } else {
     const dim3 grid(std::ceil(width / BLOCK_SIZE.x),
@@ -347,8 +413,8 @@ __host__ void Camera<Params>::averageRenderedImages(
     cuda::std::span<uchar4> output_span{thrust::raw_pointer_cast(output.data()),
                                         output.size()};
 
-    averagePixels<NUM_IMAGES><<<grid, BLOCK_SIZE>>>(
-        width, height, padded_width, render_scale, images, output_span);
+    averagePixels<NUM_IMAGES><<<grid, BLOCK_SIZE>>>(width, height, padded_width,
+                                                    images, output_span);
     CUDA_ERROR_CHECK(cudaDeviceSynchronize());
     CUDA_ERROR_CHECK(cudaGetLastError());
   }
@@ -395,24 +461,20 @@ __host__ auto CameraBuilder<Params>::defocusAngle(const float defocusAngle)
 }
 
 template <typename Params>
-__host__ auto
-CameraBuilder<Params>::focusDistance(const float focusDistance)
+__host__ auto CameraBuilder<Params>::focusDistance(const float focusDistance)
     -> CameraBuilder<Params> & {
   this->camera.focusDistance = focusDistance;
   return *this;
 }
 
 template <typename Params>
-__host__ auto
-CameraBuilder<Params>::background(const Color &background)
+__host__ auto CameraBuilder<Params>::background(const Color &background)
     -> CameraBuilder<Params> & {
   this->camera.background = background;
   return *this;
 }
 
 template <typename Params>
-__host__ auto
-CameraBuilder<Params>::build() -> Camera<Params> {
+__host__ auto CameraBuilder<Params>::build() -> Camera<Params> {
   return this->camera;
 }
-
