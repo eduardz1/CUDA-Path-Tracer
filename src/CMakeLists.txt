@@ -1,4 +1,5 @@
 CPMAddPackage("gh:nlohmann/json@3.11.3")
+CPMAddPackage("gh:pboettch/json-schema-validator#2.3.0")
 
 set(HEADER_LIST
     "${cuda_path_tracer_SOURCE_DIR}/include/cuda_path_tracer/shapes/parallelogram.cuh"
@@ -53,7 +54,12 @@ target_include_directories(cuda_path_tracer_lib
 )
 
 target_compile_features(cuda_path_tracer_lib PUBLIC cxx_std_20)
-target_link_libraries(cuda_path_tracer_lib PUBLIC CCCL::CCCL PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(cuda_path_tracer_lib
+    PUBLIC
+    CCCL::CCCL
+    nlohmann_json::nlohmann_json
+    nlohmann_json_schema_validator
+)
 
 if(CMAKE_CUDA_COMPILER MATCHES "nvcc")
     target_compile_options(cuda_path_tracer_lib PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr --extended-lambda>)
