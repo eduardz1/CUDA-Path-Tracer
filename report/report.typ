@@ -25,7 +25,7 @@
 
 #v(4em)
 
-#eqcolumns(2)[
+#columns(2)[
   = Introduction
 
   // Give a brief overview of the overall algorithm (what is the algorithm you are parallelizing?). Identify where parallelism can be introduced to the algorithm. Discuss the code executed by the master and the slaves. Discuss how the master and slaves communicate and why they communicate. Provide figures and equations to support your explanations. There should be no results in this section. After reading this section, we should have a complete understanding of how you solved the problem without having to read your code for further details. At the same time, there should be little to no code in your report.
@@ -106,6 +106,8 @@
     ],
   ) <get-ray>
 
+
+
   === Defocus Blur <defocus-blur>
 
   Defocus blur is a photographic effect that simulates the out-of-focus areas of an image produced by a camera lens with an arbitrarily large aperture (and thus, arbitrarly small depth of field). It is also known as bokeh.
@@ -122,47 +124,48 @@
 
   == Tracing Rays
 
-  To get the appropriate color for the pixel we use the function GetColor, which can be described in pseudocode below:
+  To get the appropriate color for the pixel we use the function `GetColor`, which can be described in pseudocode as follows:
+
   #figure(
     kind: "algorithm",
     supplement: [Algorithm],
 
     pseudocode-list(
       booktabs: true,
-      numbered-title: [GetColor function],
+      numbered-title: [Function to get the color of a ray],
     )[
       + *function* #smallcaps[GetColor]\(ray)
         + *if depth <= 0*:
           + return color black;
         + *end if*
-
         + *if no object hit*:
           + return background color
         + *end if*
-
-        scattered = new ray
-        attenuation = color white
-
-        scatter = object material.#smallcaps[scatter]\(ray, attenuation)
-        emitted = object material.#smallcaps[emitted]\(ray, attenuation, scattered)
-
+        + scattered = new ray
+        + attenuation = color white
+        + scatter = object material.#smallcaps[scatter]\(ray, attenuation)
+        + emitted = object material.#smallcaps[emitted]\(ray, attenuation, scattered)
         + *if not scatter*:
           + return emitted
         + *end if*
-
-        return emitted + attenuation \* #smallcaps[GetColor]\(scattered, depth - 1)
+        + *return* emitted + attenuation \* #smallcaps[GetColor]\(scattered, depth - 1)
       + *end function*
     ],
-  )
+  ) <get-color>
 
-  For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls.
+  // For an given rendering depth we do the following: first, we check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the `RayColor` function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls.
+  For a given render depth we do the following: first we check if we exceeded the maximum depth, if so we return black. If not, we check if any object was hit by the ray. If not, we return the background color. At this point we can compute the information about the emitted light produced by the material and calculate the scattered ray. If the material is not scattering the light, we return the emitted light. Otherwise, we return the sum of the emitted light and the attenuation of the scattered ray.
+
+  The algorithm is inspired by #cite(<Shirley2024RTW2>, form: "prose") but ours was converted to an iterative approach, which generally performs better on the GPU. Our algorithm also includes an early stopping criteria, called "Russian Roulette" which randomly stops the recursion of the ray based on its contribution to the final color, meaning that ray carrying very little information are likely to be stopped early.
 
   === Materials
 
-  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by Shirley@Shirley2024RTW2. These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hiting points and their physical properties, such as reflection, refraction, fuzz or emission.
+  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by #cite(<Shirley2024RTW2>, form: "prose"). These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hitting points and their physical properties, such as reflection, refraction, fuzz or emission.
 
   #figure(
-    image("imgs/cornell_box.png"),
+    scope: "parent",
+    placement: auto,
+    image("imgs/reflection_showcase.png"),
     caption: [Different materials presented in Cornell box],
   ) <boxes>
 
@@ -202,6 +205,31 @@
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
 
+  #figure(
+    scope: "parent",
+    placement: top,
+    table(
+      columns: 6,
+      align: horizon,
+      table.header(
+        [*GPU*],
+        [*CPU*],
+        [*RAM*],
+        [*OS & Kernel*],
+        [*Compilers*],
+        [*CUDA*],
+      ),
+
+      [NVIDIA GeForce\ RTX 3060Ti LHR],
+      [Intel i5-11400F \ (12) \@ 4.400GHz],
+      [46763MiB],
+      [Ubuntu 24.10 with kernel 6.11.0-8-generic],
+      [GCC 14.2.0 \ NVCC 12.8.61],
+      [v2.7.0],
+    ),
+    caption: [System specifications used for the benchmarks],
+  )
+
   == Scene
 
   For the benchmarks we used one scene presented in @benchmark. It includes various shapes of different materials and textures as well as rotations and transaltions. Although int the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
@@ -230,6 +258,10 @@
 
   For this reason, all the benchmarks presented in this report were done with code compiled using `nvcc` with LTO enabled.
 
+  == Reducing control divergence
+
+  Control divergence in a path tracer is an inherent problem, as each ray can hit a different object and thus follow a different path. One way we can reduce control divergence is by expanding the image array with the goal of aligning it with the warp size.
+
   == Benchmarks
 
   Benchmarks were performed in two ways, a first one using #cite(<Catch2>, form: "prose") built-in tooling, meaning that we rely on CPU timers instead of `cudaEvent` timers. This is a potential future improvement of our benchmarking system but requires integration upstream. We believe this tradeoff is acceptable, given that on #cite(<CUDAGuide>, form: "prose"), in the section dedicated to benchmarking and timings, the authors present both methods as valid (provided we explicitly synchronize the device after the kernel launch for the CPU timers).
@@ -246,35 +278,41 @@
 
 
   // TODO: Add a table with the benchmarks when the code is ready
-    #figure(
+  #figure(
     table(
       columns: (auto, auto),
       inset: 10pt,
       align: horizon,
       table.header(
-        [*Benchmark name*], [*mean [us]*],
+        [*Benchmark name*],
+        [*mean [us]*],
       ),
-      "Rejection Sampling (curand)",$104.309$,
-      "Rejection Sampling (Philox)",$118.745$,
-      "Direct Generation (Philox)",$125.019$
-    ), caption: [Random Unit Disk Generation Benchmarks]
+
+      "Rejection Sampling (curand)", $104.309$,
+      "Rejection Sampling (Philox)", $118.745$,
+      "Direct Generation (Philox)", $125.019$,
+    ),
+    caption: [Random Unit Disk Generation Benchmarks],
   ) <c2-rudisk>
 
   #figure(
     table(
-    columns: (auto, auto),
-    inset: 10pt,
-    align: horizon,
-    table.header(
-      [*Benchmark name*], [*mean [us]*],
+      columns: (auto, auto),
+      inset: 10pt,
+      align: horizon,
+      table.header(
+        [*Benchmark name*],
+        [*mean [us]*],
+      ),
+
+      "Single Ray Generation (curand)", $142.984$,
+      "2 Rays Generation (Philox)", $154.345$,
+      "4 Rays Generation (Philox)", $190.145$,
     ),
-    "Single Ray Generation (curand)",$142.984$,
-    "2 Rays Generation (Philox)",$154.345$,
-    "4 Rays Generation (Philox)",$190.145$
-    ), caption: [Ray Generation Benchmarks]
+    caption: [Ray Generation Benchmarks],
   ) <c2-raygen>
 
-  
+
 
   === Random in Unit Disk
 
