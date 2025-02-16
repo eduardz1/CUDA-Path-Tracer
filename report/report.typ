@@ -4,7 +4,7 @@
 #show: template.with(
   title: [CUDA Path Tracer],
   subtitle: [Report for the course of GP-GPU Programming],
-  authors: ("Eduard Occhipinti", "Dominika Bocheńczyk"),
+  authors: ("Dominika Bocheńczyk", "Eduard Occhipinti"), //for the alphabetical order
 )
 
 // Proofread your reports. Up to 10% of your report grade can be deducted for poor grammar and related errors. Label and properly introduce all figures that appear in your report
@@ -110,11 +110,13 @@
     caption: [When we want to simulate the defocus blur effect, each sample from the lens comes from a disk instead of a single point, shapes not aligned with the focus plane will appear blurred],
   )
 
-  // TODO: add image with defocus blur effect applied
+  #figure(
+    image("imgs/defocus_blur.png"),
+    caption: [Defocus blur],
+  ) <spheres>
 
   == Tracing Rays
 
-  // talk about getColor (pseudocode)
   To get the appropriate color for the pixel we use the function GetColor, which can be described in pseudocode below:
   #figure(
     kind: "algorithm",
@@ -139,13 +141,16 @@
       + *end function*
     ],
   )
-  For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls. We decided to set our depth value on [...] resulting in the best quality / processing time ratio.
+  For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls.
 
   === Materials
 
   In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by Shirley@Shirley2024RTW2. These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hiting points and their physical properties, such as reflection, refraction, fuzz or emission.
 
-  // 1 / 2 example pictures
+  #figure(
+    image("imgs/cornell_boxes.png"),
+    caption: [Different materials presented in Cornell box],
+  ) <boxes>
 
   == CUDA Features
 
@@ -165,22 +170,6 @@
 
   CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material`, `Texture` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material`, `Texture` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
 
-  = Experiments
-  // the experiments set up
-  The experiments were conducted ... // hardware requirements
-  We used two computationally demanding scenes to render: [3 spheres] and [cornellBox]. Both of them included various shapes of different materials and textures as well as rotations and movement. The scenes are presented in figures 2. and 3.
-  #figure(
-    image("imgs/defocus_blur.png"),
-    caption: [Spheres scene],
-  ) <spheres>
-
-  #figure(
-    image("imgs/pretty_boxes.png"),
-    caption: [Boxes scene],
-  ) <boxes>
-
-  For each scene we measured... // types of tests
-
 
   === Random <random>
 
@@ -192,9 +181,17 @@
 
   The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
-  = Results
+  = Experiments and Results
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
+  
+  == Scene
+  For the benchmarks we used one scene presented in figure 4. It includes various shapes of different materials and textures as well as rotations and movement. Although the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
+
+  #figure(
+    image("imgs/benchmark.png"),
+    caption: [Benchmark scene],
+  ) <boxes>
 
   == Different compiler and Link Time Optimization (LTO)
 
@@ -237,14 +234,14 @@
   As mentioned in @random, changing the random state generator can have a big impact on the performance of the program. For the defocus blur effect we need to generate random points in a unit disk, to do so we explore three methods: two that use rejection sampling and one that generates random points directly by calculating the density function.
 
   In general, the Philox generators performs slightly worse than the default generator using rejection sampling, even though only $pi / 4$ of the points are accepted.
-  == Notes
+  // == Notes
 
-  - Talk about changing block size
-  - talk about LTO
-  - talk about reducing `poll` and `ioctl` calls
-  - talk about reducing in parallel with `thrust`
-  - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
-  - talk about cudaOccupacyAPI.
+  // - Talk about changing block size
+  // - talk about LTO
+  // - talk about reducing `poll` and `ioctl` calls
+  // - talk about reducing in parallel with `thrust`
+  // - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
+  // - talk about cudaOccupacyAPI.
 
   == Limitations and future research
 
