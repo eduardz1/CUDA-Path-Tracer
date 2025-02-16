@@ -1,67 +1,67 @@
-type,block_size,averaging,mean
-curandState_t,4x4,thrust,284.358 ms
-curandState_t,4x4,custom,284.362 ms
-curandState_t,4x4,thrust,172.201 ms
-curandState_t,4x4,custom,172.285 ms
-curandState_t,4x4,thrust,127.206 ms
-curandState_t,4x4,custom,127.337 ms
-curandState_t,4x4,thrust,110.614 ms
-curandState_t,4x4,custom,110.673 ms
-curandState_t,8x8,thrust,152.008 ms
-curandState_t,8x8,custom,152.013 ms
-curandState_t,8x8,thrust,96.2296 ms
-curandState_t,8x8,custom,96.2189 ms
-curandState_t,8x8,thrust,74.169 ms
-curandState_t,8x8,custom,74.2135 ms
-curandState_t,8x8,thrust,64.6512 ms
-curandState_t,16x16,thrust,156.263 ms
-curandState_t,16x16,custom,156.26 ms
-curandState_t,16x16,thrust,105.608 ms
-curandState_t,16x16,custom,105.602 ms
-curandState_t,16x16,thrust,81.0651 ms
-curandState_t,16x16,custom,81.0422 ms
-curandState_t,32x8,thrust,153.753 ms
-curandState_t,32x8,custom,153.764 ms
-curandState_t,32x8,thrust,104.481 ms
-curandState_t,32x8,custom,104.451 ms
-curandState_t,32x8,thrust,80.4767 ms
-curandState_t,32x8,custom,80.4728 ms
-curandState_t,8x32,thrust,153.773 ms
-curandState_t,8x32,custom,153.795 ms
-curandState_t,8x32,thrust,104.533 ms
-curandState_t,8x32,custom,104.528 ms
-curandState_t,8x32,thrust,80.4853 ms
-curandState_t,8x32,custom,80.5333 ms
-Philox,4x4,thrust,284.152 ms
-Philox,4x4,custom,284.181 ms
-Philox,4x4,thrust,172.093 ms
-Philox,4x4,custom,172.188 ms
-Philox,4x4,thrust,127.124 ms
-Philox,4x4,custom,127.254 ms
-Philox,4x4,thrust,110.523 ms
-Philox,4x4,custom,110.642 ms
-Philox,8x8,thrust,151.964 ms
-Philox,8x8,custom,152.009 ms
-Philox,8x8,thrust,96.2916 ms
-Philox,8x8,custom,96.2861 ms
-Philox,8x8,thrust,74.2242 ms
-Philox,8x8,custom,74.2708 ms
-Philox,8x8,thrust,64.7254 ms
-Philox,16x16,thrust,156.348 ms
-Philox,16x16,custom,156.357 ms
-Philox,16x16,thrust,105.682 ms
-Philox,16x16,custom,105.694 ms
-Philox,16x16,thrust,81.0988 ms
-Philox,16x16,custom,81.0957 ms
-Philox,32x8,thrust,153.832 ms
-Philox,32x8,custom,153.842 ms
-Philox,32x8,thrust,104.547 ms
-Philox,32x8,custom,104.543 ms
-Philox,32x8,thrust,80.5256 ms
-Philox,32x8,custom,80.5468 ms
-Philox,8x32,thrust,153.866 ms
-Philox,8x32,custom,153.87 ms
-Philox,8x32,thrust,104.597 ms
-Philox,8x32,custom,104.611 ms
-Philox,8x32,thrust,80.5688 ms
-Philox,8x32,custom,80.6044 ms
+type,block_size,averaging,num_s,num_i,mean
+curandState_t,4x4,thrust,8,32,284.358
+curandState_t,4x4,custom,8,32,284.362
+curandState_t,4x4,thrust,16,16,172.201
+curandState_t,4x4,custom,16,16,172.285
+curandState_t,4x4,thrust,32,8,127.206
+curandState_t,4x4,custom,32,8,127.337
+curandState_t,4x4,thrust,64,4,110.614
+curandState_t,4x4,custom,64,4,110.673
+curandState_t,8x8,thrust,8,32,152.008
+curandState_t,8x8,custom,8,32,152.013
+curandState_t,8x8,thrust,16,16,96.2296
+curandState_t,8x8,custom,16,16,96.2189
+curandState_t,8x8,thrust,32,8,74.169
+curandState_t,8x8,custom,32,8,74.2135
+curandState_t,8x8,thrust,64,4,64.6512
+curandState_t,16x16,thrust,8,32,156.263
+curandState_t,16x16,custom,8,32,156.26
+curandState_t,16x16,thrust,16,16,105.608
+curandState_t,16x16,custom,16,16,105.602
+curandState_t,16x16,thrust,32,8,81.0651
+curandState_t,16x16,custom,32,8,81.0422
+curandState_t,32x8,thrust,8,32,153.753
+curandState_t,32x8,custom,8,32,153.764
+curandState_t,32x8,thrust,16,16,104.481
+curandState_t,32x8,custom,16,16,104.451
+curandState_t,32x8,thrust,32,8,80.4767
+curandState_t,32x8,custom,32,8,80.4728
+curandState_t,8x32,thrust,8,32,153.773
+curandState_t,8x32,custom,8,32,153.795
+curandState_t,8x32,thrust,16,16,104.533
+curandState_t,8x32,custom,16,16,104.528
+curandState_t,8x32,thrust,32,8,80.4853
+curandState_t,8x32,custom,32,8,80.5333
+Philox,4x4,thrust,8,32,284.152
+Philox,4x4,custom,8,32,284.181
+Philox,4x4,thrust,16,16,172.093
+Philox,4x4,custom,16,16,172.188
+Philox,4x4,thrust,32,8,127.124
+Philox,4x4,custom,32,8,127.254
+Philox,4x4,thrust,64,4,110.523
+Philox,4x4,custom,64,4,110.642
+Philox,8x8,thrust,8,32,151.964
+Philox,8x8,custom,8,32,152.009
+Philox,8x8,thrust,16,16,96.2916
+Philox,8x8,custom,16,16,96.2861
+Philox,8x8,thrust,32,8,74.2242
+Philox,8x8,custom,32,8,74.2708
+Philox,8x8,thrust,64,4,64.7254
+Philox,16x16,thrust,8,32,156.348
+Philox,16x16,custom,8,32,156.357
+Philox,16x16,thrust,16,16,105.682
+Philox,16x16,custom,16,16,105.694
+Philox,16x16,thrust,32,8,81.0988
+Philox,16x16,custom,32,8,81.0957
+Philox,32x8,thrust,8,32,153.832
+Philox,32x8,custom,8,32,153.842
+Philox,32x8,thrust,16,16,104.547
+Philox,32x8,custom,16,16,104.543
+Philox,32x8,thrust,32,8,80.5256
+Philox,32x8,custom,32,8,80.5468
+Philox,8x32,thrust,8,32,153.866
+Philox,8x32,custom,8,32,153.87
+Philox,8x32,thrust,16,16,104.597
+Philox,8x32,custom,16,16,104.611
+Philox,8x32,thrust,32,8,80.5688
+Philox,8x32,custom,32,8,80.6044

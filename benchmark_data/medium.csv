@@ -1,81 +1,81 @@
-type,block_size,averaging,mean
-curandState_t,4x4,thrust,1.04991 s
-curandState_t,4x4,custom,1.04993 s
-curandState_t,4x4,thrust,892.09 ms
-curandState_t,4x4,custom,892.098 ms
-curandState_t,4x4,thrust,826.436 ms
-curandState_t,4x4,custom,826.475 ms
-curandState_t,4x4,thrust,794.508 ms
-curandState_t,4x4,custom,794.687 ms
-curandState_t,8x8,thrust,606.542 ms
-curandState_t,8x8,custom,606.601 ms
-curandState_t,8x8,thrust,525.381 ms
-curandState_t,8x8,custom,525.346 ms
-curandState_t,8x8,thrust,490.815 ms
-curandState_t,8x8,custom,490.802 ms
-curandState_t,8x8,thrust,473.496 ms
-curandState_t,8x8,custom,473.573 ms
-curandState_t,16x16,thrust,665.743 ms
-curandState_t,16x16,custom,665.741 ms
-curandState_t,16x16,thrust,559.935 ms
-curandState_t,16x16,custom,559.957 ms
-curandState_t,16x16,thrust,509.864 ms
-curandState_t,16x16,custom,509.851 ms
-curandState_t,16x16,thrust,483.359 ms
-curandState_t,16x16,custom,483.374 ms
-curandState_t,32x8,thrust,661.205 ms
-curandState_t,32x8,custom,661.201 ms
-curandState_t,32x8,thrust,557.719 ms
-curandState_t,32x8,custom,557.716 ms
-curandState_t,32x8,thrust,508.855 ms
-curandState_t,32x8,custom,508.824 ms
-curandState_t,32x8,thrust,482.926 ms
-curandState_t,32x8,custom,482.943 ms
-curandState_t,8x32,thrust,661.422 ms
-curandState_t,8x32,custom,661.461 ms
-curandState_t,8x32,thrust,557.855 ms
-curandState_t,8x32,custom,557.812 ms
-curandState_t,8x32,thrust,508.89 ms
-curandState_t,8x32,custom,508.921 ms
-curandState_t,8x32,thrust,483.031 ms
-curandState_t,8x32,custom,483.139 ms
-Philox,4x4,thrust,1.04992 s
-Philox,4x4,custom,1.05 s
-Philox,4x4,thrust,892.15 ms
-Philox,4x4,custom,892.204 ms
-Philox,4x4,thrust,826.588 ms
-Philox,4x4,custom,826.658 ms
-Philox,4x4,thrust,794.709 ms
-Philox,4x4,custom,794.731 ms
-Philox,8x8,thrust,606.469 ms
-Philox,8x8,custom,606.692 ms
-Philox,8x8,thrust,525.416 ms
-Philox,8x8,custom,525.308 ms
-Philox,8x8,thrust,490.854 ms
-Philox,8x8,custom,490.829 ms
-Philox,8x8,thrust,473.563 ms
-Philox,8x8,custom,473.587 ms
-Philox,16x16,thrust,665.754 ms
-Philox,16x16,custom,665.785 ms
-Philox,16x16,thrust,560.002 ms
-Philox,16x16,custom,559.962 ms
-Philox,16x16,thrust,509.817 ms
-Philox,16x16,custom,509.806 ms
-Philox,16x16,thrust,483.328 ms
-Philox,16x16,custom,483.333 ms
-Philox,32x8,thrust,661.181 ms
-Philox,32x8,custom,661.165 ms
-Philox,32x8,thrust,557.709 ms
-Philox,32x8,custom,557.713 ms
-Philox,32x8,thrust,508.826 ms
-Philox,32x8,custom,508.849 ms
-Philox,32x8,thrust,482.945 ms
-Philox,32x8,custom,482.882 ms
-Philox,8x32,thrust,661.422 ms
-Philox,8x32,custom,661.447 ms
-Philox,8x32,thrust,557.798 ms
-Philox,8x32,custom,557.79 ms
-Philox,8x32,thrust,508.877 ms
-Philox,8x32,custom,508.896 ms
-Philox,8x32,thrust,482.982 ms
-Philox,8x32,custom,483.028 ms
+type,block_size,averaging,num_s,num_i,mean
+curandState_t,4x4,thrust,32,64,1049.91
+curandState_t,4x4,custom,32,64,1049.93
+curandState_t,4x4,thrust,64,32,892.09
+curandState_t,4x4,custom,64,32,892.098
+curandState_t,4x4,thrust,128,16,826.436
+curandState_t,4x4,custom,128,16,826.475
+curandState_t,4x4,thrust,256,8,794.508
+curandState_t,4x4,custom,256,8,794.687
+curandState_t,8x8,thrust,32,64,606.542
+curandState_t,8x8,custom,32,64,606.601
+curandState_t,8x8,thrust,64,32,525.381
+curandState_t,8x8,custom,64,32,525.346
+curandState_t,8x8,thrust,128,16,490.815
+curandState_t,8x8,custom,128,16,490.802
+curandState_t,8x8,thrust,256,8,473.496
+curandState_t,8x8,custom,256,8,473.573
+curandState_t,16x16,thrust,32,64,665.743
+curandState_t,16x16,custom,32,64,665.741
+curandState_t,16x16,thrust,64,32,559.935
+curandState_t,16x16,custom,64,32,559.957
+curandState_t,16x16,thrust,128,16,509.864
+curandState_t,16x16,custom,128,16,509.851
+curandState_t,16x16,thrust,256,8,483.359
+curandState_t,16x16,custom,256,8,483.374
+curandState_t,32x8,thrust,32,64,661.205
+curandState_t,32x8,custom,32,64,661.201
+curandState_t,32x8,thrust,64,32,557.719
+curandState_t,32x8,custom,64,32,557.716
+curandState_t,32x8,thrust,128,16,508.855
+curandState_t,32x8,custom,128,16,508.824
+curandState_t,32x8,thrust,256,8,482.926
+curandState_t,32x8,custom,256,8,482.943
+curandState_t,8x32,thrust,32,64,661.422
+curandState_t,8x32,custom,32,64,661.461
+curandState_t,8x32,thrust,64,32,557.855
+curandState_t,8x32,custom,64,32,557.812
+curandState_t,8x32,thrust,128,16,508.89
+curandState_t,8x32,custom,128,16,508.921
+curandState_t,8x32,thrust,256,8,483.031
+curandState_t,8x32,custom,256,8,483.139
+Philox,4x4,thrust,32,64,1049.92
+Philox,4x4,custom,32,64,1050
+Philox,4x4,thrust,64,32,892.15
+Philox,4x4,custom,64,32,892.204
+Philox,4x4,thrust,128,16,826.588
+Philox,4x4,custom,128,16,826.658
+Philox,4x4,thrust,256,8,794.709
+Philox,4x4,custom,256,8,794.731
+Philox,8x8,thrust,32,64,606.469
+Philox,8x8,custom,32,64,606.692
+Philox,8x8,thrust,64,32,525.416
+Philox,8x8,custom,64,32,525.308
+Philox,8x8,thrust,128,16,490.854
+Philox,8x8,custom,128,16,490.829
+Philox,8x8,thrust,256,8,473.563
+Philox,8x8,custom,256,8,473.587
+Philox,16x16,thrust,32,64,665.754
+Philox,16x16,custom,32,64,665.785
+Philox,16x16,thrust,64,32,560.002
+Philox,16x16,custom,64,32,559.962
+Philox,16x16,thrust,128,16,509.817
+Philox,16x16,custom,128,16,509.806
+Philox,16x16,thrust,256,8,483.328
+Philox,16x16,custom,256,8,483.333
+Philox,32x8,thrust,32,64,661.181
+Philox,32x8,custom,32,64,661.165
+Philox,32x8,thrust,64,32,557.709
+Philox,32x8,custom,64,32,557.713
+Philox,32x8,thrust,128,16,508.826
+Philox,32x8,custom,128,16,508.849
+Philox,32x8,thrust,256,8,482.945
+Philox,32x8,custom,256,8,482.882
+Philox,8x32,thrust,32,64,661.422
+Philox,8x32,custom,32,64,661.447
+Philox,8x32,thrust,64,32,557.798
+Philox,8x32,custom,64,32,557.79
+Philox,8x32,thrust,128,16,508.877
+Philox,8x32,custom,128,16,508.896
+Philox,8x32,thrust,256,8,482.982
+Philox,8x32,custom,256,8,483.028

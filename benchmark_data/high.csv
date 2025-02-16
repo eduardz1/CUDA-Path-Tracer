@@ -1,81 +1,81 @@
-type,block_size,averaging,mean
-curandState_t,4x4,thrust,6.3635 s
-curandState_t,4x4,custom,6.37614 s
-curandState_t,4x4,thrust,6.24846 s
-curandState_t,4x4,custom,6.24836 s
-curandState_t,4x4,thrust,6.20025 s
-curandState_t,4x4,custom,6.20021 s
-curandState_t,4x4,thrust,6.17631 s
-curandState_t,4x4,custom,6.1765 s
-curandState_t,8x8,thrust,3.78997 s
-curandState_t,8x8,custom,3.79005 s
-curandState_t,8x8,thrust,3.71986 s
-curandState_t,8x8,custom,3.71998 s
-curandState_t,8x8,thrust,3.69247 s
-curandState_t,8x8,custom,3.69226 s
-curandState_t,8x8,thrust,3.68048 s
-curandState_t,8x8,custom,3.6803 s
-curandState_t,16x16,thrust,3.87783 s
-curandState_t,16x16,custom,3.87783 s
-curandState_t,16x16,thrust,3.76583 s
-curandState_t,16x16,custom,3.7658 s
-curandState_t,16x16,thrust,3.71564 s
-curandState_t,16x16,custom,3.71573 s
-curandState_t,16x16,thrust,3.68935 s
-curandState_t,16x16,custom,3.68919 s
-curandState_t,32x8,thrust,3.87424 s
-curandState_t,32x8,custom,3.87422 s
-curandState_t,32x8,thrust,3.76448 s
-curandState_t,32x8,custom,3.76446 s
-curandState_t,32x8,thrust,3.71559 s
-curandState_t,32x8,custom,3.71556 s
-curandState_t,32x8,thrust,3.68993 s
-curandState_t,32x8,custom,3.69013 s
-curandState_t,8x32,thrust,3.8758 s
-curandState_t,8x32,custom,3.87568 s
-curandState_t,8x32,thrust,3.76607 s
-curandState_t,8x32,custom,3.76593 s
-curandState_t,8x32,thrust,3.71718 s
-curandState_t,8x32,custom,3.71725 s
-curandState_t,8x32,thrust,3.69136 s
-curandState_t,8x32,custom,3.69133 s
-Philox,4x4,thrust,6.376 s
-Philox,4x4,custom,6.37166 s
-Philox,4x4,thrust,6.24678 s
-Philox,4x4,custom,6.24685 s
-Philox,4x4,thrust,6.19588 s
-Philox,4x4,custom,6.2001 s
-Philox,4x4,thrust,6.17198 s
-Philox,4x4,custom,6.17208 s
-Philox,8x8,thrust,3.78727 s
-Philox,8x8,custom,3.78723 s
-Philox,8x8,thrust,3.71721 s
-Philox,8x8,custom,3.71717 s
-Philox,8x8,thrust,3.6897 s
-Philox,8x8,custom,3.68973 s
-Philox,8x8,thrust,3.6785 s
-Philox,8x8,custom,3.67849 s
-Philox,16x16,thrust,3.87527 s
-Philox,16x16,custom,3.87528 s
-Philox,16x16,thrust,3.76331 s
-Philox,16x16,custom,3.76329 s
-Philox,16x16,thrust,3.71417 s
-Philox,16x16,custom,3.71408 s
-Philox,16x16,thrust,3.68816 s
-Philox,16x16,custom,3.68824 s
-Philox,32x8,thrust,3.87157 s
-Philox,32x8,custom,3.87161 s
-Philox,32x8,thrust,3.76188 s
-Philox,32x8,custom,3.7619 s
-Philox,32x8,thrust,3.71412 s
-Philox,32x8,custom,3.71403 s
-Philox,32x8,thrust,3.68872 s
-Philox,32x8,custom,3.68885 s
-Philox,8x32,thrust,3.8732 s
-Philox,8x32,custom,3.8732 s
-Philox,8x32,thrust,3.76362 s
-Philox,8x32,custom,3.76363 s
-Philox,8x32,thrust,3.71553 s
-Philox,8x32,custom,3.71553 s
-Philox,8x32,thrust,3.69037 s
-Philox,8x32,custom,3.69052 s
+type,block_size,averaging,num_s,num_i,mean
+curandState_t,4x4,thrust,256,64,6.3635
+curandState_t,4x4,custom,256,64,6.37614
+curandState_t,4x4,thrust,512,32,6.24846
+curandState_t,4x4,custom,512,32,6.24836
+curandState_t,4x4,thrust,1024,16,6.20025
+curandState_t,4x4,custom,1024,16,6.20021
+curandState_t,4x4,thrust,2048,8,6.17631
+curandState_t,4x4,custom,2048,8,6.1765
+curandState_t,8x8,thrust,256,64,3.78997
+curandState_t,8x8,custom,256,64,3.79005
+curandState_t,8x8,thrust,512,32,3.71986
+curandState_t,8x8,custom,512,32,3.71998
+curandState_t,8x8,thrust,1024,16,3.69247
+curandState_t,8x8,custom,1024,16,3.69226
+curandState_t,8x8,thrust,2048,8,3.68048
+curandState_t,8x8,custom,2048,8,3.6803
+curandState_t,16x16,thrust,256,64,3.87783
+curandState_t,16x16,custom,256,64,3.87783
+curandState_t,16x16,thrust,512,32,3.76583
+curandState_t,16x16,custom,512,32,3.7658
+curandState_t,16x16,thrust,1024,16,3.71564
+curandState_t,16x16,custom,1024,16,3.71573
+curandState_t,16x16,thrust,2048,8,3.68935
+curandState_t,16x16,custom,2048,8,3.68919
+curandState_t,32x8,thrust,256,64,3.87424
+curandState_t,32x8,custom,256,64,3.87422
+curandState_t,32x8,thrust,512,32,3.76448
+curandState_t,32x8,custom,512,32,3.76446
+curandState_t,32x8,thrust,1024,16,3.71559
+curandState_t,32x8,custom,1024,16,3.71556
+curandState_t,32x8,thrust,2048,8,3.68993
+curandState_t,32x8,custom,2048,8,3.69013
+curandState_t,8x32,thrust,256,64,3.8758
+curandState_t,8x32,custom,256,64,3.87568
+curandState_t,8x32,thrust,512,32,3.76607
+curandState_t,8x32,custom,512,32,3.76593
+curandState_t,8x32,thrust,1024,16,3.71718
+curandState_t,8x32,custom,1024,16,3.71725
+curandState_t,8x32,thrust,2048,8,3.69136
+curandState_t,8x32,custom,2048,8,3.69133
+Philox,4x4,thrust,256,64,6.376
+Philox,4x4,custom,256,64,6.37166
+Philox,4x4,thrust,512,32,6.24678
+Philox,4x4,custom,512,32,6.24685
+Philox,4x4,thrust,1024,16,6.19588
+Philox,4x4,custom,1024,16,6.2001
+Philox,4x4,thrust,2048,8,6.17198
+Philox,4x4,custom,2048,8,6.17208
+Philox,8x8,thrust,256,64,3.78727
+Philox,8x8,custom,256,64,3.78723
+Philox,8x8,thrust,512,32,3.71721
+Philox,8x8,custom,512,32,3.71717
+Philox,8x8,thrust,1024,16,3.6897
+Philox,8x8,custom,1024,16,3.68973
+Philox,8x8,thrust,2048,8,3.6785
+Philox,8x8,custom,2048,8,3.67849
+Philox,16x16,thrust,256,64,3.87527
+Philox,16x16,custom,256,64,3.87528
+Philox,16x16,thrust,512,32,3.76331
+Philox,16x16,custom,512,32,3.76329
+Philox,16x16,thrust,1024,16,3.71417
+Philox,16x16,custom,1024,16,3.71408
+Philox,16x16,thrust,2048,8,3.68816
+Philox,16x16,custom,2048,8,3.68824
+Philox,32x8,thrust,256,64,3.87157
+Philox,32x8,custom,256,64,3.87161
+Philox,32x8,thrust,512,32,3.76188
+Philox,32x8,custom,512,32,3.7619
+Philox,32x8,thrust,1024,16,3.71412
+Philox,32x8,custom,1024,16,3.71403
+Philox,32x8,thrust,2048,8,3.68872
+Philox,32x8,custom,2048,8,3.68885
+Philox,8x32,thrust,256,64,3.8732
+Philox,8x32,custom,256,64,3.8732
+Philox,8x32,thrust,512,32,3.76362
+Philox,8x32,custom,512,32,3.76363
+Philox,8x32,thrust,1024,16,3.71553
+Philox,8x32,custom,1024,16,3.71553
+Philox,8x32,thrust,2048,8,3.69037
+Philox,8x32,custom,2048,8,3.69052
