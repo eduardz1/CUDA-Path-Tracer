@@ -4,7 +4,10 @@
 #show: template.with(
   title: [CUDA Path Tracer],
   subtitle: [Report for the course of GP-GPU Programming],
-  authors: ("Dominika Bocheńczyk", "Eduard Occhipinti"), //for the alphabetical order
+  authors: (
+    "Dominika Bocheńczyk",
+    "Eduard Occhipinti",
+  ), //for the alphabetical order
 )
 
 // Proofread your reports. Up to 10% of your report grade can be deducted for poor grammar and related errors. Label and properly introduce all figures that appear in your report
@@ -55,7 +58,6 @@
           + pixel.color /= samples.size()
         + *end for*
       + *end function*
-
     ],
   )
 
@@ -126,18 +128,26 @@
       booktabs: true,
       numbered-title: [GetColor function],
     )[
-      + *function* #smallcaps[GetColor]\(camera)
-        + *for each* i < depth:
-          + *if no object hit* return background color
-          + *if any object hit*:
-            + scatter = #smallcaps[scatter]\(object material, attenuation)
-            + emitted = #smallcaps[emitted]\(object material, attenuation)
-          + *if scatter*:
-            pixel.color = pixel.color \* attenuation + emitted
-          + *else*:
-            return emitted
-          + *end if*
-        + *end for*
+      + *function* #smallcaps[GetColor]\(ray)
+        + *if depth <= 0*:
+          + return color black;
+        + *end if*
+
+        + *if no object hit*:
+          + return background color
+        + *end if*
+
+        scattered = new ray
+        attenuation = color white
+
+        scatter = object material.#smallcaps[scatter]\(ray, attenuation)
+        emitted = object material.#smallcaps[emitted]\(ray, attenuation, scattered)
+
+        + *if not scatter*:
+          + return emitted
+        + *end if*
+
+        return emitted + attenuation \* #smallcaps[GetColor]\(scattered, depth - 1)
       + *end function*
     ],
   )
@@ -170,6 +180,9 @@
 
   CUDA does not fully support all features of abstract classes, in particular for our use case we wanted to support polymorphic access to the `Material`, `Texture` and `Shape` classes, making the API of our library flexible and easy to use. To achieve this while maintaining type safety, we defined the `Material`, `Texture` and `Shape` classes as unions of types instead, this feature is supported natively from CUDA Toolkit V12.4 onwards with the `cuda::std::variant` class. This has the disadvantage of making the two classes less easily extensible, requiring redefinition of the union type and recompilation of the library.
 
+  === Shared Memory
+
+  We opted to avoid using shared memory due to the fact that the only real benefit in our algorithm would result from the caching of the `Shape` objects. Given the standard limit of 48KB, we estimate that we could cache only around 60 `Shape` objects, which is enough to show some performance improvements in our simple scenes but is clearly not scalable, we also tried decoupling shapes from their materials but, given that they are dependant from each other, the advanges of shared memory were lost. Regarding the averaging kernel, it's already optimal, given that we reduce the expanded image of $N$ pixels to the original size $M$ with $N$ global reads and $M$ global writes.
 
   === Random <random>
 
@@ -184,14 +197,15 @@
   = Experiments and Results
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
-  
+
   == Scene
-  For the benchmarks we used one scene presented in figure 4. It includes various shapes of different materials and textures as well as rotations and movement. Although the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
+
+  For the benchmarks we used one scene presented in @benchmark. It includes various shapes of different materials and textures as well as rotations and transaltions. Although int the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
 
   #figure(
     image("imgs/benchmark.png"),
     caption: [Benchmark scene],
-  ) <boxes>
+  ) <benchmark>
 
   == Different compiler and Link Time Optimization (LTO)
 
