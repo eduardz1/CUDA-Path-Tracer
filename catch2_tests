@@ -1,0 +1,1721 @@
+Randomness seeded to: 864884108
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests is a Catch2 v3.8.0 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Random Unit Disk Generation Benchmarks
+-------------------------------------------------------------------------------
+/home/eduard/Github/CUDA-Path-Tracer/tests/test_random_in_unit_disk.cu:62
+...............................................................................
+
+benchmark name                       samples       iterations    est run time
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+Rejection Sampling (curand)                      1             1    100.573 us 
+                                        104.309 us    104.309 us    104.309 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Rejection Sampling (Philox)                      1             1    102.544 us 
+                                        118.745 us    118.745 us    118.745 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Direct Generation (Philox)                       1             1    110.434 us 
+                                        125.019 us    125.019 us    125.019 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+
+-------------------------------------------------------------------------------
+Ray Generation Benchmarks
+-------------------------------------------------------------------------------
+/home/eduard/Github/CUDA-Path-Tracer/tests/test_ray.cu:66
+...............................................................................
+
+benchmark name                       samples       iterations    est run time
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+Single Ray Generation (curand)                   1             1    127.866 us 
+                                        142.984 us    142.984 us    142.984 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+2 Rays Generation (Philox)                       1             1    139.636 us 
+                                        154.345 us    154.345 us    154.345 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+4 Rays Generation (Philox)                       1             1    177.803 us 
+                                        190.145 us    190.145 us    190.145 us 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+
+-------------------------------------------------------------------------------
+Hyperparameter Optimization
+  High Quality
+-------------------------------------------------------------------------------
+/home/eduard/Github/CUDA-Path-Tracer/tests/test_render_bench.cu:289
+...............................................................................
+
+benchmark name                       samples       iterations    est run time
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+curandState_t 4x4 block, 16/512                                                
+thrust averaging                                 1             1     2.52761 m 
+                                         2.18037 m     2.18037 m     2.18037 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 16/512                                                
+custom averaging                                 1             1     2.53097 m 
+                                         2.18021 m     2.18021 m     2.18021 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/256                                                
+thrust averaging                                 1             1     38.5749 s 
+                                         33.3092 s     33.3092 s     33.3092 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/256                                                
+custom averaging                                 1             1      38.575 s 
+                                         33.3164 s     33.3164 s     33.3164 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/128                                                
+thrust averaging                                 1             1     9.92733 s 
+                                         8.61603 s     8.61603 s     8.61603 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/128                                                
+custom averaging                                 1             1     9.92755 s 
+                                         8.61527 s     8.61527 s     8.61527 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 128/64                                                
+thrust averaging                                 1             1     2.62301 s 
+                                         2.29771 s     2.29771 s     2.29771 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 128/64                                                
+custom averaging                                 1             1     2.62312 s 
+                                         2.29799 s     2.29799 s     2.29799 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 256/32                                                
+thrust averaging                                 1             1    724.387 ms 
+                                        644.134 ms    644.134 ms    644.134 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 256/32                                                
+custom averaging                                 1             1    723.496 ms 
+                                        644.517 ms    644.517 ms    644.517 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 512/16                                                
+thrust averaging                                 1             1    218.478 ms 
+                                        199.732 ms    199.732 ms    199.732 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 512/16                                                
+custom averaging                                 1             1    218.396 ms 
+                                        199.674 ms    199.674 ms    199.674 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/512                                                
+thrust averaging                                 1             1     1.46728 m 
+                                         1.25298 m     1.25298 m     1.25298 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/512                                                
+custom averaging                                 1             1     1.47034 m 
+                                         1.25322 m     1.25322 m     1.25322 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/256                                                
+thrust averaging                                 1             1     22.3759 s 
+                                         19.1197 s     19.1197 s     19.1197 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/256                                                
+custom averaging                                 1             1     22.3758 s 
+                                         19.0963 s     19.0963 s     19.0963 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 64/128                                                
+thrust averaging                                 1             1     5.73799 s 
+                                         4.92788 s     4.92788 s     4.92788 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 64/128                                                
+custom averaging                                 1             1      5.7371 s 
+                                         4.92753 s     4.92753 s     4.92753 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 128/64                                                
+thrust averaging                                 1             1     1.51127 s 
+                                         1.30834 s     1.30834 s     1.30834 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 128/64                                                
+custom averaging                                 1             1     1.51139 s 
+                                         1.30798 s     1.30798 s     1.30798 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 256/32                                                
+thrust averaging                                 1             1    414.835 ms 
+                                        363.063 ms    363.063 ms    363.063 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 256/32                                                
+custom averaging                                 1             1    413.918 ms 
+                                        363.052 ms    363.052 ms    363.052 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 512/16                                                
+thrust averaging                                 1             1    123.374 ms 
+                                        110.755 ms    110.755 ms    110.755 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 512/16                                                
+custom averaging                                 1             1    122.449 ms 
+                                        110.687 ms    110.687 ms    110.687 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/512                                              
+thrust averaging                                 1             1     1.47763 m 
+                                         1.24997 m     1.24997 m     1.24997 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/512                                              
+custom averaging                                 1             1     1.47772 m 
+                                         1.24997 m     1.24997 m     1.24997 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/256                                              
+thrust averaging                                 1             1      22.618 s 
+                                         19.2016 s     19.2016 s     19.2016 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/256                                              
+custom averaging                                 1             1     22.6171 s 
+                                          19.203 s      19.203 s      19.203 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 64/128                                              
+thrust averaging                                 1             1     5.86412 s 
+                                         5.01193 s     5.01193 s     5.01193 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 64/128                                              
+custom averaging                                 1             1     5.86398 s 
+                                         5.01155 s     5.01155 s     5.01155 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 128/64                                              
+thrust averaging                                 1             1     1.56957 s 
+                                         1.35504 s     1.35504 s     1.35504 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 128/64                                              
+custom averaging                                 1             1     1.56928 s 
+                                          1.3548 s      1.3548 s      1.3548 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 256/32                                              
+thrust averaging                                 1             1    441.096 ms 
+                                         385.61 ms     385.61 ms     385.61 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 256/32                                              
+custom averaging                                 1             1    440.148 ms 
+                                        385.425 ms    385.425 ms    385.425 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 512/16                                              
+thrust averaging                                 1             1    134.114 ms 
+                                        120.024 ms    120.024 ms    120.024 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 512/16                                              
+custom averaging                                 1             1    133.276 ms 
+                                        119.949 ms    119.949 ms    119.949 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/512                                               
+thrust averaging                                 1             1     1.47562 m 
+                                         1.25547 m     1.25547 m     1.25547 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/512                                               
+custom averaging                                 1             1     1.47567 m 
+                                         1.25547 m     1.25547 m     1.25547 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/256                                               
+thrust averaging                                 1             1     22.5945 s 
+                                         19.2841 s     19.2841 s     19.2841 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/256                                               
+custom averaging                                 1             1     22.5951 s 
+                                         19.2849 s     19.2849 s     19.2849 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 64/128                                               
+thrust averaging                                 1             1     5.85958 s 
+                                         5.03079 s     5.03079 s     5.03079 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 64/128                                               
+custom averaging                                 1             1     5.85974 s 
+                                         5.03058 s     5.03058 s     5.03058 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 128/64                                               
+thrust averaging                                 1             1     1.56797 s 
+                                         1.35904 s     1.35904 s     1.35904 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 128/64                                               
+custom averaging                                 1             1     1.56769 s 
+                                         1.35882 s     1.35882 s     1.35882 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 256/32                                               
+thrust averaging                                 1             1    439.899 ms 
+                                        386.727 ms    386.727 ms    386.727 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 256/32                                               
+custom averaging                                 1             1    439.026 ms 
+                                        385.397 ms    385.397 ms    385.397 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 512/16                                               
+thrust averaging                                 1             1    133.493 ms 
+                                        119.323 ms    119.323 ms    119.323 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 512/16                                               
+custom averaging                                 1             1    132.843 ms 
+                                          119.3 ms      119.3 ms      119.3 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/512                                               
+thrust averaging                                 1             1     1.50495 m 
+                                         1.26044 m     1.26044 m     1.26044 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/512                                               
+custom averaging                                 1             1     1.50492 m 
+                                         1.26041 m     1.26041 m     1.26041 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/256                                               
+thrust averaging                                 1             1     22.9976 s 
+                                         19.3387 s     19.3387 s     19.3387 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/256                                               
+custom averaging                                 1             1     22.9988 s 
+                                         19.3392 s     19.3392 s     19.3392 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 64/128                                               
+thrust averaging                                 1             1     5.94824 s 
+                                         5.03949 s     5.03949 s     5.03949 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 64/128                                               
+custom averaging                                 1             1     5.94842 s 
+                                          5.0392 s      5.0392 s      5.0392 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 128/64                                               
+thrust averaging                                 1             1     1.58663 s 
+                                         1.36049 s     1.36049 s     1.36049 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 128/64                                               
+custom averaging                                 1             1     1.58646 s 
+                                         1.36082 s     1.36082 s     1.36082 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 256/32                                               
+thrust averaging                                 1             1    444.096 ms 
+                                        386.664 ms    386.664 ms    386.664 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 256/32                                               
+custom averaging                                 1             1    443.211 ms 
+                                        386.186 ms    386.186 ms    386.186 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 512/16                                               
+thrust averaging                                 1             1    134.428 ms 
+                                        119.588 ms    119.588 ms    119.588 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 512/16                                               
+custom averaging                                 1             1     133.48 ms 
+                                        119.714 ms    119.714 ms    119.714 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/512 thrust                                                
+averaging                                        1             1     2.53248 m 
+                                         2.17997 m     2.17997 m     2.17997 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/512 custom                                                
+averaging                                        1             1     2.53101 m 
+                                         2.17998 m     2.17998 m     2.17998 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/256 thrust                                                
+averaging                                        1             1     38.5749 s 
+                                         33.3108 s     33.3108 s     33.3108 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/256 custom                                                
+averaging                                        1             1      38.576 s 
+                                         33.3133 s     33.3133 s     33.3133 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/128 thrust                                                
+averaging                                        1             1     9.92861 s 
+                                         8.61683 s     8.61683 s     8.61683 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/128 custom                                                
+averaging                                        1             1     9.92734 s 
+                                         8.61476 s     8.61476 s     8.61476 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 128/64 thrust                                                
+averaging                                        1             1     2.62231 s 
+                                         2.29641 s     2.29641 s     2.29641 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 128/64 custom                                                
+averaging                                        1             1     2.62282 s 
+                                         2.29634 s     2.29634 s     2.29634 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 256/32 thrust                                                
+averaging                                        1             1     724.41 ms 
+                                         642.96 ms     642.96 ms     642.96 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 256/32 custom                                                
+averaging                                        1             1    723.341 ms 
+                                        643.019 ms    643.019 ms    643.019 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 512/16 thrust                                                
+averaging                                        1             1    218.556 ms 
+                                        198.556 ms    198.556 ms    198.556 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 512/16 custom                                                
+averaging                                        1             1    217.466 ms 
+                                        198.519 ms    198.519 ms    198.519 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/512 thrust                                                
+averaging                                        1             1     1.46827 m 
+                                         1.25138 m     1.25138 m     1.25138 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/512 custom                                                
+averaging                                        1             1      1.4682 m 
+                                         1.25128 m     1.25128 m     1.25128 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/256 thrust                                                
+averaging                                        1             1     22.3454 s 
+                                         19.0971 s     19.0971 s     19.0971 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/256 custom                                                
+averaging                                        1             1     22.3454 s 
+                                         19.0958 s     19.0958 s     19.0958 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 64/128 thrust                                                
+averaging                                        1             1     5.73737 s 
+                                         4.92833 s     4.92833 s     4.92833 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 64/128 custom                                                
+averaging                                        1             1     5.73703 s 
+                                         4.92847 s     4.92847 s     4.92847 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 128/64 thrust                                                
+averaging                                        1             1      1.5111 s 
+                                          1.3099 s      1.3099 s      1.3099 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 128/64 custom                                                
+averaging                                        1             1     1.51086 s 
+                                         1.30929 s     1.30929 s     1.30929 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 256/32 thrust                                                
+averaging                                        1             1    415.029 ms 
+                                        364.594 ms    364.594 ms    364.594 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 256/32 custom                                                
+averaging                                        1             1    413.855 ms 
+                                        364.439 ms    364.439 ms    364.439 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 512/16 thrust                                                
+averaging                                        1             1    123.413 ms 
+                                        111.362 ms    111.362 ms    111.362 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 512/16 custom                                                
+averaging                                        1             1    123.437 ms 
+                                        111.314 ms    111.314 ms    111.314 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/512 thrust                                              
+averaging                                        1             1     1.47759 m 
+                                         1.24991 m     1.24991 m     1.24991 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/512 custom                                              
+averaging                                        1             1     1.47767 m 
+                                         1.24993 m     1.24993 m     1.24993 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/256 thrust                                              
+averaging                                        1             1     22.6158 s 
+                                         19.2021 s     19.2021 s     19.2021 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/256 custom                                              
+averaging                                        1             1     22.6157 s 
+                                         19.2023 s     19.2023 s     19.2023 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 64/128 thrust                                              
+averaging                                        1             1     5.86388 s 
+                                         5.01234 s     5.01234 s     5.01234 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 64/128 custom                                              
+averaging                                        1             1      5.8633 s 
+                                         5.01235 s     5.01235 s     5.01235 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 128/64 thrust                                              
+averaging                                        1             1     1.56951 s 
+                                         1.35633 s     1.35633 s     1.35633 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 128/64 custom                                              
+averaging                                        1             1     1.56948 s 
+                                         1.35643 s     1.35643 s     1.35643 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 256/32 thrust                                              
+averaging                                        1             1    441.039 ms 
+                                        387.172 ms    387.172 ms    387.172 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 256/32 custom                                              
+averaging                                        1             1    440.173 ms 
+                                        387.132 ms    387.132 ms    387.132 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 512/16 thrust                                              
+averaging                                        1             1    134.281 ms 
+                                        120.612 ms    120.612 ms    120.612 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 512/16 custom                                              
+averaging                                        1             1    134.322 ms 
+                                        119.915 ms    119.915 ms    119.915 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/512 thrust                                               
+averaging                                        1             1     1.47564 m 
+                                         1.25544 m     1.25544 m     1.25544 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/512 custom                                               
+averaging                                        1             1     1.47568 m 
+                                         1.25543 m     1.25543 m     1.25543 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/256 thrust                                               
+averaging                                        1             1      22.595 s 
+                                         19.2845 s     19.2845 s     19.2845 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/256 custom                                               
+averaging                                        1             1     22.5942 s 
+                                         19.2841 s     19.2841 s     19.2841 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 64/128 thrust                                               
+averaging                                        1             1     5.85959 s 
+                                         5.03057 s     5.03057 s     5.03057 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 64/128 custom                                               
+averaging                                        1             1     5.85984 s 
+                                         5.03045 s     5.03045 s     5.03045 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 128/64 thrust                                               
+averaging                                        1             1     1.56786 s 
+                                         1.35905 s     1.35905 s     1.35905 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 128/64 custom                                               
+averaging                                        1             1      1.5679 s 
+                                         1.35897 s     1.35897 s     1.35897 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 256/32 thrust                                               
+averaging                                        1             1    439.894 ms 
+                                        386.536 ms    386.536 ms    386.536 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 256/32 custom                                               
+averaging                                        1             1    438.921 ms 
+                                        386.566 ms    386.566 ms    386.566 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 512/16 thrust                                               
+averaging                                        1             1    133.483 ms 
+                                        119.998 ms    119.998 ms    119.998 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 512/16 custom                                               
+averaging                                        1             1     133.31 ms 
+                                         119.26 ms     119.26 ms     119.26 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/512 thrust                                               
+averaging                                        1             1     1.50494 m 
+                                         1.26045 m     1.26045 m     1.26045 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/512 custom                                               
+averaging                                        1             1     1.50502 m 
+                                         1.26046 m     1.26046 m     1.26046 m 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/256 thrust                                               
+averaging                                        1             1     22.9985 s 
+                                         19.3398 s     19.3398 s     19.3398 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/256 custom                                               
+averaging                                        1             1     22.9992 s 
+                                         19.3383 s     19.3383 s     19.3383 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 64/128 thrust                                               
+averaging                                        1             1     5.94815 s 
+                                         5.03958 s     5.03958 s     5.03958 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 64/128 custom                                               
+averaging                                        1             1     5.94878 s 
+                                         5.03942 s     5.03942 s     5.03942 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 128/64 thrust                                               
+averaging                                        1             1     1.58663 s 
+                                         1.36056 s     1.36056 s     1.36056 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 128/64 custom                                               
+averaging                                        1             1     1.58657 s 
+                                         1.36049 s     1.36049 s     1.36049 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 256/32 thrust                                               
+averaging                                        1             1    444.021 ms 
+                                         387.44 ms     387.44 ms     387.44 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 256/32 custom                                               
+averaging                                        1             1    443.098 ms 
+                                        387.482 ms    387.482 ms    387.482 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 512/16 thrust                                               
+averaging                                        1             1    134.333 ms 
+                                        120.288 ms    120.288 ms    120.288 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 512/16 custom                                               
+averaging                                        1             1    134.264 ms 
+                                        119.549 ms    119.549 ms    119.549 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+
+-------------------------------------------------------------------------------
+Hyperparameter Optimization
+  Medium Quality
+-------------------------------------------------------------------------------
+/home/eduard/Github/CUDA-Path-Tracer/tests/test_render_bench.cu:301
+...............................................................................
+
+benchmark name                       samples       iterations    est run time
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+curandState_t 4x4 block, 8/256                                                 
+thrust averaging                                 1             1     38.5026 s 
+                                         33.2601 s     33.2601 s     33.2601 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 8/256                                                 
+custom averaging                                 1             1     38.5011 s 
+                                         33.2677 s     33.2677 s     33.2677 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 16/128                                                
+thrust averaging                                 1             1     9.90942 s 
+                                         8.60382 s     8.60382 s     8.60382 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 16/128                                                
+custom averaging                                 1             1     9.90764 s 
+                                         8.60554 s     8.60554 s     8.60554 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/64                                                 
+thrust averaging                                 1             1     2.61818 s 
+                                         2.29497 s     2.29497 s     2.29497 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/64                                                 
+custom averaging                                 1             1     2.61782 s 
+                                         2.29341 s     2.29341 s     2.29341 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/32                                                 
+thrust averaging                                 1             1     723.33 ms 
+                                        642.555 ms    642.555 ms    642.555 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/32                                                 
+custom averaging                                 1             1    721.964 ms 
+                                        643.847 ms    643.847 ms    643.847 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 128/16                                                
+thrust averaging                                 1             1    218.187 ms 
+                                        198.194 ms    198.194 ms    198.194 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 128/16                                                
+custom averaging                                 1             1    217.623 ms 
+                                        198.159 ms    198.159 ms    198.159 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 256/8                                                 
+thrust averaging                                 1             1    69.6348 ms 
+                                         66.427 ms     66.427 ms     66.427 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 256/8                                                 
+custom averaging                                 1             1    69.3799 ms 
+                                        66.5423 ms    66.5423 ms    66.5423 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 8/256                                                 
+thrust averaging                                 1             1     22.2596 s 
+                                         19.0416 s     19.0416 s     19.0416 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 8/256                                                 
+custom averaging                                 1             1     22.2607 s 
+                                         19.0411 s     19.0411 s     19.0411 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/128                                                
+thrust averaging                                 1             1     5.71581 s 
+                                          4.9143 s      4.9143 s      4.9143 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/128                                                
+custom averaging                                 1             1     5.71583 s 
+                                         4.91476 s     4.91476 s     4.91476 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/64                                                 
+thrust averaging                                 1             1     1.50509 s 
+                                         1.30542 s     1.30542 s     1.30542 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/64                                                 
+custom averaging                                 1             1     1.50471 s 
+                                         1.30546 s     1.30546 s     1.30546 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 64/32                                                 
+thrust averaging                                 1             1    413.425 ms 
+                                        363.623 ms    363.623 ms    363.623 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 64/32                                                 
+custom averaging                                 1             1    412.323 ms 
+                                        363.456 ms    363.456 ms    363.456 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 128/16                                                
+thrust averaging                                 1             1    123.064 ms 
+                                        111.067 ms    111.067 ms    111.067 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 128/16                                                
+custom averaging                                 1             1    122.927 ms 
+                                        111.071 ms    111.071 ms    111.071 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 256/8                                                 
+thrust averaging                                 1             1    36.2463 ms 
+                                        35.7993 ms    35.7993 ms    35.7993 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 256/8                                                 
+custom averaging                                 1             1    36.2883 ms 
+                                        35.8362 ms    35.8362 ms    35.8362 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 8/256                                               
+thrust averaging                                 1             1     22.5247 s 
+                                         19.1444 s     19.1444 s     19.1444 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 8/256                                               
+custom averaging                                 1             1     22.5273 s 
+                                          19.145 s      19.145 s      19.145 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/128                                              
+thrust averaging                                 1             1     5.83854 s 
+                                         4.99584 s     4.99584 s     4.99584 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/128                                              
+custom averaging                                 1             1     5.83838 s 
+                                         4.99589 s     4.99589 s     4.99589 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/64                                               
+thrust averaging                                 1             1     1.56196 s 
+                                         1.35141 s     1.35141 s     1.35141 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/64                                               
+custom averaging                                 1             1     1.56209 s 
+                                         1.35135 s     1.35135 s     1.35135 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 64/32                                               
+thrust averaging                                 1             1    438.852 ms 
+                                        385.491 ms    385.491 ms    385.491 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 64/32                                               
+custom averaging                                 1             1    437.616 ms 
+                                        385.604 ms    385.604 ms    385.604 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 128/16                                              
+thrust averaging                                 1             1     133.44 ms 
+                                        120.111 ms    120.111 ms    120.111 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 128/16                                              
+custom averaging                                 1             1    133.301 ms 
+                                        120.095 ms    120.095 ms    120.095 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 256/8                                               
+thrust averaging                                 1             1    37.5195 ms 
+                                        37.0129 ms    37.0129 ms    37.0129 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 256/8                                               
+custom averaging                                 1             1     37.506 ms 
+                                        37.0585 ms    37.0585 ms    37.0585 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 8/256                                                
+thrust averaging                                 1             1     22.5031 s 
+                                          19.225 s      19.225 s      19.225 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 8/256                                                
+custom averaging                                 1             1     22.5047 s 
+                                         19.2255 s     19.2255 s     19.2255 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/128                                               
+thrust averaging                                 1             1     5.83409 s 
+                                         5.01338 s     5.01338 s     5.01338 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/128                                               
+custom averaging                                 1             1     5.83399 s 
+                                         5.01374 s     5.01374 s     5.01374 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/64                                                
+thrust averaging                                 1             1     1.56049 s 
+                                           1.354 s       1.354 s       1.354 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/64                                                
+custom averaging                                 1             1     1.56025 s 
+                                         1.35387 s     1.35387 s     1.35387 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 64/32                                                
+thrust averaging                                 1             1    437.579 ms 
+                                        385.035 ms    385.035 ms    385.035 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 64/32                                                
+custom averaging                                 1             1    436.597 ms 
+                                        385.144 ms    385.144 ms    385.144 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 128/16                                               
+thrust averaging                                 1             1    132.706 ms 
+                                        119.531 ms    119.531 ms    119.531 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 128/16                                               
+custom averaging                                 1             1    132.667 ms 
+                                        119.677 ms    119.677 ms    119.677 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 256/8                                                
+thrust averaging                                 1             1    36.9078 ms 
+                                        36.3894 ms    36.3894 ms    36.3894 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 256/8                                                
+custom averaging                                 1             1    36.8999 ms 
+                                        36.4444 ms    36.4444 ms    36.4444 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 8/256                                                
+thrust averaging                                 1             1     22.9035 s 
+                                         19.2831 s     19.2831 s     19.2831 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 8/256                                                
+custom averaging                                 1             1      22.906 s 
+                                         19.2831 s     19.2831 s     19.2831 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/128                                               
+thrust averaging                                 1             1       5.923 s 
+                                         5.02332 s     5.02332 s     5.02332 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/128                                               
+custom averaging                                 1             1     5.92276 s 
+                                         5.02311 s     5.02311 s     5.02311 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/64                                                
+thrust averaging                                 1             1     1.57903 s 
+                                         1.35573 s     1.35573 s     1.35573 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/64                                                
+custom averaging                                 1             1     1.57905 s 
+                                         1.35556 s     1.35556 s     1.35556 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 64/32                                                
+thrust averaging                                 1             1    441.775 ms 
+                                        385.931 ms    385.931 ms    385.931 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 64/32                                                
+custom averaging                                 1             1    440.742 ms 
+                                        385.984 ms    385.984 ms    385.984 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 128/16                                               
+thrust averaging                                 1             1    133.601 ms 
+                                         119.94 ms     119.94 ms     119.94 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 128/16                                               
+custom averaging                                 1             1    133.539 ms 
+                                         119.91 ms     119.91 ms     119.91 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 256/8                                                
+thrust averaging                                 1             1    36.9052 ms 
+                                        36.4001 ms    36.4001 ms    36.4001 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 256/8                                                
+custom averaging                                 1             1    36.9617 ms 
+                                        36.4233 ms    36.4233 ms    36.4233 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 8/256 thrust                                                 
+averaging                                        1             1     38.5003 s 
+                                         33.2708 s     33.2708 s     33.2708 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 8/256 custom                                                 
+averaging                                        1             1     38.5029 s 
+                                         33.2704 s     33.2704 s     33.2704 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/128 thrust                                                
+averaging                                        1             1     9.90836 s 
+                                         8.60599 s     8.60599 s     8.60599 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/128 custom                                                
+averaging                                        1             1     9.90763 s 
+                                         8.60435 s     8.60435 s     8.60435 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/64 thrust                                                 
+averaging                                        1             1     2.61809 s 
+                                         2.29313 s     2.29313 s     2.29313 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/64 custom                                                 
+averaging                                        1             1     2.61783 s 
+                                         2.29231 s     2.29231 s     2.29231 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/32 thrust                                                 
+averaging                                        1             1    723.096 ms 
+                                         642.23 ms     642.23 ms     642.23 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/32 custom                                                 
+averaging                                        1             1     722.02 ms 
+                                        641.739 ms    641.739 ms    641.739 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 128/16 thrust                                                
+averaging                                        1             1    218.031 ms 
+                                        198.174 ms    198.174 ms    198.174 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 128/16 custom                                                
+averaging                                        1             1    217.188 ms 
+                                        198.199 ms    198.199 ms    198.199 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 256/8 thrust                                                 
+averaging                                        1             1    69.4043 ms 
+                                        66.4076 ms    66.4076 ms    66.4076 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 256/8 custom                                                 
+averaging                                        1             1     69.343 ms 
+                                        66.5502 ms    66.5502 ms    66.5502 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 8/256 thrust                                                 
+averaging                                        1             1     22.2602 s 
+                                         19.0443 s     19.0443 s     19.0443 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 8/256 custom                                                 
+averaging                                        1             1     22.2608 s 
+                                         19.0434 s     19.0434 s     19.0434 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/128 thrust                                                
+averaging                                        1             1     5.71615 s 
+                                         4.91526 s     4.91526 s     4.91526 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/128 custom                                                
+averaging                                        1             1     5.71657 s 
+                                         4.91421 s     4.91421 s     4.91421 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/64 thrust                                                 
+averaging                                        1             1     1.50503 s 
+                                         1.30559 s     1.30559 s     1.30559 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/64 custom                                                 
+averaging                                        1             1     1.50456 s 
+                                         1.30527 s     1.30527 s     1.30527 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 64/32 thrust                                                 
+averaging                                        1             1    413.387 ms 
+                                        363.574 ms    363.574 ms    363.574 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 64/32 custom                                                 
+averaging                                        1             1    412.422 ms 
+                                        363.559 ms    363.559 ms    363.559 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 128/16 thrust                                                
+averaging                                        1             1     123.09 ms 
+                                         111.19 ms     111.19 ms     111.19 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 128/16 custom                                                
+averaging                                        1             1    122.947 ms 
+                                        111.134 ms    111.134 ms    111.134 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 256/8 thrust                                                 
+averaging                                        1             1    36.2456 ms 
+                                        35.7374 ms    35.7374 ms    35.7374 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 256/8 custom                                                 
+averaging                                        1             1    36.2822 ms 
+                                        35.7741 ms    35.7741 ms    35.7741 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 8/256 thrust                                               
+averaging                                        1             1     22.5246 s 
+                                         19.1449 s     19.1449 s     19.1449 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 8/256 custom                                               
+averaging                                        1             1     22.5268 s 
+                                         19.1448 s     19.1448 s     19.1448 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/128 thrust                                              
+averaging                                        1             1     5.83938 s 
+                                         4.99589 s     4.99589 s     4.99589 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/128 custom                                              
+averaging                                        1             1      5.8396 s 
+                                         4.99598 s     4.99598 s     4.99598 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/64 thrust                                               
+averaging                                        1             1     1.56201 s 
+                                          1.3514 s      1.3514 s      1.3514 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/64 custom                                               
+averaging                                        1             1     1.56202 s 
+                                         1.35132 s     1.35132 s     1.35132 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 64/32 thrust                                               
+averaging                                        1             1     438.69 ms 
+                                         385.49 ms     385.49 ms     385.49 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 64/32 custom                                               
+averaging                                        1             1     437.76 ms 
+                                        385.501 ms    385.501 ms    385.501 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 128/16 thrust                                              
+averaging                                        1             1    133.394 ms 
+                                        120.183 ms    120.183 ms    120.183 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 128/16 custom                                              
+averaging                                        1             1    133.388 ms 
+                                         120.19 ms     120.19 ms     120.19 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 256/8 thrust                                               
+averaging                                        1             1    37.5136 ms 
+                                        36.9711 ms    36.9711 ms    36.9711 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 256/8 custom                                               
+averaging                                        1             1    37.5068 ms 
+                                        37.0638 ms    37.0638 ms    37.0638 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 8/256 thrust                                                
+averaging                                        1             1     22.5026 s 
+                                         19.2247 s     19.2247 s     19.2247 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 8/256 custom                                                
+averaging                                        1             1     22.5051 s 
+                                         19.2256 s     19.2256 s     19.2256 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/128 thrust                                               
+averaging                                        1             1     5.83532 s 
+                                         5.01401 s     5.01401 s     5.01401 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/128 custom                                               
+averaging                                        1             1     5.83522 s 
+                                         5.01403 s     5.01403 s     5.01403 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/64 thrust                                                
+averaging                                        1             1     1.56032 s 
+                                         1.35416 s     1.35416 s     1.35416 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/64 custom                                                
+averaging                                        1             1     1.56009 s 
+                                         1.35409 s     1.35409 s     1.35409 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 64/32 thrust                                                
+averaging                                        1             1    437.552 ms 
+                                        384.923 ms    384.923 ms    384.923 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 64/32 custom                                                
+averaging                                        1             1     436.72 ms 
+                                        385.033 ms    385.033 ms    385.033 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 128/16 thrust                                               
+averaging                                        1             1    132.759 ms 
+                                        119.512 ms    119.512 ms    119.512 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 128/16 custom                                               
+averaging                                        1             1    132.574 ms 
+                                        119.372 ms    119.372 ms    119.372 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 256/8 thrust                                                
+averaging                                        1             1    36.8957 ms 
+                                        36.3864 ms    36.3864 ms    36.3864 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 256/8 custom                                                
+averaging                                        1             1    36.9059 ms 
+                                        36.4272 ms    36.4272 ms    36.4272 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 8/256 thrust                                                
+averaging                                        1             1     22.9031 s 
+                                         19.2823 s     19.2823 s     19.2823 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 8/256 custom                                                
+averaging                                        1             1     22.9056 s 
+                                         19.2833 s     19.2833 s     19.2833 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/128 thrust                                               
+averaging                                        1             1     5.92414 s 
+                                         5.02331 s     5.02331 s     5.02331 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/128 custom                                               
+averaging                                        1             1     5.92418 s 
+                                         5.02329 s     5.02329 s     5.02329 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/64 thrust                                                
+averaging                                        1             1     1.57907 s 
+                                         1.35577 s     1.35577 s     1.35577 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/64 custom                                                
+averaging                                        1             1     1.57909 s 
+                                           1.356 s       1.356 s       1.356 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 64/32 thrust                                                
+averaging                                        1             1    441.775 ms 
+                                        385.951 ms    385.951 ms    385.951 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 64/32 custom                                                
+averaging                                        1             1    440.771 ms 
+                                        385.994 ms    385.994 ms    385.994 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 128/16 thrust                                               
+averaging                                        1             1     133.63 ms 
+                                        119.893 ms    119.893 ms    119.893 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 128/16 custom                                               
+averaging                                        1             1    133.557 ms 
+                                        119.942 ms    119.942 ms    119.942 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 256/8 thrust                                                
+averaging                                        1             1    36.9084 ms 
+                                        36.3626 ms    36.3626 ms    36.3626 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 256/8 custom                                                
+averaging                                        1             1    36.9333 ms 
+                                        36.4791 ms    36.4791 ms    36.4791 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+
+-------------------------------------------------------------------------------
+Hyperparameter Optimization
+  Low Quality
+-------------------------------------------------------------------------------
+/home/eduard/Github/CUDA-Path-Tracer/tests/test_render_bench.cu:313
+...............................................................................
+
+benchmark name                       samples       iterations    est run time
+                                     mean          low mean      high mean
+                                     std dev       low std dev   high std dev
+-------------------------------------------------------------------------------
+curandState_t 4x4 block, 4/64                                                  
+thrust averaging                                 1             1     2.58491 s 
+                                         2.28049 s     2.28049 s     2.28049 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 4/64                                                  
+custom averaging                                 1             1     2.58596 s 
+                                         2.28026 s     2.28026 s     2.28026 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 8/32                                                  
+thrust averaging                                 1             1    714.954 ms 
+                                          640.1 ms      640.1 ms      640.1 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 8/32                                                  
+custom averaging                                 1             1        714 ms 
+                                        640.123 ms    640.123 ms    640.123 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 16/16                                                 
+thrust averaging                                 1             1    216.172 ms 
+                                         198.51 ms     198.51 ms     198.51 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 16/16                                                 
+custom averaging                                 1             1     216.06 ms 
+                                        197.411 ms    197.411 ms    197.411 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/8                                                  
+thrust averaging                                 1             1     69.647 ms 
+                                         66.583 ms     66.583 ms     66.583 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 32/8                                                  
+custom averaging                                 1             1    69.2791 ms 
+                                        66.4999 ms    66.4999 ms    66.4999 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/4                                                  
+thrust averaging                                 1             1    29.4058 ms 
+                                         29.229 ms     29.229 ms     29.229 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 4x4 block, 64/4                                                  
+custom averaging                                 1             1    29.5181 ms 
+                                        29.3446 ms    29.3446 ms    29.3446 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 4/64                                                  
+thrust averaging                                 1             1      1.4737 s 
+                                         1.29114 s     1.29114 s     1.29114 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 4/64                                                  
+custom averaging                                 1             1     1.47591 s 
+                                         1.29116 s     1.29116 s     1.29116 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 8/32                                                  
+thrust averaging                                 1             1    406.077 ms 
+                                        359.026 ms    359.026 ms    359.026 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 8/32                                                  
+custom averaging                                 1             1      405.1 ms 
+                                        359.127 ms    359.127 ms    359.127 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/16                                                 
+thrust averaging                                 1             1    121.201 ms 
+                                        109.565 ms    109.565 ms    109.565 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 16/16                                                 
+custom averaging                                 1             1    120.515 ms 
+                                        109.499 ms    109.499 ms    109.499 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/8                                                  
+thrust averaging                                 1             1    36.2455 ms 
+                                        35.5009 ms    35.5009 ms    35.5009 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 32/8                                                  
+custom averaging                                 1             1    36.1363 ms 
+                                         35.538 ms     35.538 ms     35.538 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x8 block, 64/4                                                  
+thrust averaging                                 1             1    15.6975 ms 
+                                        15.5547 ms    15.5547 ms    15.5547 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 4/64                                                
+thrust averaging                                 1             1     1.52825 s 
+                                         1.33663 s     1.33663 s     1.33663 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 4/64                                                
+custom averaging                                 1             1     1.53082 s 
+                                         1.33809 s     1.33809 s     1.33809 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 8/32                                                
+thrust averaging                                 1             1    430.621 ms 
+                                        380.614 ms    380.614 ms    380.614 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 8/32                                                
+custom averaging                                 1             1    429.621 ms 
+                                        380.604 ms    380.604 ms    380.604 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/16                                               
+thrust averaging                                 1             1    131.041 ms 
+                                        118.203 ms    118.203 ms    118.203 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 16/16                                               
+custom averaging                                 1             1     130.23 ms 
+                                        118.184 ms    118.184 ms    118.184 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/8                                                
+thrust averaging                                 1             1    37.4408 ms 
+                                        36.7438 ms    36.7438 ms    36.7438 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 16x16 block, 32/8                                                
+custom averaging                                 1             1    37.4133 ms 
+                                        36.7499 ms    36.7499 ms    36.7499 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 4/64                                                 
+thrust averaging                                 1             1     1.52446 s 
+                                         1.33687 s     1.33687 s     1.33687 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 4/64                                                 
+custom averaging                                 1             1     1.52593 s 
+                                         1.33686 s     1.33686 s     1.33686 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 8/32                                                 
+thrust averaging                                 1             1    428.271 ms 
+                                        380.457 ms    380.457 ms    380.457 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 8/32                                                 
+custom averaging                                 1             1    427.545 ms 
+                                        380.407 ms    380.407 ms    380.407 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/16                                                
+thrust averaging                                 1             1    130.114 ms 
+                                        117.822 ms    117.822 ms    117.822 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 16/16                                                
+custom averaging                                 1             1    129.603 ms 
+                                        117.567 ms    117.567 ms    117.567 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/8                                                 
+thrust averaging                                 1             1      36.89 ms 
+                                        36.1997 ms    36.1997 ms    36.1997 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 32x8 block, 32/8                                                 
+custom averaging                                 1             1    36.7786 ms 
+                                        36.1408 ms    36.1408 ms    36.1408 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 4/64                                                 
+thrust averaging                                 1             1     1.53992 s 
+                                         1.33809 s     1.33809 s     1.33809 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 4/64                                                 
+custom averaging                                 1             1     1.54175 s 
+                                         1.33827 s     1.33827 s     1.33827 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 8/32                                                 
+thrust averaging                                 1             1     431.49 ms 
+                                        381.224 ms    381.224 ms    381.224 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 8/32                                                 
+custom averaging                                 1             1    430.508 ms 
+                                         381.36 ms     381.36 ms     381.36 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/16                                                
+thrust averaging                                 1             1    130.666 ms 
+                                        118.534 ms    118.534 ms    118.534 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 16/16                                                
+custom averaging                                 1             1    130.551 ms 
+                                        118.073 ms    118.073 ms    118.073 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/8                                                 
+thrust averaging                                 1             1    36.8112 ms 
+                                        36.1414 ms    36.1414 ms    36.1414 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+curandState_t 8x32 block, 32/8                                                 
+custom averaging                                 1             1    36.7503 ms 
+                                        36.1764 ms    36.1764 ms    36.1764 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 4/64 thrust                                                  
+averaging                                        1             1     2.57721 s 
+                                         2.27397 s     2.27397 s     2.27397 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 4/64 custom                                                  
+averaging                                        1             1       2.579 s 
+                                         2.27391 s     2.27391 s     2.27391 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 8/32 thrust                                                  
+averaging                                        1             1    713.072 ms 
+                                        638.226 ms    638.226 ms    638.226 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 8/32 custom                                                  
+averaging                                        1             1    712.105 ms 
+                                        638.137 ms    638.137 ms    638.137 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/16 thrust                                                 
+averaging                                        1             1    215.514 ms 
+                                        198.064 ms    198.064 ms    198.064 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 16/16 custom                                                 
+averaging                                        1             1    215.502 ms 
+                                        197.355 ms    197.355 ms    197.355 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/8 thrust                                                  
+averaging                                        1             1    69.4614 ms 
+                                        66.3922 ms    66.3922 ms    66.3922 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 32/8 custom                                                  
+averaging                                        1             1    69.2589 ms 
+                                        66.4958 ms    66.4958 ms    66.4958 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/4 thrust                                                  
+averaging                                        1             1    29.4032 ms 
+                                        29.1671 ms    29.1671 ms    29.1671 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 4x4 block, 64/4 custom                                                  
+averaging                                        1             1     29.518 ms 
+                                        29.3322 ms    29.3322 ms    29.3322 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 4/64 thrust                                                  
+averaging                                        1             1     1.46976 s 
+                                         1.28771 s     1.28771 s     1.28771 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 4/64 custom                                                  
+averaging                                        1             1     1.47168 s 
+                                         1.29083 s     1.29083 s     1.29083 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 8/32 thrust                                                  
+averaging                                        1             1    406.128 ms 
+                                        359.004 ms    359.004 ms    359.004 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 8/32 custom                                                  
+averaging                                        1             1    405.058 ms 
+                                        358.734 ms    358.734 ms    358.734 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/16 thrust                                                 
+averaging                                        1             1    121.241 ms 
+                                        109.613 ms    109.613 ms    109.613 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 16/16 custom                                                 
+averaging                                        1             1    120.381 ms 
+                                        109.496 ms    109.496 ms    109.496 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/8 thrust                                                  
+averaging                                        1             1    36.1917 ms 
+                                        35.5318 ms    35.5318 ms    35.5318 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 32/8 custom                                                  
+averaging                                        1             1    36.1367 ms 
+                                        35.5395 ms    35.5395 ms    35.5395 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x8 block, 64/4 thrust                                                  
+averaging                                        1             1    15.6982 ms 
+                                        15.4749 ms    15.4749 ms    15.4749 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 4/64 thrust                                                
+averaging                                        1             1     1.52463 s 
+                                         1.33364 s     1.33364 s     1.33364 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 4/64 custom                                                
+averaging                                        1             1     1.52665 s 
+                                         1.33371 s     1.33371 s     1.33371 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 8/32 thrust                                                
+averaging                                        1             1    429.383 ms 
+                                        380.599 ms    380.599 ms    380.599 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 8/32 custom                                                
+averaging                                        1             1    429.565 ms 
+                                        380.144 ms    380.144 ms    380.144 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/16 thrust                                               
+averaging                                        1             1    130.793 ms 
+                                        118.216 ms    118.216 ms    118.216 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 16/16 custom                                               
+averaging                                        1             1    130.286 ms 
+                                        118.245 ms    118.245 ms    118.245 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/8 thrust                                                
+averaging                                        1             1     37.323 ms 
+                                        36.7432 ms    36.7432 ms    36.7432 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 16x16 block, 32/8 custom                                                
+averaging                                        1             1    37.2556 ms 
+                                         36.789 ms     36.789 ms     36.789 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 4/64 thrust                                                 
+averaging                                        1             1     1.52433 s 
+                                         1.33663 s     1.33663 s     1.33663 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 4/64 custom                                                 
+averaging                                        1             1     1.52617 s 
+                                         1.33694 s     1.33694 s     1.33694 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 8/32 thrust                                                 
+averaging                                        1             1    428.445 ms 
+                                        380.469 ms    380.469 ms    380.469 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 8/32 custom                                                 
+averaging                                        1             1    427.314 ms 
+                                        379.783 ms    379.783 ms    379.783 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/16 thrust                                                
+averaging                                        1             1    130.028 ms 
+                                        117.744 ms    117.744 ms    117.744 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 16/16 custom                                                
+averaging                                        1             1    129.634 ms 
+                                        117.619 ms    117.619 ms    117.619 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/8 thrust                                                 
+averaging                                        1             1     36.811 ms 
+                                        36.1708 ms    36.1708 ms    36.1708 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 32x8 block, 32/8 custom                                                 
+averaging                                        1             1    36.7713 ms 
+                                        36.1642 ms    36.1642 ms    36.1642 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 4/64 thrust                                                 
+averaging                                        1             1     1.53991 s 
+                                         1.33748 s     1.33748 s     1.33748 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 4/64 custom                                                 
+averaging                                        1             1      1.5415 s 
+                                         1.33758 s     1.33758 s     1.33758 s 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 8/32 thrust                                                 
+averaging                                        1             1     431.45 ms 
+                                        381.341 ms    381.341 ms    381.341 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 8/32 custom                                                 
+averaging                                        1             1    430.487 ms 
+                                        380.427 ms    380.427 ms    380.427 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/16 thrust                                                
+averaging                                        1             1    130.665 ms 
+                                        117.996 ms    117.996 ms    117.996 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 16/16 custom                                                
+averaging                                        1             1    130.044 ms 
+                                        117.999 ms    117.999 ms    117.999 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/8 thrust                                                 
+averaging                                        1             1    36.7509 ms 
+                                        36.1948 ms    36.1948 ms    36.1948 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+Philox 8x32 block, 32/8 custom                                                 
+averaging                                        1             1    36.7511 ms 
+                                        36.1807 ms    36.1807 ms    36.1807 ms 
+                                              0 ns          0 ns          0 ns 
+                                                                               
+
+===============================================================================
+All tests passed (20117 assertions in 33 test cases)
+
