@@ -244,13 +244,44 @@
   / AVG_WITH_THRUST: A boolean flag that allows us to choose between averaging the images with a custom kernel or with the `thrust::transform` function, this was done mainly to explore NVIDIA's `thrust` library and see if our naive implementation is competitive with it
   / STATE: The random state generator, we explored the default generator and the Philox generator
 
+
   // TODO: Add a table with the benchmarks when the code is ready
+    #figure(
+    table(
+      columns: (auto, auto),
+      inset: 10pt,
+      align: horizon,
+      table.header(
+        [*Benchmark name*], [*mean [us]*],
+      ),
+      "Rejection Sampling (curand)",$104.309$,
+      "Rejection Sampling (Philox)",$118.745$,
+      "Direct Generation (Philox)",$125.019$
+    ), caption: [Random Unit Disk Generation Benchmarks]
+  ) <c2-rudisk>
+
+  #figure(
+    table(
+    columns: (auto, auto),
+    inset: 10pt,
+    align: horizon,
+    table.header(
+      [*Benchmark name*], [*mean [us]*],
+    ),
+    "Single Ray Generation (curand)",$142.984$,
+    "2 Rays Generation (Philox)",$154.345$,
+    "4 Rays Generation (Philox)",$190.145$
+    ), caption: [Ray Generation Benchmarks]
+  ) <c2-raygen>
+
+  
 
   === Random in Unit Disk
 
   As mentioned in @random, changing the random state generator can have a big impact on the performance of the program. For the defocus blur effect we need to generate random points in a unit disk, to do so we explore three methods: two that use rejection sampling and one that generates random points directly by calculating the density function.
 
   In general, the Philox generators performs slightly worse than the default generator using rejection sampling, even though only $pi / 4$ of the points are accepted.
+
   // == Notes
 
   // - Talk about changing block size
@@ -260,7 +291,8 @@
   // - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
   // - talk about cudaOccupacyAPI.
 
-  == Limitations and future research
+  // == Limitations and future research
+
 
   = Conclusions
   To sum up,
