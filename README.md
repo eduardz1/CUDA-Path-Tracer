@@ -16,7 +16,13 @@ cmake --build build
 ./build/apps/cuda_path_tracer -s examples/cornell_box.json
 ```
 
-Where the `-s` flag (or `--scene`) specifies the scene file to render. You can find example scene files in the `examples/` directory.
+Where the `-s` flag (or `--scene`) specifies the scene file to render. You can find example scene files in the `examples/` directory. You can also specify the quality of the render using the `-q` flag (or `--quality`), for example:
+
+```bash
+just run -s examples/cornell_box.json -q high
+```
+
+Where "high" is the default quality level. The available quality levels are "low", "medium" and "high".
 
 Each argument passed to the `just build` command is forwarded to `cmake`, for example, to build the project for all major CUDA architectures use:
 
