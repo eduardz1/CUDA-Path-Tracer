@@ -162,7 +162,7 @@
   In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by Shirley@Shirley2024RTW2. These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hiting points and their physical properties, such as reflection, refraction, fuzz or emission.
 
   #figure(
-    image("imgs/cornell_boxes.png"),
+    image("imgs/cornell_box.png"),
     caption: [Different materials presented in Cornell box],
   ) <boxes>
 
