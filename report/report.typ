@@ -34,6 +34,8 @@
 
   The algorithm can be visualized as a map-reduce operation, where each ray is mapped to a color and then the group of rays corresponding to each pixel is reduced to a single color.
 
+  Path tracing is fundamentally a Monte Carlo method, where we sample the light transport equation to estimate the radiance at a point in the scene. The algorithm is recursive, as each ray can spawn new rays when it hits a surface, this is done until a maximum depth is reached.
+
   = Design Methodology
 
   == Rendering
@@ -63,11 +65,11 @@
 
   When parallelizing the rendering code, we considered multiple approaches.
 
-  - On one hand spectrum we could parallelize only the rendering of each pixel, by invoking a thread for each pixel and then maintaining the loop over the samples in the kernel. This is the first approach we explored, it's the most straight-forward but becomes inefficient when the number of samples is high. In this configuration, the reduce operation is done at each step, making it more efficient.
+  - On one hand of the spectrum, we could parallelize only the rendering of each pixel, by invoking a thread for each pixel and then maintaining the loop over the samples in the kernel. This is the first approach we explored, it's the most straight-forward but becomes inefficient when the number of samples is high. In this configuration, the reduce operation is done at each step, making it more efficient.
 
   - On the other hand, we could effectively consider the image as having size $("WIDTH" times "SAMPLES" / 2) times ("HEIGHT" times "SAMPLES" / 2)$ and parallelize the rendering of each pixel-sample pair. The reduce operation is then done in parallel and corresponds to a subsampling of the image to the original size. This approach is more efficient and provides the highest possible parallelism, however, it requires a lot of memory, consider for example a 1080p image with 1024 samples per pixel, the expanded image array, considering that each pixel is represented by 16 bytes (during the computations each pixel is represented as a 3D vector of type `Vec3` composed of three floats for a total of 12 bytes plus 4 bytes of padding for alignment purposes), would occupy $1920 times 1080 times 16 times 1024 = 33973862400 "bytes" approx 34 "GB"$ of memory.
 
-  - Another approach we considered was to parallelize the sampling directly by launching a nested kernel inside each pixel kernel. This approach utilizes a niche feature of CUDA, dynamic parallelism @DynParallelism, which allows a kernel to launch another kernel. While we explored initially this approach, we wanted to keep the code compilable with clang, which does not support this feature.
+  - Another approach we considered was to parallelize the sampling directly by launching a nested kernel inside each pixel kernel. This approach utilizes a niche feature of CUDA, dynamic parallelism @DynParallelism, which allows a kernel to launch another kernel. While we explored initially this approach, we wanted to keep the code compilable with the Clang compiler, which does not support this feature.
 
   - Finally, we could consider a hybrid approach, where we maintain the loop over the samples in the kernel, but we diminish the need to have a high number of samples by averaging multiple images. This is the approach that we decided to present as the final implementation and is summarized in @camera-rendering-model.
 
@@ -78,7 +80,7 @@
 
   == Querying for Rays
 
-  For the ray querying we used the Get2Rays function. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
+  For querying rays we used the function described in @get-ray. In order to achieve anti-aliasing, we sample an area of half-pixel around the center of each pixel. This results in smoother edges in the rendered picture and in the same way more realistic pictures.
 
   #figure(
     kind: "algorithm",
@@ -86,22 +88,23 @@
 
     pseudocode-list(
       booktabs: true,
-      numbered-title: [Get2Rays funtion],
+      numbered-title: [Function to generate rays],
     )[
-      + *function* #smallcaps[Get2Rays]\(camera)
-        + sampleA = center + offsetA
-        + sampleB = center + offsetB
-      + *if defocusAngle > 0*:
-        + originA = defocusDiskSample
-        + originB = defocusDiskSample
-      + directionA = sampleA - originA
-      + directionB = sampleB - originB
-      + *end if*
+      + *function* #smallcaps[GetRay]\(camera, x, y)
+        + a = random number between 0 and 1
+        + b = random number between 0 and 1
+        + offset = #smallcaps[Vec3]\(a, b, 0) - #smallcaps[Vec3]\(0.5, 0.5, 0)
+        + sample = coordinate of pixel + offset
+        + *if camera.defocusAngle > 0*:
+          + origin = #smallcaps[DefocusDiskSample]\(camera)
+        + *else*:
+          + origin = camera.origin
+        + *end if*
+        + direction = sample - origin
+        + *return* #smallcaps[Ray]\(origin, direction)
       + *end function*
     ],
-  )
-  The function uses two half-pixel offsets A and B. Based on that, we calculate sampleA and sampleB. If defocusAngle of the camera is more than 0 then we have a new origin if not, the origin remains as default. We calculate the directionA and directionB and in the result we get two rays from origins to directions for A and B, respectively.
-
+  ) <get-ray>
 
   === Defocus Blur <defocus-blur>
 
@@ -151,6 +154,7 @@
       + *end function*
     ],
   )
+
   For an arbitrarily set up rendering depth, which is most commonly between 10 and 50, we do the following: firstly, check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the RayColor function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls.
 
   === Materials
@@ -226,7 +230,6 @@
 
   For this reason, all the benchmarks presented in this report were done with code compiled using `nvcc` with LTO enabled.
 
-
   == Benchmarks
 
   Benchmarks were performed in two ways, a first one using #cite(<Catch2>, form: "prose") built-in tooling, meaning that we rely on CPU timers instead of `cudaEvent` timers. This is a potential future improvement of our benchmarking system but requires integration upstream. We believe this tradeoff is acceptable, given that on #cite(<CUDAGuide>, form: "prose"), in the section dedicated to benchmarking and timings, the authors present both methods as valid (provided we explicitly synchronize the device after the kernel launch for the CPU timers).
@@ -234,12 +237,12 @@
   The second method consists of using the Nsight Systems profiler by NVIDIA, this enables us to have a more granular view of the perfomance of our program and, by analyzing the `.sqlite` file generated by the profiler, we can better identify potential bottlnecks in our code.
 
   The hyperparameters that are tunable in our path tracer are the following:
-  / BlockSize: The `dim3` size of the block for launching the kernel
-  / NumSamples: The number of samples for each pixel, to obtain a clean image, each pixel needs to be sampled randomly a high number of times to eliminate the noise
-  / NumImages: The number of images to average to obtain the final image, this provides the same effect as increasing the number of samples, but can be used to avoid kernels with too high of a block size
-  / Depth: The maximum depth of the ray tracing algorithm, this is the number of times a ray can bounce before it is considered lost. We fix this at 50, which we consider a good tradeoff between quality and performance
-  / AverageWithThrust: A boolean flag that allows us to choose between averaging the images with a custom kernel or with the `thrust::transform` function, this was done mainly to explore NVIDIA's `thrust` library and see if our naive implementation is competitive with it
-  / State: The random state generator, we explored the default generator and the Philox generator
+  / BLOCK_SIZE: The `dim3` size of the block for launching the kernel
+  / NUM_SAMPLES: The number of samples for each pixel, to obtain a clean image, each pixel needs to be sampled randomly a high number of times to eliminate the noise
+  / NUM_IMAGES: The number of images to average to obtain the final image, this provides the same effect as increasing the number of samples, but can be used to avoid kernels with too high of a block size
+  / DEPTH: The maximum depth of the ray tracing algorithm, this is the number of times a ray can bounce before it is considered lost. We fix this at 50, which we consider a good tradeoff between quality and performance
+  / AVG_WITH_THRUST: A boolean flag that allows us to choose between averaging the images with a custom kernel or with the `thrust::transform` function, this was done mainly to explore NVIDIA's `thrust` library and see if our naive implementation is competitive with it
+  / STATE: The random state generator, we explored the default generator and the Philox generator
 
   // TODO: Add a table with the benchmarks when the code is ready
 
