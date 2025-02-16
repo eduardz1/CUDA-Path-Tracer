@@ -11,7 +11,7 @@
     "verticalFov": 40.0,
     "defocusAngle": 0.0,
     "focusDistance": 10.0,
-    "background": "crust"
+    "background": "black"
   },
   "shapes": [
     {
@@ -41,7 +41,7 @@
       "v": [0, 0, -105],
       "material": {
         "type": "light",
-        "color": [15, 15, 15]
+        "color": [40, 40, 30]
       }
     },
     {

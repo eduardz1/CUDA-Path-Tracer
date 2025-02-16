@@ -47,7 +47,7 @@
       "radius": 0.6,
       "material": {
         "type": "light",
-        "color": [15, 15, 15]
+        "color": [45, 15, 15]
       }
     },
     {
