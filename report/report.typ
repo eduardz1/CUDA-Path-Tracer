@@ -101,7 +101,7 @@
     ],
   ) <get-ray>
 
-
+  #colbreak()
 
   === Defocus Blur <defocus-blur>
 
@@ -116,6 +116,8 @@
     ),
     caption: [When we want to simulate the defocus blur effect, each sample from the lens comes from a disk instead of a single point, shapes not aligned with the focus plane will appear blurred],
   )
+
+  #colbreak()
 
   == Tracing Rays
 
@@ -196,6 +198,10 @@
 
   The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
+  == Floating point numbers
+
+  Particular care was taken in avoiding the usage of double precision floating point numbers, through explicit casts and declarations. We know that in general GPUs are not optimized for double precision floating point numbers, and we wanted to avoid any potential performance hit.
+
   = Experiments and Results
 
   // Include all necessary tables (and make sure they are completely filled out). Include all relevant figures. Introduce all tables and figures in text BEFORE they appear in the report. When answering questions, always provide explanations and reasoning for your answers. If you don’t know what a question or requirement is asking for, please ask us in advance! We are here to help you learn.
@@ -232,7 +238,7 @@
   For the benchmarks we used one scene presented in @benchmark. It includes various shapes of different materials and textures as well as rotations and transaltions. Although int the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
 
   #figure(
-    image("imgs/benchmark.png"),
+    image("imgs/benchmark.png", height: 25%),
     caption: [Benchmark scene],
   ) <benchmark>
 
@@ -281,25 +287,11 @@
 
   To allow for maximum flexibility without any perfomance overhead, the hyperparameters are defined as template arguments of the `Camera` class and of the kernel responsible for the rendering of the image.
 
+  === `curandState` vs `curandStatePhilox4_32_10`
 
-  #figure(
-    image("imgs/b_high.svg"),
-    caption: [Benchmarks for high quality image],
-  ) <b_high_curand>
+  As anticipated in @random, we explored the performance of two different random state generators, the default `curandState` and the `curandStatePhilox4_32_10`. Often times the Philox generator allows us to perform less function calls and sometimes to generate more results at once. We perfomed some isolated benchmarks to understand the impact in two of the "hottest" functions in our path tracer.
 
-  #figure(
-    image("imgs/b_mid.svg"),
-    caption: [Benchmarks for medium quality image],
-  ) <b_mid>
-
-    #figure(
-    image("imgs/b_low.svg"),
-    caption: [Benchmarks for low quality image],
-  ) <b_low>
-
-
-
-  === Random in Unit Disk/Sphere
+  ==== Random in Unit Disk/Sphere
 
   As mentioned in @random, changing the random state generator can have a big impact on the performance of the program. For the defocus blur effect we need to generate random points in a unit disk, to do so we explore three methods: two that use rejection sampling and one that generates random points directly by calculating the density function.
 
@@ -331,7 +323,7 @@
 
   A similar algorithm can be applied to generate random points in a unit sphere, an operation that is needed to scatter light in a diffuse material.
 
-  === Ray generation
+  ==== Ray generation
 
   The generation of rays is a fundamental operation in a path tracer, as it is the first step in the rendering pipeline. We explored different strategies to generate rays, from the simple generation of a single ray to the generation of multiple rays at once, using the Philox generator. Again, the Philox generator performs slightly worse than the default generator, even though it generates four random numbers at once. This is slightly surprising because earlier in our optimization journey the Philox generator was performing consistently better than the default generator.
 
@@ -359,17 +351,93 @@
     caption: [Different strategies to generate rays benchmarked against each other, the times are normalized to account for the amount of rays generated],
   ) <c2-raygen>
 
-  // == Notes
+  ==== Impact on the whole pipeline
 
-  // - Talk about changing block size
-  // - talk about LTO
-  // - talk about reducing `poll` and `ioctl` calls
-  // - talk about reducing in parallel with `thrust`
-  // - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
-  // - talk about cudaOccupacyAPI.
+  The impact of the random state generator on the whole pipeline is not as big as we expected.
+
+  #figure(
+    image("imgs/rng_difference.svg"),
+    caption: [As we can see the difference betwen the two is negligible],
+  ) <rng-difference>
+
+  === Averaging with `thrust`
+
+  The perfomance is extremely similar to our custom kernel and, given that averaging only accounts for less than 1% of the total time, picking one over the other is a matter of personal preference.
+
+  #figure(
+    scope: "parent",
+    placement: top,
+    grid(
+      columns: 3,
+      column-gutter: -2em,
+      image("imgs/b_high.svg"),
+      image("imgs/b_mid.svg"),
+      image("imgs/b_low.svg"),
+    ),
+    caption: [The two most important hyperparameters to track are the number of samples compared with the number of images to average (keep in mind that the product of the two remains constant) and the block size. Here we present the two as heatmaps, for the three quality presets we provide in our application],
+  ) <all-benches>
+
+  === Block Size
+
+  With our benchmark we concluded that the `4x4` kernel is measurably worse than all the others, while the other choices are all very similar.
+
+  === Number of Samples vs Number of Images tradeoff
+
+  From the heatmaps in @all-benches we can see that the general trend sees a higher sample count performing better than a high image count consistently. It's interesting seeing that the higher the quality preset the lower the impact of this tradeoff.
+
+  === Final configurations
+
+  #table(
+    columns: (auto, auto),
+    align: (x, y) => (
+      if x > 0 {
+        center
+      } else {
+        left
+      }
+    ),
+    stroke: (x: none, y: none),
+    table.hline(stroke: 2pt),
+    table.cell(colspan: 2, align: center)[*High Quality*],
+    table.hline(stroke: 0.5pt),
+    [*`BLOCK_SIZE`*], [8 #sym.times 8],
+    [*`NUM_SAMPLES`*], [2048],
+    [*`NUM_IMAGES`*], [8],
+    [*`DEPTH`*], [64],
+    [*`AVG_WITH_THRUST`*], [true],
+    [*`STATE`*], [curandStatePhilox4_32_10],
+
+    table.hline(stroke: 2pt),
+    table.cell(colspan: 2, align: center)[*Medium Quality*],
+    table.hline(stroke: 0.5pt),
+    [*`BLOCK_SIZE`*], [8 #sym.times 8],
+    [*`NUM_SAMPLES`*], [256],
+    [*`NUM_IMAGES`*], [8],
+    [*`DEPTH`*], [16],
+    [*`AVG_WITH_THRUST`*], [false],
+    [*`STATE`*], [curandState],
+
+    table.hline(stroke: 2pt),
+    table.cell(colspan: 2, align: center)[*Low Quality*],
+    table.hline(stroke: 0.5pt),
+    [*`BLOCK_SIZE`*], [8 #sym.times 8],
+    [*`NUM_SAMPLES`*], [64],
+    [*`NUM_IMAGES`*], [4],
+    [*`DEPTH`*], [4],
+    [*`AVG_WITH_THRUST`*], [true],
+    [*`STATE`*], [curandState],
+    table.hline(stroke: 2pt),
+  )
 
 
-  = Conclusions
-  In summary, in our work we parallelized a classical path tracer. Using different CUDA tools and solutions, we were able to generate high-quality images in a reasonable time. The results look promising for potential extension of this work in the future.
+
   // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)
 ]
+
+= Conclusions
+
+In summary, in our work we parallelized a classical path tracer. Using different CUDA tools and solutions, we were able to generate high-quality images in a reasonable time. The results look promising and we developed a solid base for potential extension of this work in the future.
+
+We learned a lot about the CUDA programming model and the various tools that NVIDIA provides to developers. We also developed a better understanding of the path tracing algorithm and the various optimizations that can be applied to it. We came to understand the limitations that even embarrassingly parallel algorithms can have (see the ray bouncing algorithm).
+
+

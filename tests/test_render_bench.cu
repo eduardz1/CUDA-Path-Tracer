@@ -187,6 +187,7 @@ void runAllCombinationsLow(
   runBenchmark<8, 8, 32, 8, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 8, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 8, 64, 4, LOW_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 8, 64, 4, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 16x16 blocks
   runBenchmark<16, 16, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -195,6 +196,8 @@ void runAllCombinationsLow(
   runBenchmark<16, 16, 16, 16, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<16, 16, 32, 8, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<16, 16, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<16, 16, 64, 4, LOW_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<16, 16, 64, 4, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 32x8 blocks
   runBenchmark<32, 8, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -203,6 +206,8 @@ void runAllCombinationsLow(
   runBenchmark<32, 8, 16, 16, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<32, 8, 32, 8, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<32, 8, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<32, 8, 64, 4, LOW_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<32, 8, 64, 4, LOW_QUALITY_DEPTH, false, State>(scene, image);
 
   // 8x32 blocks
   runBenchmark<8, 32, 8, 32, LOW_QUALITY_DEPTH, true, State>(scene, image);
@@ -211,6 +216,8 @@ void runAllCombinationsLow(
   runBenchmark<8, 32, 16, 16, LOW_QUALITY_DEPTH, false, State>(scene, image);
   runBenchmark<8, 32, 32, 8, LOW_QUALITY_DEPTH, true, State>(scene, image);
   runBenchmark<8, 32, 32, 8, LOW_QUALITY_DEPTH, false, State>(scene, image);
+  runBenchmark<8, 32, 64, 4, LOW_QUALITY_DEPTH, true, State>(scene, image);
+  runBenchmark<8, 32, 64, 4, LOW_QUALITY_DEPTH, false, State>(scene, image);
 }
 
 auto createTestScene(uint16_t width,

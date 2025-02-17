@@ -34,15 +34,15 @@ struct CameraParams {
 };
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
-static constexpr uint16_t HIGH_QUALITY_DEPTH = 100;
-using HighQuality = CameraParams<dim3(8, 8), 1024, 16, HIGH_QUALITY_DEPTH,
-                                 false, curandStatePhilox4_32_10_t>;
-static constexpr uint16_t MEDIUM_QUALITY_DEPTH = 20;
+static constexpr uint16_t HIGH_QUALITY_DEPTH = 64;
+using HighQuality = CameraParams<dim3(8, 8), 2048, 8, HIGH_QUALITY_DEPTH, true,
+                                 curandStatePhilox4_32_10_t>;
+static constexpr uint16_t MEDIUM_QUALITY_DEPTH = 16;
 using MediumQuality = CameraParams<dim3(8, 8), 256, 8, MEDIUM_QUALITY_DEPTH,
-                                   true, curandStatePhilox4_32_10_t>;
-static constexpr uint16_t LOW_QUALITY_DEPTH = 10;
-using LowQuality = CameraParams<dim3(8, 8), 64, 4, LOW_QUALITY_DEPTH, true,
-                                curandStatePhilox4_32_10_t>;
+                                   false, curandState_t>;
+static constexpr uint16_t LOW_QUALITY_DEPTH = 4;
+using LowQuality =
+    CameraParams<dim3(8, 8), 64, 4, LOW_QUALITY_DEPTH, true, curandState_t>;
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
 /**

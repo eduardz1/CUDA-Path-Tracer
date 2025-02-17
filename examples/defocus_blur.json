@@ -47,7 +47,7 @@
       "radius": 0.6,
       "material": {
         "type": "light",
-        "color": [45, 15, 15]
+        "color": [50, 20, 40]
       }
     },
     {
@@ -59,8 +59,8 @@
         "texture": {
           "checker": {
             "scale": 0.32,
-            "even": "peach",
-            "odd": "maroon"
+            "even": "latte-yellow",
+            "odd": "peach"
           }
         }
       }
