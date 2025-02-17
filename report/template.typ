@@ -75,7 +75,7 @@
   }
 
   show raw: set text(font: "Fira Code")
-  show raw: set text(size: 0.8em)
+  show raw.where(block: true): set text(0.8em)
   show: codly-init
   codly(
     languages: codly-languages,
