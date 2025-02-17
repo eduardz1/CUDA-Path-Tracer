@@ -194,7 +194,7 @@
 
   For starters, random states are used for sub-pixel sampling, an antialiasing technique which allows us to eliminate jagged edges from the objects. We also use random states to simulate the defocus blur effect @defocus-blur. Random states are also used for some materials, for example to scatter light in a diffuse material.
 
-  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to inizialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to initialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
+  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to initialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to initialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
 
   The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
