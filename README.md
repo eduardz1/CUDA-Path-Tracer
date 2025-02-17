@@ -1,5 +1,7 @@
 # CUDA-Path-Tracer
 
+![cornell_box](report/imgs/cornell_box.png)
+
 ## Commands
 
 If you have the [just](https://github.com/casey/just) command runner installed you can run the command `just` to see the list of available commands. In particular, to run the application use:
