@@ -144,10 +144,11 @@
     ],
   ) <get-color>
 
-  // For an given rendering depth we do the following: first, we check if any shape was hit. If not, then we return the background color. If so, we save the information about the hitting point, including the material of the hit object. Based on this information, we update the scatter and emmitted values which are then combined as a result color. The function was inspired mainly by the `RayColor` function @Shirley2024RTW2. However, our approach focused on iterative calculations in order to omit recursive calls.
   For a given render depth we do the following: first we check if we exceeded the maximum depth, if so we return black. If not, we check if any object was hit by the ray. If not, we return the background color. At this point we can compute the information about the emitted light produced by the material and calculate the scattered ray. If the material is not scattering the light, we return the emitted light. Otherwise, we return the sum of the emitted light and the attenuation of the scattered ray.
 
   The algorithm is inspired by #cite(<Shirley2024RTW2>, form: "prose") but ours was converted to an iterative approach, which generally performs better on the GPU. Our algorithm also includes an early stopping criteria, called "Russian Roulette" which randomly stops the recursion of the ray based on its contribution to the final color, meaning that ray carrying very little information are likely to be stopped early.
+
+  #figure(image("imgs/cornell_box.drawio.svg"), caption: [Contrary to real world physics, in ray tracers, normally, the rays are not emitted from the light sources])
 
   === Materials
 
@@ -252,6 +253,10 @@
   == Reducing control divergence
 
   Control divergence in a path tracer is an inherent problem, as each ray can hit a different object and thus follow a different path. One way we can reduce control divergence is by expanding the image array with the goal of aligning it with the warp size.
+
+  == Checking for memory leaks
+
+  We used the `compute-sanitizer` tool, a standard tool bundled with the NVIDIA Toolkit, to check for memory leaks in our code. The command can be run with the Just command runner as `just memcheck -s examples/defocus_blur.json`, where we pass the defocus blur demo scene as the scene argument.
 
   == Benchmarks
 
