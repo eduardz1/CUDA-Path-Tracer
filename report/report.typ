@@ -151,7 +151,7 @@
   The algorithm is inspired by #cite(<Shirley2024RTW2>, form: "prose") but ours was converted to an iterative approach, which generally performs better on the GPU. Our algorithm also includes an early stopping criterion, called “Russian Roulette” which randomly stops the recursion of the ray based on its contribution to the final color, meaning that ray carrying very little information are likely to be stopped early.
 
   #figure(
-    image("imgs/cornell_box.drawio.svg"),
+    image("imgs/cornell_box.drawio.png"),
     caption: [Contrary to real world physics, in ray tracers, normally, the rays are not emitted from the light sources],
   )
 
