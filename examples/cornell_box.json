@@ -21,7 +21,7 @@
       "v": [0, 0, 555],
       "material": {
         "type": "lambertian",
-        "color": "latte-green"
+        "color": "green"
       }
     },
     {
@@ -31,7 +31,7 @@
       "v": [0, 0, 555],
       "material": {
         "type": "lambertian",
-        "color": "latte-red"
+        "color": "red"
       }
     },
     {
