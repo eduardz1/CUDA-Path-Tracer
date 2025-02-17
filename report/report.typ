@@ -105,7 +105,7 @@
 
   === Defocus Blur <defocus-blur>
 
-  Defocus blur is a photographic effect that simulates the out-of-focus areas of an image produced by a camera lens with an arbitrarily large aperture (and thus, arbitrarly small depth of field). It is also known as bokeh.
+  Defocus blur is a photographic effect that simulates the out-of-focus areas of an image produced by a camera lens with an arbitrarily large aperture (and thus, arbitrary small depth of field). It is also known as bokeh.
 
   #figure(
     grid(
@@ -146,9 +146,9 @@
     ],
   ) <get-color>
 
-  For a given render depth we do the following: first we check if we exceeded the maximum depth, if so we return black. If not, we check if any object was hit by the ray. If not, we return the background color. At this point we can compute the information about the emitted light produced by the material and calculate the scattered ray. If the material is not scattering the light, we return the emitted light. Otherwise, we return the sum of the emitted light and the attenuation of the scattered ray.
+  For a given render depth we do the following: first we check if we exceeded the maximum depth, if so we return black. If not, we check if the ray hit any object. If not, we return the background color. At this point we can compute the information about the emitted light produced by the material and calculate the scattered ray. If the material is not scattering the light, we return the emitted light. Otherwise, we return the sum of the emitted light and the attenuation of the scattered ray.
 
-  The algorithm is inspired by #cite(<Shirley2024RTW2>, form: "prose") but ours was converted to an iterative approach, which generally performs better on the GPU. Our algorithm also includes an early stopping criteria, called "Russian Roulette" which randomly stops the recursion of the ray based on its contribution to the final color, meaning that ray carrying very little information are likely to be stopped early.
+  The algorithm is inspired by #cite(<Shirley2024RTW2>, form: "prose") but ours was converted to an iterative approach, which generally performs better on the GPU. Our algorithm also includes an early stopping criterion, called “Russian Roulette” which randomly stops the recursion of the ray based on its contribution to the final color, meaning that ray carrying very little information are likely to be stopped early.
 
   #figure(
     image("imgs/cornell_box.drawio.svg"),
@@ -157,7 +157,7 @@
 
   === Materials
 
-  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by #cite(<Shirley2024RTW2>, form: "prose"). These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hitting points and their physical properties, such as reflection, refraction, fuzziness or emission.
+  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by #cite(<Shirley2024RTW2>, form: "prose"). These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hitting points and their physical properties, such as reflection, refraction, fuzziness, or emission.
 
   #figure(
     scope: "parent",
@@ -186,7 +186,7 @@
 
   === Shared Memory
 
-  We opted to avoid using shared memory due to the fact that the only real benefit in our algorithm would result from the caching of the `Shape` objects. Given the standard limit of 48KB, we estimate that we could cache only around 60 `Shape` objects, which is enough to show some performance improvements in our simple scenes but is clearly not scalable, we also tried decoupling shapes from their materials but, given that they are dependant from each other, the advanges of shared memory were lost. Regarding the averaging kernel, it's already optimal, given that we reduce the expanded image of $N$ pixels to the original size $M$ with $N$ global reads and $M$ global writes.
+  We opted to avoid using shared memory due to the fact that the only real benefit in our algorithm would result from the caching of the `Shape` objects. Given the standard limit of 48 KB, we estimate that we could cache only around 60 `Shape` objects, which is enough to show some performance improvements in our simple scenes. However, that is clearly not scalable, we also tried decoupling shapes from their materials but, given that they are dependent from each other, the advantages of shared memory were lost. Regarding the averaging kernel, it's already optimal, given that we reduce the expanded image of $N$ pixels to the original size $M$ with $N$ global reads and $M$ global writes.
 
   === Random <random>
 
@@ -194,11 +194,11 @@
 
   For starters, random states are used for sub-pixel sampling, an antialiasing technique which allows us to eliminate jagged edges from the objects. We also use random states to simulate the defocus blur effect @defocus-blur. Random states are also used for some materials, for example to scatter light in a diffuse material.
 
-  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to inizialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to initialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
+  In chapter 3.6 of #cite(<curand>, form: "prose") the authors suggests using a setup kernel to initialize all the random states, in our case we couldn't measure any improvements and we, on the contrary found it more efficient to initialize the random states directly in the kernel. It's clear though that a setup kernel might be beneficial in the case we wanted to focus on supporting more efficiently multiple image rendering, allowing us to memeoize the random states.
 
   The other possible improvement is the usage of the `curandStatePhilox4_32_10_t` random state type instead of the `curandState` type. At the cost of a slightly higher memory usage (64 bytes instead of 48 bytes), we are able to generate four random numbers at once through the usage of the `curand_uniform4` function.
 
-  == Floating point numbers
+  === Floating point numbers
 
   Particular care was taken in avoiding the usage of double precision floating point numbers, through explicit casts and declarations. We know that in general GPUs are not optimized for double precision floating point numbers, and we wanted to avoid any potential performance hit.
 
@@ -235,7 +235,7 @@
 
   == Scene
 
-  For the benchmarks we used one scene presented in @benchmark. It includes various shapes of different materials and textures as well as rotations and transaltions. Although int the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
+  For the benchmarks we used one scene presented in @benchmark. It includes various shapes of different materials and textures as well as rotations and translations. Although int the picture seems to only include 4 spheres, the scene actually includes also additional sphere, parallelogram and rectangular-cuboid.
 
   #figure(
     image("imgs/benchmark.png", height: 25%),
@@ -273,7 +273,7 @@
 
   Benchmarks were performed in two ways, a first one using #cite(<Catch2>, form: "prose") built-in tooling, meaning that we rely on CPU timers instead of `cudaEvent` timers. This is a potential future improvement of our benchmarking system but requires integration upstream. We believe this tradeoff is acceptable, given that on #cite(<CUDAGuide>, form: "prose"), in the section dedicated to benchmarking and timings, the authors present both methods as valid (provided we explicitly synchronize the device after the kernel launch for the CPU timers).
 
-  The second method consists of using the Nsight Systems profiler by NVIDIA, this enables us to have a more granular view of the perfomance of our program and, by analyzing the `.sqlite` file generated by the profiler, we can better identify potential bottlnecks in our code.
+  The second method consists of using the Nsight Systems profiler by NVIDIA, this enables us to have a more granular view of the performance of our program and, by analyzing the `.sqlite` file generated by the profiler, we can better identify potential bottlenecks in our code.
 
   The hyperparameters that are tunable in our path tracer are the following:
 
@@ -283,19 +283,19 @@
   / `NUM_IMAGES`: The number of images to average to obtain the final image, this provides the same effect as increasing the number of samples, but can be used to avoid kernels with too high of a block size
   / `DEPTH`: The maximum depth of the ray tracing algorithm, this is the number of times a ray can bounce before it is considered lost. We fix this at 50, which we consider a good tradeoff between quality and performance
   / `AVG_WITH_THRUST`: A boolean flag that allows us to choose between averaging the images with a custom kernel or with the `thrust::transform` function, this was done mainly to explore NVIDIA's `thrust` library and see if our naive implementation is competitive with it
-  / `STATE`: The random state generator, we explored the default generator and the Philox generator
+  / `STATE`: The random state generator, we explored the default generator and the Philox generator.
 
-  To allow for maximum flexibility without any perfomance overhead, the hyperparameters are defined as template arguments of the `Camera` class and of the kernel responsible for the rendering of the image.
+  To allow for maximum flexibility without any performance overhead, the hyperparameters are defined as template arguments of the `Camera` class and of the kernel responsible for the rendering of the image.
 
   === `curandState` vs `curandStatePhilox4_32_10`
 
-  As anticipated in @random, we explored the performance of two different random state generators, the default `curandState` and the `curandStatePhilox4_32_10`. Often times the Philox generator allows us to perform less function calls and sometimes to generate more results at once. We perfomed some isolated benchmarks to understand the impact in two of the "hottest" functions in our path tracer.
+  As anticipated in @random, we explored the performance of two different random state generators, the default `curandState` and the `curandStatePhilox4_32_10`. Often times the Philox generator allows us to perform less function calls and sometimes to generate more results at once. We performed some isolated benchmarks to understand the impact in two of the "hottest" functions in our path tracer.
 
   ==== Random in Unit Disk/Sphere
 
   As mentioned in @random, changing the random state generator can have a big impact on the performance of the program. For the defocus blur effect we need to generate random points in a unit disk, to do so we explore three methods: two that use rejection sampling and one that generates random points directly by calculating the density function.
 
-  In general, the Philox generators performs slightly worse than the default generator using rejection sampling, even though only $pi / 4$ of the points are accepted.
+  In general, the Philox generator performs slightly worse than the default generator using rejection sampling, even though only $pi / 4$ of the points are accepted.
 
   #figure(
     table(
@@ -381,7 +381,7 @@
 
   With our benchmark we concluded that the `4x4` kernel is measurably worse than all the others, while the other choices are all very similar.
 
-  === Number of Samples vs Number of Images tradeoff
+  === Number of Samples vs. Number of Images tradeoff
 
   From the heatmaps in @all-benches we can see that the general trend sees a higher sample count performing better than a high image count consistently. It's interesting seeing that the higher the quality preset the lower the impact of this tradeoff.
 
@@ -404,8 +404,8 @@
     [*`NUM_SAMPLES`*], [2048],
     [*`NUM_IMAGES`*], [8],
     [*`DEPTH`*], [64],
-    [*`AVG_WITH_THRUST`*], [true],
-    [*`STATE`*], [curandStatePhilox4_32_10],
+    [*`AVG_WITH_THRUST`*], [`true`],
+    [*`STATE`*], [`curandStatePhilox4_32_10`],
 
     table.hline(stroke: 2pt),
     table.cell(colspan: 2, align: center)[*Medium Quality*],
@@ -414,8 +414,8 @@
     [*`NUM_SAMPLES`*], [256],
     [*`NUM_IMAGES`*], [8],
     [*`DEPTH`*], [16],
-    [*`AVG_WITH_THRUST`*], [false],
-    [*`STATE`*], [curandState],
+    [*`AVG_WITH_THRUST`*], [`false`],
+    [*`STATE`*], [`curandState`],
 
     table.hline(stroke: 2pt),
     table.cell(colspan: 2, align: center)[*Low Quality*],
@@ -424,20 +424,16 @@
     [*`NUM_SAMPLES`*], [64],
     [*`NUM_IMAGES`*], [4],
     [*`DEPTH`*], [4],
-    [*`AVG_WITH_THRUST`*], [true],
-    [*`STATE`*], [curandState],
+    [*`AVG_WITH_THRUST`*], [`true`],
+    [*`STATE`*], [`curandState`],
     table.hline(stroke: 2pt),
   )
-
-
-
-  // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)
 ]
 
 = Conclusions
 
-In summary, in our work we parallelized a classical path tracer. Using different CUDA tools and solutions, we were able to generate high-quality images in a reasonable time. The results look promising and we developed a solid base for potential extension of this work in the future.
+In summary, in our work we parallelized a classical path tracer. Using different CUDA tools and solutions, we were able to generate high-quality images in a reasonable time. The results look promising, and we developed a solid base for potential extension of this work in the future.
 
-We learned a lot about the CUDA programming model and the various tools that NVIDIA provides to developers. We also developed a better understanding of the path tracing algorithm and the various optimizations that can be applied to it. We came to understand the limitations that even embarrassingly parallel algorithms can have (see the ray bouncing algorithm).
+We learned a lot about the CUDA programming model and the various tools that NVIDIA provides to developers. We also developed a better understanding of the path tracing algorithm and the various optimizations that can be applied to it. Furthermore, we came to understand the limitations that even embarrassingly parallel algorithms can have (see the ray bouncing algorithm).
 
 
