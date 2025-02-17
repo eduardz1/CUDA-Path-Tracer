@@ -96,8 +96,8 @@
 }
 
 #let my-lovelace-defaults = (
-  line-numbering: "1:",
-  booktabs-stroke: 1pt + black,
+  line-numbering: "1",
+  hooks: 0.5em,
 )
 
 #let pseudocode = pseudocode.with(..my-lovelace-defaults)

@@ -56,10 +56,7 @@
             + ray = #smallcaps[GetRay]\(pixel, sample)
             + color = #smallcaps[GetColor]\(ray)
             + pixel.color += color
-          + *end for*
           + pixel.color /= samples.size()
-        + *end for*
-      + *end function*
     ],
   )
 
@@ -99,10 +96,8 @@
           + origin = #smallcaps[DefocusDiskSample]\(camera)
         + *else*:
           + origin = camera.origin
-        + *end if*
         + direction = sample - origin
         + *return* #smallcaps[Ray]\(origin, direction)
-      + *end function*
     ],
   ) <get-ray>
 
@@ -135,21 +130,17 @@
       numbered-title: [Function to get the color of a ray],
     )[
       + *function* #smallcaps[GetColor]\(ray)
-        + *if depth <= 0*:
+        + *if depth $<=$ 0*:
           + return color black;
-        + *end if*
         + *if no object hit*:
           + return background color
-        + *end if*
         + scattered = new ray
         + attenuation = color white
-        + scatter = object material.#smallcaps[scatter]\(ray, attenuation)
-        + emitted = object material.#smallcaps[emitted]\(ray, attenuation, scattered)
+        + scatter = object material.#smallcaps[Scatter]\(ray, attenuation)
+        + emitted = object material.#smallcaps[Emitted]\(ray, attenuation, scattered)
         + *if not scatter*:
           + return emitted
-        + *end if*
         + *return* emitted + attenuation \* #smallcaps[GetColor]\(scattered, depth - 1)
-      + *end function*
     ],
   ) <get-color>
 
@@ -160,13 +151,13 @@
 
   === Materials
 
-  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by #cite(<Shirley2024RTW2>, form: "prose"). These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hitting points and their physical properties, such as reflection, refraction, fuzz or emission.
+  In our work we used different materials and textures for the generated shapes inspired by a subset of materials proposed by #cite(<Shirley2024RTW2>, form: "prose"). These included solid color and checkered texture as well as the following materials: lambertian, dielectric (particularly glass), metal and light (treating the shape as a light source). As in regular ray tracing the materials were calculated based on the hitting points and their physical properties, such as reflection, refraction, fuzziness or emission.
 
   #figure(
     scope: "parent",
     placement: auto,
     image("imgs/reflection_showcase.png"),
-    caption: [Different materials presented in Cornell box],
+    caption: [On the sides, we have two metal spheres of different fuzziness, in the middle a glass sphere, a light sphere is placed on the top, out of frame. Behind we see a rectanguar cuboid with a lambertian texture, it's interesting seeing how the light gets reflected and refracted by the glass sphere],
   ) <boxes>
 
   == CUDA Features
