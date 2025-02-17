@@ -45,6 +45,9 @@ using LowQuality = CameraParams<dim3(8, 8), 64, 4, LOW_QUALITY_DEPTH, true,
                                 curandStatePhilox4_32_10_t>;
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers)
 
+/**
+ * @brief Camera interface needed to initialize the camera from the JSON parser
+ */
 class CameraInterface {
 public:
   CameraInterface() = default;
@@ -53,6 +56,12 @@ public:
   auto operator=(const CameraInterface &) -> CameraInterface & = default;
   auto operator=(CameraInterface &&) -> CameraInterface & = delete;
   virtual ~CameraInterface() = default;
+  /**
+   * @brief Render the scene.
+   *
+   * @param scene scene to render
+   * @param image image vector to store the rendered image in
+   */
   virtual void render(const std::shared_ptr<Scene> &scene,
                       thrust::universal_host_pinned_vector<uchar4> &image) = 0;
 };
@@ -78,6 +87,16 @@ public:
   __host__ void
   render(const std::shared_ptr<Scene> &scene,
          thrust::universal_host_pinned_vector<uchar4> &image) override;
+
+  /**
+   * @brief Average the rendered images together.
+   *
+   * @param output output image
+   * @param images images to average
+   * @param width image width
+   * @param height image height
+   * @param padded_width padded image width
+   */
   __host__ static void
   averageRenderedImages(thrust::universal_host_pinned_vector<uchar4> &output,
                         const cuda::std::span<Vec3> &images,
@@ -85,6 +104,12 @@ public:
                         const uint16_t padded_width);
 
 private:
+  /**
+   * @brief Initialize the camera, by calculating and setting the correct
+   * parameters with the given scene.
+   *
+   * @param scene scene to initialize the camera with
+   */
   __host__ void init(const std::shared_ptr<Scene> &scene);
 
   /**
@@ -121,6 +146,12 @@ private:
    */
   Vec3 up;
 
+  /**
+   * @brief The defocus disk is a disk that is used to simulate the bokeh
+   * effect. It's a disk that is perpendicular to the camera's view direction
+   * and is centered at the focus plane. The defocus disk is used to sample the
+   * focus plane.
+   */
   Vec3 defocusDiskU, defocusDiskV;
 
   /**
@@ -130,11 +161,23 @@ private:
    * effect. The focus distance indicates the distance to the focus plane.
    */
   float defocusAngle, focusDistance;
+
+  /**
+   * @brief The vertical field of view of the camera.
+   */
   float verticalFov;
 
+  /**
+   * @brief Background color of the scene.
+   */
   Color background;
 };
 
+/**
+ * @brief Camera builder to create a camera with a fluent interface.
+ *
+ * @tparam Params the hyper parameters for the camera.
+ */
 template <typename Params = HighQuality> class CameraBuilder {
 public:
   __host__ CameraBuilder();
@@ -151,11 +194,40 @@ private:
   Camera<Params> camera;
 };
 
+/**
+ * @brief Sample the defocus disk.
+ *
+ * @param state curand state
+ * @param center center of the disk
+ * @param u first vector of the disk
+ * @param v second vector of the disk
+ * @return Vec3 sampled point on the disk
+ */
 __device__ auto defocusDiskSample(curandStatePhilox4_32_10_t &state,
                                   const Vec3 &center, const Vec3 &u,
                                   const Vec3 &v) -> Vec3;
+
+/**
+ * @brief Sample the defocus disk.
+ *
+ * @param state curand state
+ * @param center center of the disk
+ * @param u first vector of the disk
+ * @param v second vector of the disk
+ * @return Vec3 sampled point on the disk
+ */
 __device__ auto defocusDiskSample(curandState_t &state, const Vec3 &center,
                                   const Vec3 &u, const Vec3 &v) -> Vec3;
+
+/**
+ * @brief Sample the defocus disk with 4 samples.
+ *
+ * @param state curand state
+ * @param center center of the disk
+ * @param u first vector of the disk
+ * @param v second vector of the disk
+ * @return cuda::std::tuple<Vec3, Vec3, Vec3, Vec3> sampled points on the disk
+ */
 __device__ auto
 defocusDisk4Samples(curandStatePhilox4_32_10_t &state, const Vec3 &center,
                     const Vec3 &u,

@@ -37,6 +37,7 @@ __host__ auto parseColor(const nlohmann::json &j) -> Color {
   switch (hash_string(colorName)) {
   case "white"_hash: return Colors::White;
   case "black"_hash: return Colors::Black;
+  case "gray"_hash: return Colors::Gray;
   case "red"_hash: return Colors::Red;
   case "green"_hash: return Colors::Green;
   case "blue"_hash: return Colors::Blue;

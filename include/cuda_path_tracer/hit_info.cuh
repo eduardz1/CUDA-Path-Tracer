@@ -3,13 +3,13 @@
 #include "cuda_path_tracer/material.cuh"
 #include "cuda_path_tracer/ray.cuh"
 #include "cuda_path_tracer/vec3.cuh"
-// #include "cuda_path_tracer/cudasharedptr.h"
 
 // minimum distance before considering a hit, to avoid self-intersection
 #define RAY_T_MIN 0.001f
 
 // maximum distance before considering a hit, to avoid infinite loops
 #define RAY_T_MAX 100000.0f
+
 /**
  * @brief Stores information about a ray hit on a Shape, including the time of
  * intersection, the point of intersection, and the normal vector at the point

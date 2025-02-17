@@ -55,7 +55,7 @@ cmake --build build
 
 - [`apps/`](apps/): Application code that uses the `cuda_path_tracer` library. Here you can find a demo application that renders a scene using the library.
 - [`examples/`](examples/): Example scene files that can be rendered using the demo application.
-- [`include/`](include/): Public headers of the `cuda_path_tracer` library.
+- [`include/`](include/): Public headers of the `cuda_path_tracer` library. Here you can find the `Camera` class that is used to render a scene. The core of the library is in [include/cuda_path_tracer/camera.cuh](include/cuda_path_tracer/camera.cuh) and its inline implementation in [include/cuda_path_tracer/camera.inl](include/cuda_path_tracer/camera.inl) due to the camera code making heavy usage of templating to handle hyperparameters.
 - [`src/`](src/): Implementation of the `cuda_path_tracer` library.
 - [`tests/`](tests/): Unit tests for the `cuda_path_tracer` library and benchmarks. In particular, in [`tests/test_render_bench.cu](tests/test_render_bench.cu) you can find benchmarks for hyperparameters tuning of the `Camera` class and an example of direct usage of the `cuda_path_tracer` library.
 

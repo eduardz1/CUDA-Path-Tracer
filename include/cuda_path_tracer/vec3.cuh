@@ -6,7 +6,6 @@
 
 /**
  * @brief Class for a 3D vector
- *
  */
 struct Vec3 {
   float x, y, z;
@@ -36,8 +35,26 @@ struct Vec3 {
    */
   __device__ operator float4() const;
 
+  /**
+   * @brief Get the squared length of the vector
+   *
+   * @return float The squared length of the vector
+   */
   __host__ __device__ auto getLengthSquared() const -> float;
+
+  /**
+   * @brief Get the length of the vector
+   *
+   * @return float The length of the vector
+   */
   __host__ __device__ auto getLength() const -> float;
+
+  /**
+   * @brief Check if the vector is near zero
+   *
+   * @return true if the vector is near zero
+   * @return false if the vector is not near zero
+   */
   __host__ __device__ auto nearZero() const -> bool;
 };
 
@@ -48,24 +65,31 @@ __host__ __device__ auto operator*(const Vec3 &v, const float t) -> Vec3;
 __host__ __device__ auto operator*(const Vec3 &v1, const Vec3 &v2) -> Vec3;
 __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3;
 
+/**
+ * @brief Calculate the cross product of two vectors
+ *
+ * @param v1 The first vector
+ * @param v2 The second vector
+ * @return Vec3 The cross product
+ */
 __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3;
+
+/**
+ * @brief Calculate the dot product of two vectors
+ *
+ * @param v1 The first vector
+ * @param v2 The second vector
+ * @return float The dot product
+ */
 __host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float;
 
+/**
+ * @brief Create a unit vector from a given vector
+ *
+ * @param v The vector
+ * @return Vec3 The unit vector
+ */
 __host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3;
-
-template <typename State>
-__device__ auto vectorOnHemisphere(const Vec3 &v, State &state) -> Vec3;
-
-__device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3;
-__device__ auto randomVector(curandState_t &state) -> Vec3;
-
-__device__ auto randomVector(curandStatePhilox4_32_10_t &state, const float min,
-                             const float max) -> Vec3;
-__device__ auto randomVector(curandState_t &state, const float min,
-                             const float max) -> Vec3;
-
-__device__ auto roundScatterDirection(const Vec3 &direction,
-                                      const Vec3 &normal) -> Vec3;
 
 /**
  * @brief Generate a random point in a unit disk through rejection sampling,

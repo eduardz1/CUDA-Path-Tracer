@@ -67,29 +67,6 @@ __host__ __device__ auto operator/(const Vec3 &v, float t) -> Vec3 {
   return {v.x / t, v.y / t, v.z / t};
 }
 
-__device__ auto randomVector(curandState_t &state) -> Vec3 {
-  return Vec3{curand_uniform(&state), curand_uniform(&state),
-              curand_uniform(&state)};
-}
-__device__ auto randomVector(curandStatePhilox4_32_10_t &state) -> Vec3 {
-  const auto values = curand_uniform4(&state);
-  return Vec3{values.x, values.y, values.z};
-}
-
-__device__ auto randomVector(curandState_t &state, const float min,
-                             const float max) -> Vec3 {
-  return Vec3{curand_uniform(&state) * (max - min) + min,
-              curand_uniform(&state) * (max - min) + min,
-              curand_uniform(&state) * (max - min) + min};
-}
-
-__device__ auto randomVector(curandStatePhilox4_32_10_t &state, const float min,
-                             const float max) -> Vec3 {
-  const auto values = curand_uniform4(&state);
-  return Vec3{values.x * (max - min) + min, values.y * (max - min) + min,
-              values.z * (max - min) + min};
-}
-
 __host__ __device__ auto makeUnitVector(const Vec3 &v) -> Vec3 {
   return v / v.getLength();
 }
@@ -101,28 +78,6 @@ __host__ __device__ auto dot(const Vec3 &v1, const Vec3 &v2) -> float {
 __host__ __device__ auto cross(const Vec3 &v1, const Vec3 &v2) -> Vec3 {
   return {v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z,
           v1.x * v2.y - v1.y * v2.x};
-}
-
-template <typename State>
-__device__ auto vectorOnHemisphere(const Vec3 &v, State &state) -> Vec3 {
-  Vec3 randomUnit = makeUnitVector(randomVector(state));
-
-  return dot(randomUnit, v) > 0.0F ? randomUnit : -randomUnit;
-}
-
-template __device__ auto
-vectorOnHemisphere<curandState_t>(const Vec3 &, curandState_t &) -> Vec3;
-template __device__ auto vectorOnHemisphere<curandStatePhilox4_32_10_t>(
-    const Vec3 &, curandStatePhilox4_32_10_t &) -> Vec3;
-
-__device__ auto roundScatterDirection(const Vec3 &direction,
-                                      const Vec3 &normal) -> Vec3 {
-  const auto s = 1e-8F;
-  if (std::fabs(direction.x) < s && std::fabs(direction.y) < s &&
-      std::fabs(direction.z) < s) {
-    return normal;
-  }
-  return direction;
 }
 
 __device__ auto

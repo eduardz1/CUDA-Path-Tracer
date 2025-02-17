@@ -6,6 +6,9 @@
 #include <nlohmann/json-schema.hpp>
 #include <string>
 
+/**
+ * @brief JSON schema for the project file
+ */
 const static nlohmann::json schema = R"(
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -280,11 +283,27 @@ const static nlohmann::json schema = R"(
 
 )"_json;
 
+/**
+ * @brief Project class to load and render a project, meaning the combination of
+ * a scene and a camera
+ */
 class Project {
 public:
+  /**
+   * @brief Construct a new Project object from a JSON file and assign a given
+   * quality to the camera
+   *
+   * @param filename path to the JSON file
+   * @param quality quality of the camera, either "low", "medium" or "high"
+   * @return std::shared_ptr<Project> shared pointer to the project
+   */
   __host__ static auto
   load(const std::string &filename,
        const std::string &quality) -> std::shared_ptr<Project>;
+
+  /**
+   * @brief Calls the render function of the camera and saves the image to a PPM
+   */
   __host__ auto render() -> void;
 
 private:

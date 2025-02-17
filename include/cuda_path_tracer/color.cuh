@@ -4,9 +4,15 @@
 #include <algorithm>
 #include <cstdint>
 
+/**
+ * @brief Utility class to represent and manipulate colors
+ */
 class Color {
 public:
-  __host__ __device__ constexpr Color() : vec(0) {}
+  /**
+   * @brief Default constructor, initializes the color to black
+   */
+  constexpr Color() = default;
 
   /**
    * @brief Initialize a new Color object from a Vec3, pay attention that the
@@ -20,8 +26,8 @@ public:
   /**
    * @brief Create a new Color object from RGB values in the [0-255] range
    */
-  __host__ __device__ constexpr static auto RGB(uint8_t r, uint8_t g, uint8_t b)
-      -> Color {
+  __host__ __device__ constexpr static auto RGB(uint8_t r, uint8_t g,
+                                                uint8_t b) -> Color {
     return Vec3{static_cast<float>(r) / UINT8_MAX,
                 static_cast<float>(g) / UINT8_MAX,
                 static_cast<float>(b) / UINT8_MAX};
@@ -80,6 +86,7 @@ private:
 namespace Colors {
 constexpr auto White = Color::RGB(255, 255, 255);
 constexpr auto Black = Color::RGB(0, 0, 0);
+constexpr auto Gray = Color::RGB(128, 128, 128);
 constexpr auto Red = Color::RGB(255, 0, 0);
 constexpr auto Green = Color::RGB(0, 255, 0);
 constexpr auto Blue = Color::RGB(0, 0, 255);

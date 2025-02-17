@@ -46,14 +46,31 @@ __device__ auto hitShapes(const Ray &ray,
   return hit_anything;
 }
 
-template <typename State, uint16_t Depth>
+/**
+ * @brief Returns the emitted color of the hit material.
+ *
+ * @param hi HitInfo struct containing the hit information
+ * @return Color Emitted color of the hit material
+ */
 __device__ auto getEmittedColor(const HitInfo &hi) -> Color {
-  return cuda::std::visit(
+  return cuda::std::visit( // At the moment only Light has an emitted color
       overload{[](const Light &light) { return light.emitted(); },
                [](const auto &) { return Colors::Black; }},
       hi.material);
 }
 
+/**
+ * @brief Tries to scatter the ray with the hit material and updates the
+ * attenuation color and the scattered ray accordingly.
+ *
+ * @tparam State curand state type
+ * @param ray Ray to scatter
+ * @param hi HitInfo struct containing the hit information
+ * @param attenuation Attenuation color
+ * @param scattered Scattered ray
+ * @param state curand state
+ * @return true if the ray was scattered, false otherwise
+ */
 template <typename State>
 __device__ auto tryScatter(const Ray &ray, const HitInfo &hi,
                            Color &attenuation, Ray &scattered,
@@ -73,16 +90,28 @@ __device__ auto tryScatter(const Ray &ray, const HitInfo &hi,
             return material.scatter(ray, hi.normal, hi.point, hi.front,
                                     attenuation, scattered, state);
           },
-          [](const auto &) { return false; }},
+          [](const auto &) { return false; }}, // Light
       hi.material);
 }
 
+/**
+ * @brief Computes the color corresponding to the given ray by tracing it
+ * through the scene, meaning that it checks for hits with the shapes and
+ * bounces the ray iteratively until it reaches the maximum depth or it's forced
+ * to terminate early by the Russian Roulette.
+ *
+ * @tparam State curand state type
+ * @tparam Depth Maximum depth of the ray
+ * @param ray Ray to compute the color for
+ * @param shapes Collection of shapes to check for hits
+ * @param state curand state
+ * @param background Background color
+ * @return Color Color of the ray
+ */
 template <typename State, uint16_t Depth>
 __device__ auto getColor(const Ray &ray,
                          const cuda::std::span<const Shape> shapes,
                          State &state, const Color background) -> Color {
-  // TODO(eduard): talk in the report that the bounces of the rays create
-  // inherent control divergence
   Vec3 throughput{1.0F};
   Vec3 color{0.0F};
   Ray current = ray;
@@ -96,7 +125,7 @@ __device__ auto getColor(const Ray &ray,
       break;
     }
 
-    const auto emitted = getEmittedColor<State, Depth>(hi);
+    const auto emitted = getEmittedColor(hi);
     color += throughput * emitted;
 
     Ray scattered;
@@ -118,6 +147,7 @@ __device__ auto getColor(const Ray &ray,
       if (curand_uniform(&state) > p) {
         break;
       }
+      // Adds the energy we lost by randomly terminating early
       throughput /= p;
     }
   }
@@ -125,6 +155,18 @@ __device__ auto getColor(const Ray &ray,
   return {color};
 }
 
+/**
+ * @brief Similar to the getColor function, but computes the color for 4 rays at
+ * a time.
+ *
+ * @tparam State curand state type
+ * @tparam Depth Maximum depth of the ray
+ * @param rays Tuple of 4 rays to compute the color for
+ * @param shapes Collection of shapes to check for hits
+ * @param state curand state
+ * @param background Background color
+ * @return std::tuple<Color, Color, Color, Color> Tuple of colors for the 4 rays
+ */
 template <typename State, uint16_t Depth>
 __device__ auto
 get4Colors(const std::tuple<Ray, Ray, Ray, Ray> &rays,
@@ -158,7 +200,7 @@ get4Colors(const std::tuple<Ray, Ray, Ray, Ray> &rays,
         continue;
       }
 
-      const auto emitted = getEmittedColor<State, Depth>(hits[r]);
+      const auto emitted = getEmittedColor(hits[r]);
       colors[r] += throughput[r] * emitted;
 
       Ray scattered;
@@ -265,6 +307,17 @@ renderImage(const uint16_t width, const uint16_t height,
   image[index] = color;
 }
 
+/**
+ * @brief Kernel for averaging the pixel values of the images to get the final
+ * image.
+ *
+ * @tparam NumImages number of images to average
+ * @param width width of the output image
+ * @param height height of the output image
+ * @param padded_width width of the padded image, used to account for alignment
+ * @param images collection of images to average
+ * @param image_out output image
+ */
 template <uint16_t NumImages>
 __global__ void averagePixels(const uint16_t width, const uint16_t height,
                               const uint16_t padded_width,
@@ -289,10 +342,17 @@ __global__ void averagePixels(const uint16_t width, const uint16_t height,
   image_out[output_idx] = Color(sum * IMAGE_SCALE).correctGamma().to8Bit();
 }
 
-// Align to prevent control divergence
-// TODO(eduard): Write about it in the report
-__host__ inline auto getPaddedSize(size_t size,
-                                   size_t alignment = WARP_SIZE) -> size_t {
+/**
+ * @brief Returns the next multiple of the alignment that is greater than or
+ * equal to the given size. This is done to reduce control divergence in the
+ * kernel.
+ *
+ * @param size Size to align
+ * @param alignment Alignment value (default is WARP_SIZE)
+ * @return size_t Aligned size
+ */
+__host__ constexpr auto getPaddedSize(size_t size,
+                                      size_t alignment = WARP_SIZE) -> size_t {
   return (size + alignment - 1) & ~(alignment - 1);
 }
 } // namespace

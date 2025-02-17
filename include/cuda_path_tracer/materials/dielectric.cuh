@@ -3,11 +3,29 @@
 #include "cuda_path_tracer/color.cuh"
 #include "cuda_path_tracer/ray.cuh"
 
+/**
+ * @brief Dielectric material, used to simulate transparent materials
+ */
 class Dielectric {
 public:
   __host__ __device__ Dielectric(const float refractionIndex)
       : refractionIndex(refractionIndex) {}
 
+  /**
+   * @brief Scatter a ray on the material surface and calculate the attenuation
+   * color and the scattered ray
+   *
+   * @tparam State type of the curand state
+   * @param ray ray that hits the material
+   * @param normal normal vector of the material at the hit point
+   * @param point hit point
+   * @param front true if the ray hits the front side of the material, false if
+   * it hits the back side
+   * @param attenuation attenuation color
+   * @param scattered scattered ray
+   * @param state curand state
+   * @return true if the ray is scattered, false otherwise
+   */
   template <typename State>
   __device__ auto scatter(const Ray &ray, const Vec3 &normal, const Vec3 &point,
                           const bool front, Color &attenuation, Ray &scattered,

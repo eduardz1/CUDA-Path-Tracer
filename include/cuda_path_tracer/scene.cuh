@@ -5,6 +5,9 @@
 #include <driver_types.h>
 #include <thrust/device_vector.h>
 
+/**
+ * @brief Scene class, used to represent a scene with shapes
+ */
 class Scene {
 public:
   __host__ Scene();
