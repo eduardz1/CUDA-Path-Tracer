@@ -303,6 +303,26 @@
     caption: [Ray Generation Benchmarks],
   ) <c2-raygen>
 
+  #figure(
+    image("imgs/b_high_curand.svg"),
+    caption: [Benchmarks for high quality curandState],
+  ) <b_high_curand>
+
+  #figure(
+    image("imgs/b_high_philox.svg"),
+    caption: [Benchmarks for high quality Philox],
+  ) <b_high_philox>
+
+    #figure(
+    image("imgs/b_low_curand.svg"),
+    caption: [Benchmarks for low quality curandState],
+  ) <b_low_curand>
+
+  #figure(
+    image("imgs/b_low_philox.svg"),
+    caption: [Benchmarks for low quality Philox],
+  ) <b_low_philox>
+
 
 
   === Random in Unit Disk
@@ -320,10 +340,8 @@
   // - custom kernel vs `thrust::transform_reduce`, talk about it, benchmark it
   // - talk about cudaOccupacyAPI.
 
-  // == Limitations and future research
-
 
   = Conclusions
-  To sum up,
+  In summary, in our work we parallelized a classical path tracer. Using different CUDA tools and solutions, we were able to generate high-quality images in a reasonable time. The results look promising for potential extension of this work in the future.
   // Restate the purpose or objective of the assignment. Was the exercise successful in fulfilling its intended purpose? Why was it (or wasn’t it)? Summarize your results. Draw general conclusions based on your results (what did you learn?)
 ]
