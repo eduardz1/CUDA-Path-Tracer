@@ -309,24 +309,19 @@
   ) <c2-raygen>
 
   #figure(
-    image("imgs/b_high_curand.svg"),
-    caption: [Benchmarks for high quality curandState],
+    image("imgs/b_high.svg"),
+    caption: [Benchmarks for high quality image],
   ) <b_high_curand>
 
   #figure(
-    image("imgs/b_high_philox.svg"),
-    caption: [Benchmarks for high quality Philox],
-  ) <b_high_philox>
+    image("imgs/b_mid.svg"),
+    caption: [Benchmarks for medium quality image],
+  ) <b_mid>
 
     #figure(
-    image("imgs/b_low_curand.svg"),
-    caption: [Benchmarks for low quality curandState],
-  ) <b_low_curand>
-
-  #figure(
-    image("imgs/b_low_philox.svg"),
-    caption: [Benchmarks for low quality Philox],
-  ) <b_low_philox>
+    image("imgs/b_low.svg"),
+    caption: [Benchmarks for low quality image],
+  ) <b_low>
 
 
 
